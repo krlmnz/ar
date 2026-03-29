@@ -1,0 +1,102 @@
+---
+layout: base.njk
+---
+
+{% set regionData = regions[region] if regions and region %}
+{% set crumbs = [
+  {label: "Regions", url: "/regions/" },
+  {label: regionData.label if regionData else region, url: "/regions/" + region + "/" if region},
+  {label: title}
+] %}
+{% include "partials/breadcrumbs.njk" %}
+
+<article>
+  <header class="place-header">
+    <div class="place-header__type">{{ type | replace("-", " ") }}</div>
+    <h1 class="place-header__title">{{ title }}</h1>
+    {% if subtitle %}<p class="place-header__subtitle">{{ subtitle }}</p>{% endif %}
+
+    <div class="place-header__meta">
+      {% if regionData %}<span>{{ regionData.label }}</span>{% endif %}
+      {% if cost_level %}<span>{{ cost_level }}</span>{% endif %}
+      {% if duration %}<span>{{ duration | replace("-", " ") }}</span>{% endif %}
+      {% if time_from and time_from.santiago %}<span>{{ time_from.santiago }} from Santiago</span>{% endif %}
+      {% if reservations and reservations != "none" %}<span>Reservations {{ reservations }}</span>{% endif %}
+    </div>
+  </header>
+
+  <div class="prose content-column">
+    {{ content | safe }}
+  </div>
+
+  {% if tip %}
+  <div class="tip content-column">
+    <p><strong>Pro tip —</strong> {{ tip }}</p>
+  </div>
+  {% endif %}
+
+  {% if spanish and spanish.useful_phrases %}
+  <div class="content-column" style="margin-top:var(--space-6)">
+    <h3 style="font-family:var(--font-display);font-size:var(--text-h3);font-weight:600;margin-bottom:var(--space-2)">Phrases you'll need</h3>
+    <div class="phrase-list">
+      {% for p in spanish.useful_phrases %}
+      <div class="phrase-item">
+        <span class="phrase-item__text">"{{ p.phrase }}"</span>
+        <span class="phrase-item__meaning">{{ p.meaning }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% if spanish.pronunciation %}
+    <p style="font-family:var(--font-ui);font-size:var(--text-caption);color:var(--text-3);margin-top:var(--space-2)">{{ spanish.pronunciation }}</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if bring %}
+  <div class="content-column" style="margin-top:var(--space-5)">
+    <h3 style="font-family:var(--font-display);font-size:var(--text-h3);font-weight:600;margin-bottom:var(--space-2)">What to bring</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:var(--space-1)">
+      {% for item in bring %}
+      <span class="tag">{{ item }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if google_maps %}
+  <div class="content-column" style="margin-top:var(--space-5);display:flex;gap:var(--space-2);flex-wrap:wrap">
+    <a href="{{ google_maps }}" target="_blank" rel="noopener" class="btn btn--filled">View on Google Maps</a>
+    {% if website %}
+    <a href="{{ website }}" target="_blank" rel="noopener" class="btn">Visit website</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if related and related.length %}
+  <div style="margin-top:var(--space-7);max-width:var(--content-width)">
+    <hr class="rule">
+    <h3 style="font-family:var(--font-display);font-size:var(--text-h3);font-weight:600;margin-bottom:var(--space-3)">You might also like</h3>
+    <div class="place-grid">
+      {% for relSlug in related %}
+        {% set place = collections.places | findBySlug(relSlug) %}
+        {% if place %}
+          {% include "partials/place-card.njk" %}
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</article>
+
+{# JSON-LD #}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TouristAttraction",
+  "name": "{{ title }}",
+  "description": "{{ subtitle or description }}",
+  {% if coordinates %}"geo": {"@type": "GeoCoordinates", "latitude": {{ coordinates.lat }}, "longitude": {{ coordinates.lng }}},{% endif %}
+  "address": {"@type": "PostalAddress", "addressCountry": "CL"},
+  "url": "{{ site.url }}/places/{{ slug }}/"
+}
+</script>

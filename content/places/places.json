@@ -1,0 +1,4 @@
+{
+  "layout": "place.njk",
+  "permalink": "/places/{{ slug }}/index.html"
+}

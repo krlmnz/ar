@@ -1,0 +1,44 @@
+{
+  "santiago": {
+    "label": "Santiago",
+    "description": "Metro city",
+    "lat": -33.4489,
+    "lng": -70.6693,
+    "zoom": 12
+  },
+  "casablanca-valley": {
+    "label": "Casablanca Valley",
+    "description": "Wine country between Andes and Pacific",
+    "lat": -33.3188,
+    "lng": -71.4,
+    "zoom": 11
+  },
+  "central-coast": {
+    "label": "The Central Coast",
+    "description": "Valpo, Viña, Neruda's house",
+    "lat": -33.0472,
+    "lng": -71.6127,
+    "zoom": 11
+  },
+  "central-mountains": {
+    "label": "Central Mountains",
+    "description": "Hot springs and Andean canyons",
+    "lat": -33.6,
+    "lng": -70.1,
+    "zoom": 10
+  },
+  "lake-district": {
+    "label": "Chile's Lake District",
+    "description": "Volcanoes and adventure at base of Villarrica",
+    "lat": -39.2824,
+    "lng": -71.9545,
+    "zoom": 10
+  },
+  "pomaire": {
+    "label": "Pomaire",
+    "description": "Artisan pottery town",
+    "lat": -33.6417,
+    "lng": -71.1667,
+    "zoom": 13
+  }
+}

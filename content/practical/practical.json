@@ -1,0 +1,4 @@
+{
+  "layout": "practical.njk",
+  "permalink": "/practical/{{ slug }}/index.html"
+}

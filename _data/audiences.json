@@ -1,0 +1,23 @@
+{
+  "savor": {
+    "label": "Savor the Journey",
+    "tagline": "Wine, food, art, and the stories behind them.",
+    "description": "For travelers who believe that food is the best way to understand a place. You explore wine regions, seek out family-run restaurants where the chef knows your name, visit galleries and markets, and understand Chile's culture through its culinary traditions and artistic expression.",
+    "color": "#D85AA2",
+    "icon": "wine-glass"
+  },
+  "family": {
+    "label": "Bring the Family",
+    "tagline": "Three generations, one trip, zero boredom.",
+    "description": "For groups spanning ages and abilities — grandparents and toddlers, teenagers and cousins. You're planning an itinerary where everyone has something to look forward to, where kids stay engaged, and where pacing works for mixed fitness levels.",
+    "color": "#00A26C",
+    "icon": "users"
+  },
+  "thrill": {
+    "label": "Chase the Thrill",
+    "tagline": "Volcanoes, glaciers, and the rim of an active crater.",
+    "description": "For adventure seekers who travel for the adrenaline rush. You hike to crater rims, rappel into canyons, rafting, kitesurfing, and aren't satisfied until you've pushed yourself at the edge of something wild and beautiful.",
+    "color": "#2592C2",
+    "icon": "compass"
+  }
+}

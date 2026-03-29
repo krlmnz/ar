@@ -1,0 +1,127 @@
+{
+  "wine": {
+    "label": "Wine",
+    "description": "Wine tastings, vineyard visits, and wine country experiences.",
+    "related": ["dining", "culture", "luxury"]
+  },
+  "dining": {
+    "label": "Dining",
+    "description": "Restaurants, food experiences, and culinary adventures.",
+    "related": ["wine", "culture", "guided-tour"]
+  },
+  "hiking": {
+    "label": "Hiking",
+    "description": "Trails, mountain walks, and trekking.",
+    "related": ["nature", "photography", "adventurous"]
+  },
+  "hot-springs": {
+    "label": "Hot Springs",
+    "description": "Geothermal pools and thermal water experiences.",
+    "related": ["wellness", "self-care", "nature"]
+  },
+  "shopping": {
+    "label": "Shopping",
+    "description": "Markets, artisan goods, and local crafts.",
+    "related": ["culture", "artsy"]
+  },
+  "culture": {
+    "label": "Culture",
+    "description": "Museums, galleries, historical sites, and cultural experiences.",
+    "related": ["dining", "wine", "artsy", "guided-tour"]
+  },
+  "nightlife": {
+    "label": "Nightlife",
+    "description": "Bars, clubs, live music, and evening activities.",
+    "related": ["dining"]
+  },
+  "wellness": {
+    "label": "Wellness",
+    "description": "Spa treatments, yoga, and health-focused activities.",
+    "related": ["hot-springs", "self-care"]
+  },
+  "guided-tour": {
+    "label": "Guided Tour",
+    "description": "Led by local guides or organized tour groups.",
+    "related": ["culture", "dining", "book-in-advance"]
+  },
+  "nature": {
+    "label": "Nature",
+    "description": "Natural landscapes, wildlife, and outdoor scenery.",
+    "related": ["hiking", "photography", "adventurous"]
+  },
+  "photography": {
+    "label": "Photography",
+    "description": "Scenic views and photogenic locations.",
+    "related": ["hiking", "nature"]
+  },
+  "self-care": {
+    "label": "Self-Care",
+    "description": "Relaxation and rejuvenation activities.",
+    "related": ["wellness", "hot-springs"]
+  },
+  "day-trip-from-santiago": {
+    "label": "Day Trip from Santiago",
+    "description": "Accessible as a day trip from the capital.",
+    "related": ["requires-car", "walkable"]
+  },
+  "requires-car": {
+    "label": "Requires Car",
+    "description": "Best explored with your own transportation.",
+    "related": ["day-trip-from-santiago"]
+  },
+  "book-in-advance": {
+    "label": "Book in Advance",
+    "description": "Advance reservations recommended or required.",
+    "related": ["guided-tour", "luxury"]
+  },
+  "first-timer": {
+    "label": "First-Timer",
+    "description": "Great starting point for first-time visitors.",
+    "related": ["family-friendly", "walkable"]
+  },
+  "walkable": {
+    "label": "Walkable",
+    "description": "Easy to explore on foot.",
+    "related": ["day-trip-from-santiago", "first-timer"]
+  },
+  "family-friendly": {
+    "label": "Family-Friendly",
+    "description": "Good for children and mixed-age groups.",
+    "related": ["first-timer"]
+  },
+  "cash-only": {
+    "label": "Cash Only",
+    "description": "Brings cash for this experience.",
+    "related": ["rustic"]
+  },
+  "free": {
+    "label": "Free",
+    "description": "No entry or activity fees.",
+    "related": []
+  },
+  "romantic": {
+    "label": "Romantic",
+    "description": "Perfect for couples and intimate experiences.",
+    "related": ["luxury", "dining", "wine"]
+  },
+  "adventurous": {
+    "label": "Adventurous",
+    "description": "For thrill-seekers and outdoor enthusiasts.",
+    "related": ["hiking", "nature", "photography"]
+  },
+  "luxury": {
+    "label": "Luxury",
+    "description": "High-end accommodations and experiences.",
+    "related": ["romantic", "book-in-advance", "wine"]
+  },
+  "rustic": {
+    "label": "Rustic",
+    "description": "Authentic, unpretentious, and simple.",
+    "related": ["cash-only", "artsy"]
+  },
+  "artsy": {
+    "label": "Artsy",
+    "description": "Arts, crafts, galleries, and creative spaces.",
+    "related": ["shopping", "culture", "rustic"]
+  }
+}
