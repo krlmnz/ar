@@ -88,6 +88,36 @@ fail; the engine catches the 401 and collapses the map surface, leaving the
 page's text and place links intact. Add the specific preview host, or set a
 separate `MAPBOX_TOKEN` on the deploy-preview context, if you need them live.
 
+## Analytics
+
+Off unless configured. Set these in the build environment (Netlify: Site
+configuration → Environment variables) and it switches on at the next build:
+
+```
+ANALYTICS_PROVIDER=goatcounter    ANALYTICS_ID=andean-road
+ANALYTICS_PROVIDER=plausible      ANALYTICS_ID=andean-road.com
+ANALYTICS_PROVIDER=cloudflare     ANALYTICS_ID=<beacon token>
+ANALYTICS_PROVIDER=umami          ANALYTICS_ID=<id>  ANALYTICS_HOST=<host>
+```
+
+All four are **cookieless and store no personal data**, so the site needs no
+consent banner. Google Analytics is deliberately unsupported: it sets cookies,
+requires a banner in the EU/UK, and ships ~50KB to a site whose whole point is
+that it ships almost nothing.
+
+See `_data/analytics.js` and `_includes/partials/analytics.njk`.
+
+## Writing
+
+See **[WRITING.md](WRITING.md)**. Short version:
+
+```bash
+npm run new -- place "Termas de Chillán"
+```
+
+Scaffolds the file with commented front matter. New places start as
+`published: false` so an unfinished draft can't leak onto the maps.
+
 ## Known gaps
 
 - The Mapbox style has no settlement, place or road labels. Route and

@@ -1,0 +1,19 @@
+{#- Analytics. Emits nothing unless ANALYTICS_PROVIDER and ANALYTICS_ID are set
+    in the build environment. See _data/analytics.js.
+
+    Every option here is cookieless and stores no personal data, so no consent
+    banner is required. All are loaded `defer` so they never block rendering. -#}
+{%- if analytics.enabled %}
+{%- if analytics.provider == "plausible" %}
+<script defer data-domain="{{ analytics.id }}" src="https://plausible.io/js/script.js"></script>
+{%- elif analytics.provider == "goatcounter" %}
+<script data-goatcounter="https://{{ analytics.id }}.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+{%- elif analytics.provider == "cloudflare" %}
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon='{"token": "{{ analytics.id }}"}'></script>
+{%- elif analytics.provider == "umami" %}
+<script defer src="https://{{ analytics.host }}/script.js"
+        data-website-id="{{ analytics.id }}"></script>
+{%- endif %}
+{%- endif %}
