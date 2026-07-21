@@ -19,3 +19,6 @@ Thumbs.db
 
 # Credentials — see _data/mapbox.js
 _data/mapbox.local.json
+
+# Local Netlify folder
+.netlify
