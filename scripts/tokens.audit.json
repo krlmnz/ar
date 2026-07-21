@@ -1,0 +1,223 @@
+{
+  "config": {
+    "_": "Source of truth for the Andean Road colour layer. Edit this, then run `npm run tokens`.",
+    "neutralSource": "#EFB42A",
+    "neutralTint": 0.08,
+    "_neutralSource": "Inca gold — the same hue as --brand-gold in map-tokens.css. Only its HUE is used; chroma is crushed to a whisper so the greys read as warm paper (#FAFAF8), not beige. This is what keeps 'warm paper undertone' (DESIGN-SYSTEM.md §4) true by construction instead of by hand-picking.",
+    "contrastTargets": {
+      "text": 13,
+      "text2": 5.5,
+      "text3": 4.5
+    },
+    "_contrastTargets": "Floors, enforced by the build. text is 13.0 rather than the AAA 7.0 on purpose: primary text on this site measured 15.9:1 and reads as ink, not as dark grey. Dropping it to 7.0 passes WCAG and still looks wrong. text-2/text-3 were 4.63:1 and 4.54:1 by hand — thin enough that DESIGN-SYSTEM.md warns not to touch them; they now have real headroom.",
+    "monochrome": true,
+    "_monochrome": "The site has no coloured UI accent — links are var(--text) (main.css:492). --accent* therefore resolves to ink, not to a brand hue. Set false only as part of a deliberate redesign; see DESIGN-SYSTEM.md §4 'Monochrome Restraint'."
+  },
+  "ramp": {
+    "50": "#FAFAF8",
+    "100": "#F2F2F0",
+    "200": "#E4E3E1",
+    "300": "#CBCAC6",
+    "400": "#ADABA6",
+    "500": "#95938D",
+    "600": "#78746E",
+    "610": "#726D65",
+    "650": "#65615B",
+    "700": "#5A5751",
+    "800": "#423F3B",
+    "900": "#2D2C29",
+    "950": "#1D1C1B",
+    "975": "#111010"
+  },
+  "light": {
+    "bg": "#FAFAF8",
+    "surface": "#FFFFFF",
+    "text": "#1D1C1B",
+    "text-2": "#5A5751",
+    "text-3": "#726D65",
+    "border": "#E4E3E1",
+    "border-subtle": "#F2F2F0",
+    "accent": "#1D1C1B",
+    "accent-hover": "#5A5751",
+    "accent-soft": "#F2F2F0",
+    "rule": "#E4E3E1"
+  },
+  "dark": {
+    "bg": "#111010",
+    "surface": "#2D2C29",
+    "text": "#FAFAF8",
+    "text-2": "#ADABA6",
+    "text-3": "#95938D",
+    "border": "#5A5751",
+    "border-subtle": "#2D2C29",
+    "accent": "#FAFAF8",
+    "accent-hover": "#ADABA6",
+    "accent-soft": "#2D2C29",
+    "rule": "#423F3B"
+  },
+  "rows": [
+    {
+      "mode": "light",
+      "pair": "text on bg",
+      "fg": "#1D1C1B",
+      "bg": "#FAFAF8",
+      "ratio": 16.28,
+      "need": 13,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "text-2 on bg",
+      "fg": "#5A5751",
+      "bg": "#FAFAF8",
+      "ratio": 6.89,
+      "need": 5.5,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "text-3 on bg",
+      "fg": "#726D65",
+      "bg": "#FAFAF8",
+      "ratio": 4.91,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "text on surface",
+      "fg": "#1D1C1B",
+      "bg": "#FFFFFF",
+      "ratio": 17.02,
+      "need": 13,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "text-2 on surface",
+      "fg": "#5A5751",
+      "bg": "#FFFFFF",
+      "ratio": 7.2,
+      "need": 5.5,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "text-3 on surface",
+      "fg": "#726D65",
+      "bg": "#FFFFFF",
+      "ratio": 5.13,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "text on accent-soft",
+      "fg": "#1D1C1B",
+      "bg": "#F2F2F0",
+      "ratio": 15.18,
+      "need": 13,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "text-2 on accent-soft",
+      "fg": "#5A5751",
+      "bg": "#F2F2F0",
+      "ratio": 6.42,
+      "need": 5.5,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "text-3 on accent-soft",
+      "fg": "#726D65",
+      "bg": "#F2F2F0",
+      "ratio": 4.58,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text on bg",
+      "fg": "#FAFAF8",
+      "bg": "#111010",
+      "ratio": 18.18,
+      "need": 13,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-2 on bg",
+      "fg": "#ADABA6",
+      "bg": "#111010",
+      "ratio": 8.28,
+      "need": 5.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-3 on bg",
+      "fg": "#95938D",
+      "bg": "#111010",
+      "ratio": 6.18,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text on surface",
+      "fg": "#FAFAF8",
+      "bg": "#2D2C29",
+      "ratio": 13.36,
+      "need": 13,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-2 on surface",
+      "fg": "#ADABA6",
+      "bg": "#2D2C29",
+      "ratio": 6.09,
+      "need": 5.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-3 on surface",
+      "fg": "#95938D",
+      "bg": "#2D2C29",
+      "ratio": 4.55,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text on accent-soft",
+      "fg": "#FAFAF8",
+      "bg": "#2D2C29",
+      "ratio": 13.36,
+      "need": 13,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-2 on accent-soft",
+      "fg": "#ADABA6",
+      "bg": "#2D2C29",
+      "ratio": 6.09,
+      "need": 5.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-3 on accent-soft",
+      "fg": "#95938D",
+      "bg": "#2D2C29",
+      "ratio": 4.55,
+      "need": 4.5,
+      "pass": true
+    }
+  ],
+  "structural": []
+}
