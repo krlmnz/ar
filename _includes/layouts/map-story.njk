@@ -1,6 +1,7 @@
 ---
 layout: layouts/base.njk
 fullBleed: true
+mapPage: true
 ---
 {# MAP-STORY — scrollytelling. Text scrolls past a map that stays put and
    moves to each section as it is read. For narrative: a journey, a history,
@@ -8,20 +9,7 @@ fullBleed: true
    Front matter: title, overline, subtitle, standfirst,
                  steps[]: {id, title, body, lng, lat, zoom, pitch, bearing, place} #}
 
-{% set feats = [] %}
-{% for s in steps %}
-  {% set p = collections.places | findBySlug(s.place) if s.place %}
-  {% set feats = (feats.push({
-      id: s.id or ("step-" + loop.index),
-      title: s.title,
-      type: p.data.type if p else (s.type or ""),
-      subtitle: s.subtitle or "",
-      url: ("/places/" + p.data.slug + "/") if p else "",
-      lng: s.lng or (p.data.coordinates.lng if p),
-      lat: s.lat or (p.data.coordinates.lat if p),
-      zoom: s.zoom or 12, pitch: s.pitch or 0, bearing: s.bearing or 0
-    }), feats) %}
-{% endfor %}
+{% set feats = steps | stepFeatures(collections.places, 'story') %}
 {% set mapConfig = { token: mapbox.token, style: mapbox.style, mapId: "map",
                      mode: "story", features: feats } %}
 
@@ -43,7 +31,7 @@ fullBleed: true
       {% for s in steps %}
       <section class="storystep" data-story-step="{{ s.id or ('step-' + loop.index) }}">
         <div class="storystep__card">
-          <div class="storystep__num">{{ "%02d" | format(loop.index) if false else loop.index }}</div>
+          <div class="storystep__num">{{ loop.index }}</div>
           <h2 class="storystep__title">{{ s.title }}</h2>
           <p class="storystep__body">{{ s.body }}</p>
           {% if s.place %}

@@ -804,40 +804,42 @@ Tested combinations:
 
 ---
 
-## 10. Maps & Directory (shipped)
+## 10. Maps & Directory (shipped — one engine)
 
 The `/map/` page pairs a **directory** with an **interactive map**. Selecting a
-place in either surface drives the other.
+place in either surface drives the other. Since 2026-07-21 the page is plain
+content (`content/map.md`) riding the same `map-split` layout and shared engine
+as every other map page — the earlier self-contained `partials/map.njk`
+component (a second, parallel engine) is retired; see the Audit Log.
 
 ### Files
 
 | File | Role |
 |---|---|
-| `_includes/partials/map.njk` | The component — markup + inline JS. Self-contained; include it anywhere. |
-| `_data/mapbox.json` | Access token, style URL, GL JS version. Never hardcode these in templates. |
+| `assets/js/andean-map.js` | THE engine — every map layout, one implementation. Lazy-loads mapbox-gl near the viewport. |
+| `_includes/layouts/map-*.njk` | Six layouts; each emits a `#map-config` JSON block and includes the shared partials. |
+| `_includes/partials/map-shell.njk`, `map-embed.njk`, `mapcard.njk` | Canvas + controls + legend; config + sprites + script; the wired place card. |
+| `_data/mapbox.js` | Access token (env/local), style URL, dark style, GL JS version. Never hardcode these in templates. |
 | `_data/placeIcons.json` | Place `type` → Phosphor icon name. Add a row when you add a type. |
-| `assets/css/main.css` | `.dirmap` block (layout, markers, popups) and the `.place-entry--card` modifier. |
+| `assets/css/map-tokens.css`, `map-layouts.css` | Cartography tokens (`--map-*`, `--viz-*`, route) and all map component rules. |
 
-Places come from `collections.places`, so the map and directory stay in sync
-automatically as content is added. Nothing is maintained by hand.
+Places come from `collections.places` via the `toFeatures`/`stepFeatures`
+filters, so maps stay in sync automatically as content is added. Nothing is
+maintained by hand.
 
 ### Layout
 
-- **Desktop (> 900px):** directory left (`minmax(320px, 380px)`), map right (`1fr`).
-  The map is `position: sticky` so it stays put while the list scrolls.
-- **Mobile (≤ 900px):** map first — it's the orienting element — with the
-  directory beneath as a **horizontal snap rail** (`scroll-snap-type: x mandatory`,
-  cards at `min(82vw, 320px)`).
-
-> The mobile `.dirmap__map` must stay `position: relative`, not `static`.
-> It is the containing block for the absolutely-positioned zoom controls; making
-> it static sends them to the top-left of the page.
+Layout belongs to the map layouts' own CSS (`.mapsplit`, `.mapstack`, `.story`,
+`.route`, `.area`, `.hood` in `map-layouts.css`): panel + sticky map on wide
+screens, single column on mobile. The retired `.dirmap` grid and its scoped
+Loom token scale left `main.css` with the old component.
 
 ### Icons
 
-Place types render as a **black 24px Phosphor glyph in a circle** — a 40px circle
-in cards, a 44px pin on the map. Both use the `{% icon %}` shortcode at `fill`
-weight. Selection inverts the circle (black fill, white glyph).
+Place types render as a **Phosphor glyph in a circle**: `.mapcard__icon` in
+cards, a 30px `.mk` pin on the map (34px on hover, 38px active — sizes animate
+because mapbox-gl owns the marker's `transform`). Both use the `{% icon %}`
+shortcode at `fill` weight. Selection inverts the circle.
 
 Unknown types fall back to `_default` (`map-pin`), so a new place type renders
 sensibly before anyone updates `placeIcons.json`.
@@ -868,7 +870,7 @@ Selection is otherwise conveyed **only** visually, which fails WCAG 4.1.2. The
 component therefore also:
 
 - toggles `aria-pressed` on every `[data-jump]` button,
-- announces through a visually hidden `#dirmap-status` (`role="status"`,
+- announces through a visually hidden `#map-status` (`role="status"`,
   `aria-live="polite"`) — "Showing X on the map." / "Map reset…",
 - gives each jump button a short `aria-label` (`Show <title> on the map`).
   Without it the accessible name is the *entire card* — overline, title, full
@@ -881,38 +883,37 @@ the camera animation — that flag exists to *override* the user's preference.
 
 ### Failure mode
 
-If `mapbox-gl.js` never loads, the script adds `.dirmap--nomap`, which hides the
-map and the reset control and collapses to one column. The directory stays fully
-usable — every card's "Read more" is a plain link that needs no JavaScript.
+Missing token, malformed config, GL bundle that never arrives, or an
+origin-restricted token (probed directly — mapbox-gl swallows tile 403s): the
+engine hides the map shell and stamps `.no-map` on the root so the grid
+reflows. The directory stays fully usable — every card's "Read more" is a
+plain link that needs no JavaScript. A 404 on the custom style falls back to a
+stock Mapbox basemap instead of collapsing.
 
-### Token scoping — important
+### Map chrome theming
 
-The map/directory is built on the **Loom token scale** (`--space-1: 12px` …
-`--space-6: 96px`, `--radius: 12px`, `--radius-sm: 6px`). Those tokens are
-declared **on `.dirmap` only**, not in `:root`.
-
-This is deliberate. The site's global scale is 4px-based (`--space-1: 8px` …
-`--space-8: 128px`) and `--radius` is `0px` — the sharp-cornered, Vignelli-derived
-geometry of §3 and §5, which all 60+ other pages depend on. Redefining those
-names globally would silently reflow and round every page on the site.
-
-The same reasoning as the spacing decision elsewhere: **when two scales share
-token names but not values, scope the newer one rather than aliasing.** Aliasing
-would double every gap.
-
-Map chrome (markers, popups, controls) is keyed to `--dm-*` values that do **not**
-flip under `[data-theme="dark"]`, because legibility on a map is relative to the
-basemap, not the page. The Mapbox style is light-only today; when a dark style
-exists, swap it with `map.setStyle()` on theme toggle and let these follow.
+Map chrome (markers, popups, controls, legend) is keyed to `--map-*` values in
+`map-tokens.css`, which follow the **basemap**, not the page: legibility on a
+map is relative to the tiles under it. The engine stamps `data-map-theme` on
+`<html>` — it tracks the page theme only when a dark basemap is configured
+(`mapbox.styleDark`, stock `dark-v11` until a designed twin exists), and the
+theme toggle triggers `map.setStyle()` + a route redraw so GL layers re-read
+their CSS custom properties.
 
 ### Performance
 
 - Place data is **inlined at build time** — no fetch, so no init waterfall.
+- mapbox-gl (~230 KB gz) is **lazy-injected** by the engine when the map
+  container comes within ~600px of the viewport; readers who never reach the
+  map never download it.
 - 19 HTML markers is well under the ~100 threshold where symbol layers become
   necessary. Past ~100 places, move to a GeoJSON source + symbol layer.
 - One reused `Popup` instance rather than one per interaction.
-- `preconnect` to `api.mapbox.com` is emitted **only** on `/map/`.
+- `preconnect` to `api.mapbox.com` is emitted on every map layout (the
+  `mapPage: true` front-matter flag in base.njk).
 - `cooperativeGestures: true` — the map never hijacks page scroll.
+- Route layouts detach their `sourcedata`/`idle` draw listeners once the line
+  is on the map — those events fire on every tile load forever.
 
 ---
 
@@ -1426,9 +1427,10 @@ assert a variable the reader has no key for.
 - **Straight lines between stops are not a route.** Drawing point-to-point
   segments at road weight asserts a road that isn't there. Until real Directions
   geometry is fetched, the line is dashed and reads as stop order.
-- **Popup class names collide.** `.map-popup` belongs to the older `.dirmap`
-  component; the map engine uses `.mappopup`. Two components cannot share a
-  Mapbox `className`.
+- **Popup class names collided — resolved 2026-07-21.** `.map-popup` once
+  belonged to the legacy `.dirmap` component while the engine used `.mappopup`.
+  The legacy component is deleted; the one popup is `.map-popup`, styled in
+  `map-layouts.css` only.
 - **Colour on a light basemap needs checking at the glyph, not the swatch.**
   Inca gold `#EFB42A` is a beautiful brand colour and 1.9:1 on white — unusable
   as a marker glyph. `--viz-3` is a darkened gold for that reason.
@@ -1534,6 +1536,29 @@ The three "known, accepted" items above are all resolved or void:
 **Rule this produced:** a token that nothing references is not an API, it is a
 trap — someone eventually uses it, and in this codebase the one primitive anybody
 did use (`--gray-100`) was broken in dark mode the whole time.
+
+**2026-07-21 — one map engine, discoverable by machines, searchable by humans**
+
+- **The second map engine is gone.** `/map/` is now `content/map.md` on the
+  `map-split` layout; `partials/map.njk` (250 lines: own markers, popups,
+  list-sync, hardcoded token) deleted, along with ~400 lines of `.dirmap`/
+  `--dm-*`/`.map-marker`/legacy-popup CSS in `main.css`. One engine, one popup
+  class (`.map-popup`), one marker component (`.mk`).
+- **The engine lazy-loads mapbox-gl** (IntersectionObserver, ~600px early),
+  switches to a dark basemap with the page theme (`data-map-theme` drives
+  `--map-*` chrome), falls back to a stock style on a 404, and detaches route
+  draw listeners once drawn.
+- **Nine thin prose layouts collapsed** into one `page.njk` implementation
+  behind alias layouts, so section drift can't recur; `place.njk` gained Key
+  facts, Nearby (build-time haversine) and full TouristAttraction schema.
+- **Machine surface added:** templated `/llms.txt`, `/api/places.json`,
+  `/api/guides.json`, `/api/search.json`, `/feed.xml`, BreadcrumbList +
+  Article/WebSite/Person JSON-LD, fixed og:image (existence-checked), sitemap
+  on `updated`. Internal docs and starters no longer publish.
+- **Site search shipped** — dependency-free palette dialog (`/` or ⌘K) over the
+  build-time index, facet synonyms, context boost from the page being read.
+- **`color-engine.js` trimmed 900 → 431 lines** to the ramp+contrast core the
+  token build actually calls; the full generative system lives at dca0227.
 
 ---
 

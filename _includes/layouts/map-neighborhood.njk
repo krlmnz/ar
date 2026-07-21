@@ -1,6 +1,7 @@
 ---
 layout: layouts/base.njk
 fullBleed: true
+mapPage: true
 ---
 {# MAP-NEIGHBORHOOD — one walkable area at close zoom. Pins are coloured by
    category and a legend decodes them; the list is grouped the same way.
@@ -8,17 +9,7 @@ fullBleed: true
                  places[] (slugs), zoom #}
 
 {% set items = collections.places | bySlugs(places) if places else collections.places %}
-{% set feats = [] %}
-{% for i in items %}
-  {% if i.data.coordinates %}
-  {% set feats = (feats.push({
-      id: i.data.slug, title: i.data.title, type: i.data.type or "",
-      category: i.data.type or "", subtitle: i.data.subtitle or "",
-      url: "/places/" + i.data.slug + "/",
-      lng: i.data.coordinates.lng, lat: i.data.coordinates.lat, zoom: zoom or 15
-    }), feats) %}
-  {% endif %}
-{% endfor %}
+{% set feats = items | toFeatures('type', zoom or 15) %}
 {% set legend = [] %}
 {% for c in categories %}{% set legend = (legend.push({label: c.label, cat: c.key}), legend) %}{% endfor %}
 {% set mapConfig = { token: mapbox.token, style: mapbox.style, mapId: "map",

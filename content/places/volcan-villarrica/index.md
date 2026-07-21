@@ -38,7 +38,6 @@ spanish:
       meaning: "How much farther to the summit?"
 cover: cover.jpg
 cover_alt: "Hikers ascending the snow-covered slopes of Volcán Villarrica"
-images: auto
 related:
   - termas-geometricas
   - parque-huerquehue
@@ -48,7 +47,6 @@ near:
 seo:
   title: "Climb Volcán Villarrica — Active Volcano Hike near Pucón, Chile"
   description: "A guided climb up Volcán Villarrica, one of Chile's most active volcanoes. 4-6 hours to the 2,847m summit with panoramic Andes views and a fuming crater."
-status: published
 updated: 2026-03-28
 author_note: true
 ---

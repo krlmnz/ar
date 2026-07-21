@@ -26,6 +26,52 @@ layout: layouts/base.njk
     {{ content | safe }}
   </div>
 
+  {# Key facts — the structured front matter, visible and quotable #}
+  {% set costLabels = {"budget": "$ budget", "moderate": "$$ moderate", "expensive": "$$$ expensive"} %}
+  {% if best_for or cost_level or duration or time_from or (reservations and reservations != "none") or (requires and requires.length) %}
+  <div class="content-column section-block">
+    <h2 class="subhead">Key facts</h2>
+    <div class="reference-list reference-list--table">
+      {% if best_for %}
+      <div class="reference-item">
+        <span class="reference-item__label">Best for</span>
+        <span class="reference-item__value">{{ best_for }}</span>
+      </div>
+      {% endif %}
+      {% if cost_level %}
+      <div class="reference-item">
+        <span class="reference-item__label">Cost</span>
+        <span class="reference-item__value">{{ costLabels[cost_level] or cost_level }}</span>
+      </div>
+      {% endif %}
+      {% if duration %}
+      <div class="reference-item">
+        <span class="reference-item__label">How long</span>
+        <span class="reference-item__value">{{ duration | replace("-", " ") }}</span>
+      </div>
+      {% endif %}
+      {% for origin, time in time_from %}
+      <div class="reference-item">
+        <span class="reference-item__label">From {{ origin | capitalize }}</span>
+        <span class="reference-item__value">{{ time }}</span>
+      </div>
+      {% endfor %}
+      {% if reservations and reservations != "none" %}
+      <div class="reference-item">
+        <span class="reference-item__label">Reservations</span>
+        <span class="reference-item__value">{{ reservations }}</span>
+      </div>
+      {% endif %}
+      {% if requires and requires.length %}
+      <div class="reference-item">
+        <span class="reference-item__label">You'll need</span>
+        <span class="reference-item__value">{{ requires | join(", ") }}</span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
   {% if tip %}
   <div class="tip content-column">
     <p><strong>Pro tip —</strong> {{ tip }}</p>
@@ -80,6 +126,27 @@ layout: layouts/base.njk
   </div>
   {% endif %}
 
+  {# Nearby — computed from coordinates at build time; >200 km is noise in Chile #}
+  {% set near = [] %}
+  {% for n in collections.places | nearby(slug, 3) %}
+    {% if n.distance <= 200 %}{% set near = (near.push(n), near) %}{% endif %}
+  {% endfor %}
+  {% if near.length %}
+  <div class="section-block">
+    <hr class="rule">
+    <h2 class="subhead">Nearby</h2>
+    <div class="place-grid">
+      {% for n in near %}
+      <a href="/places/{{ n.item.data.slug }}/" class="card">
+        <div class="card__overline">{{ n.km }} km away · {{ n.item.data.type | replace("-", " ") }}</div>
+        <div class="card__title">{{ n.item.data.title }}</div>
+        <div class="card__description">{{ n.item.data.subtitle }}</div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
   {% if related and related.length %}
   <div class="section-block">
     <hr class="rule">
@@ -97,6 +164,12 @@ layout: layouts/base.njk
 </article>
 
 {# JSON-LD #}
+{% set coverUrl = cover | resolveCover(page) %}
+{% set updatedIso = updated | isoDate if updated %}
+{% set priceMap = {"budget": "$", "moderate": "$$", "expensive": "$$$"} %}
+{% set sameAs = [] %}
+{% if google_maps %}{% set sameAs = (sameAs.push(google_maps), sameAs) %}{% endif %}
+{% if website %}{% set sameAs = (sameAs.push(website), sameAs) %}{% endif %}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -104,6 +177,12 @@ layout: layouts/base.njk
   "name": {{ title | dump | replace("</", "<\\/") | safe }},
   "description": {{ (subtitle or description or "") | dump | replace("</", "<\\/") | safe }},
   {% if coordinates %}"geo": {"@type": "GeoCoordinates", "latitude": {{ coordinates.lat }}, "longitude": {{ coordinates.lng }}},{% endif %}
+  {% if coverUrl %}"image": {{ (site.url + coverUrl) | dump | replace("</", "<\\/") | safe }},{% endif %}
+  {% if updatedIso %}"dateModified": "{{ updatedIso }}",{% endif %}
+  {% if regionData %}"containedInPlace": {"@type": "Place", "name": {{ regionData.label | dump | replace("</", "<\\/") | safe }}},{% endif %}
+  {% if cost_level and priceMap[cost_level] %}"priceRange": "{{ priceMap[cost_level] }}",{% endif %}
+  {% if audience and audience.length %}"touristType": {{ audience | dump | replace("</", "<\\/") | safe }},{% endif %}
+  {% if sameAs.length %}"sameAs": {{ sameAs | dump | replace("</", "<\\/") | safe }},{% endif %}
   "address": {"@type": "PostalAddress", "addressCountry": "CL"},
   "url": "{{ site.url }}/places/{{ slug }}/"
 }

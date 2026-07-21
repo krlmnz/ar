@@ -9,8 +9,8 @@ npm start                                   # dev server, live reload
 npm run new -- place "Termas de Chillán"    # scaffold a file
 ```
 
-Then edit the file, watch it in the browser, and flip `published: true` when
-it's ready.
+Then edit the file, watch it in the browser, and delete the `published: false`
+line when it's ready.
 
 ## Scaffolding
 
@@ -62,7 +62,7 @@ New places, guides and practical pages start at `published: false`. That keeps
 them out of the directory and off every map while you write, but the page still
 builds so you can preview it at its own URL.
 
-Flip to `true` when you're ready. **This matters more than it looks:** an
+Delete the line when you're ready. **This matters more than it looks:** an
 unedited place still has `0,0` coordinates, and a published one would stretch
 every map on the site from Chile to the Gulf of Guinea.
 
@@ -99,3 +99,36 @@ fields you don't need rather than leaving them blank.
 
 `/templates/` lists every layout with a live example. Each one documents its own
 front matter on the page.
+
+## Writing for discovery (humans, Google, and AIs read the same page)
+
+None of this is SEO homework. The same page serves a friend skimming on a
+phone, a search crawler, and a language model quoting you — write once, well.
+
+**The first paragraph is the answer.** Everything before the first `##` is
+what the feed, the search index and `llms.txt` extract. Make it standalone:
+someone who reads only that paragraph should know what this is and whether
+to go.
+
+**Subtitle and description are one sentence, and they work hard.** Each is
+the meta description, the search-index summary, and the card copy all at
+once. Write it as the answer to "why go?" — not "a winery in Casablanca"
+but the reason to drive there.
+
+**Front-matter facts are writing, not admin.** `cost_level`, `time_from`,
+`reservations`, `best_for` render as the Key facts block and as structured
+data machines can quote. An empty field is an answer you didn't give.
+
+**One draft flag.** `published: false` is the whole system. Absence means
+published — don't add `published: true`, it's noise.
+
+**Move `updated:` when the content moves.** It drives sitemap lastmod, the
+feed, and link previews. A stale date tells everyone — readers and crawlers
+alike — that the page can be ignored. Unquoted, always.
+
+**A `cover.jpg` next to the file lights up the social card.** No wiring, no
+build step — the image existing is the switch.
+
+**Headings are anchor targets.** Every `##` becomes a link someone can send.
+Name them like the question a reader would ask — "Getting there", "Skip if" —
+not clever labels they'd have to decode.

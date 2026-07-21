@@ -1,25 +1,14 @@
 ---
 layout: layouts/base.njk
 fullBleed: true
+mapPage: true
 ---
 {# MAP-ROUTE — a planned road trip. Draws a line through the stops in order,
    with a day-by-day itinerary beneath and trip totals up top.
    Front matter: title, overline, subtitle, distance, days,
                  stops[]: {place | title/lng/lat, day, note} #}
 
-{% set feats = [] %}
-{% for s in stops %}
-  {% set p = collections.places | findBySlug(s.place) if s.place %}
-  {% set feats = (feats.push({
-      id: s.place or ("stop-" + loop.index),
-      title: (p.data.title if p else s.title),
-      type: (p.data.type if p else (s.type or "")),
-      subtitle: s.note or (p.data.subtitle if p else ""),
-      url: ("/places/" + p.data.slug + "/") if p else "",
-      lng: s.lng or (p.data.coordinates.lng if p),
-      lat: s.lat or (p.data.coordinates.lat if p)
-    }), feats) %}
-{% endfor %}
+{% set feats = stops | stepFeatures(collections.places, 'route') %}
 {% set mapConfig = { token: mapbox.token, style: mapbox.style, mapId: "map",
                      mode: "route", fit: 80, features: feats } %}
 
@@ -48,13 +37,12 @@ fullBleed: true
 
     <ol class="route__list" role="list">
       {% for f in feats %}
-      {% set s = stops[loop.index0] %}
       <li class="routestop" data-feature="{{ f.id }}">
         <button type="button" class="routestop__hit" data-goto="{{ f.id }}" aria-pressed="false"
                 aria-label="Show {{ f.title }} on the map">
           <span class="routestop__num">{{ loop.index }}</span>
           <span class="routestop__body">
-            {% if s.day %}<span class="routestop__day">{{ s.day }}</span>{% endif %}
+            {% if f.day %}<span class="routestop__day">{{ f.day }}</span>{% endif %}
             <span class="routestop__title">{{ f.title }}</span>
             {% if f.subtitle %}<span class="routestop__note">{{ f.subtitle }}</span>{% endif %}
           </span>

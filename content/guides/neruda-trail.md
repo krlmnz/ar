@@ -24,7 +24,6 @@ tags:
 seo:
   title: "The Neruda Trail — Visit Pablo Neruda's Three Houses in Chile"
   description: "Visit all three of Pablo Neruda's museum houses: La Chascona in Santiago, La Sebastiana in Valparaíso, and Isla Negra on the coast."
-status: published
 updated: 2026-03-28
 ---
 

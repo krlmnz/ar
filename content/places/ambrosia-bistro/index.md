@@ -24,14 +24,12 @@ reservations: required
 duration: "quick-stop"
 cover: cover.jpg
 cover_alt: "Plated dish at Ambrosia Bistro in Lastarria, Santiago"
-images: auto
 related:
   - bocanriz
   - la-cabrera-chile
 near:
   - bocanriz
   - gam
-status: published
 updated: 2026-03-28
 author_note: true
 ---

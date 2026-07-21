@@ -19,8 +19,8 @@ slug: __SLUG__
 # Adding a new type? Add it to _data/placeIcons.json too.
 type: restaurant
 
-# One sentence. This is what shows on cards and in map popups — make it earn
-# the click. Not "a restaurant in Santiago" but what makes it worth going.
+# One sentence — it is the meta description and the search-index summary, and
+# it shows on cards and in map popups. Write it as the answer to "why go?".
 subtitle: ""
 
 # One of: santiago, casablanca-valley, central-coast, central-mountains,
@@ -51,6 +51,12 @@ spanish:
   useful_phrases:
     - phrase: ""
       meaning: ""
+
+# Cover photo — the file must sit NEXT TO this index.md, in the same folder.
+# The moment it exists, og:image, the social card and the schema markup all
+# light up automatically. Until then these lines do nothing.
+# cover: cover.jpg
+# cover_alt: ""                # describe the photo for people who can't see it
 
 related: []                    # slugs of other places
 seo:

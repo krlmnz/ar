@@ -1,6 +1,9 @@
 ---
 layout: layouts/base.njk
 pagination:
+  # Without this, only the first generated page joins collections.all — the
+  # sitemap and search index would silently miss every other tag page.
+  addAllPagesToCollections: true
   data: collections.byTag
   size: 1
   alias: tagSlug
@@ -8,6 +11,7 @@ pagination:
 permalink: "/tags/{{ tagSlug }}/"
 eleventyComputed:
   title: "{{ (tagInfo[tagSlug].label if tagInfo[tagSlug] else tagSlug) | safe }}"
+  searchContext: "tag:{{ tagSlug }}"
   seo:
     title: "{{ (tagInfo[tagSlug].label if tagInfo[tagSlug] else tagSlug) | safe }} in Chile — Andean Road"
     description: "{{ (tagInfo[tagSlug].description if tagInfo[tagSlug] else 'Places in Chile tagged ' + tagSlug + '.') | safe }}"

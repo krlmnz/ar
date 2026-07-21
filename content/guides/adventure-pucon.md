@@ -25,7 +25,6 @@ tags:
 seo:
   title: "Adventure in Pucón — Volcanoes, Hot Springs & Hiking in Chile's Lake District"
   description: "Climb an active volcano, soak in forest hot springs, hike ancient rainforest, and eat the best steak in the Lake District. Your Pucón adventure guide."
-status: published
 updated: 2026-03-28
 ---
 

@@ -9,3 +9,21 @@
     {% endif %}
   {% endfor %}
 </nav>
+
+{# The same trail as machine-readable BreadcrumbList — the partial already
+   holds the crumbs array, so the schema can never drift from the visible nav. #}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "{{ site.url }}/" }
+    {%- for crumb in crumbs -%}
+    ,{ "@type": "ListItem", "position": {{ loop.index + 1 }},
+       "name": {{ (crumb.label or "") | dump | replace("</", "<\\/") | safe }}
+       {%- if crumb.url and not loop.last %}, "item": "{{ site.url }}{{ crumb.url }}"
+       {%- else %}, "item": "{{ site.url }}{{ page.url }}"{% endif %} }
+    {%- endfor %}
+  ]
+}
+</script>

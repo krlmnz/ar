@@ -1,34 +1,8 @@
 ---
-layout: layouts/base.njk
+layout: layouts/page.njk
+pageKind: guide
 ---
-
-{% set crumbs = [
-  {label: "Guides", url: "/guides/" },
-  {label: title}
-] %}
-{% include "partials/breadcrumbs.njk" %}
-
-{% set overline = "Guide · " + duration if duration else "Guide" %}
-
-<article>
-  {% include "partials/page-header.njk" %}
-
-  <div class="prose content-column">
-    {{ content | safe }}
-  </div>
-
-  {% if places and places.length %}
-  <div class="section-block">
-    <hr class="rule">
-    <h2 class="subhead">Places in this guide</h2>
-    <div class="place-grid">
-      {% for placeSlug in places %}
-        {% set place = collections.places | findBySlug(placeSlug) %}
-        {% if place %}
-          {% include "partials/place-card.njk" %}
-        {% endif %}
-      {% endfor %}
-    </div>
-  </div>
-  {% endif %}
-</article>
+{#- GUIDE — narrative plus a grid of the places it mentions. Front matter:
+    title, subtitle, duration, places: [slug]. Crumbs + overline come
+    from page.njk. -#}
+{{- content | safe -}}

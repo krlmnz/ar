@@ -9,6 +9,11 @@
         <a href="/practical/">Practical</a>
         <a href="/templates/">Templates</a>
       </nav>
+      {# Borrows .theme-toggle so both header buttons share one style;
+         search.js opens the dialog via the data attribute — inert without JS. #}
+      <button type="button" class="theme-toggle" data-search-open title="Search" aria-label="Search (press /)">
+        {% icon "magnifying-glass", size=20 %}
+      </button>
       <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle dark mode">
         {% icon "moon", weight="fill", size=20, class="icon--moon" %}
         {% icon "sun", weight="fill", size=20, class="icon--sun" %}

@@ -9,9 +9,7 @@
       "text2": 5.5,
       "text3": 4.5
     },
-    "_contrastTargets": "Floors, enforced by the build. text is 13.0 rather than the AAA 7.0 on purpose: primary text on this site measured 15.9:1 and reads as ink, not as dark grey. Dropping it to 7.0 passes WCAG and still looks wrong. text-2/text-3 were 4.63:1 and 4.54:1 by hand — thin enough that DESIGN-SYSTEM.md warns not to touch them; they now have real headroom.",
-    "monochrome": true,
-    "_monochrome": "The site has no coloured UI accent — links are var(--text) (main.css:492). --accent* therefore resolves to ink, not to a brand hue. Set false only as part of a deliberate redesign; see DESIGN-SYSTEM.md §4 'Monochrome Restraint'."
+    "_contrastTargets": "Floors, enforced by the build. text is 13.0 rather than the AAA 7.0 on purpose: primary text on this site measured 15.9:1 and reads as ink, not as dark grey. Dropping it to 7.0 passes WCAG and still looks wrong. text-2/text-3 were 4.63:1 and 4.54:1 by hand — thin enough that DESIGN-SYSTEM.md warns not to touch them; they now have real headroom."
   },
   "ramp": {
     "50": "#FAFAF8",

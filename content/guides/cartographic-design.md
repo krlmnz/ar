@@ -1,19 +1,113 @@
 ---
+# DRAFT — the prose still carries template heading samples ("…h2", "H3").
+# Delete this line to publish; until then the page builds for preview but is
+# kept out of /guides/, the sitemap, the feed and llms.txt.
+published: false
+
 layout: layouts/manual.njk
 slug: cartographic-design
 type: guide
 title: Cartographic Design
-overline: Page template
-subtitle: Long reference content — documentation, a handbook, a textbook chapter.
-summary: Sticky contents rail, linkable headings, prev/next. For pages people return to.
-prev:
-  label: Simple
-  url: /templates/simple/
-next:
-  label: All templates
-  url: /templates/
+overline: Essay
+subtitle: What maps have always done — and what that asks of the ones on this site.
+description: An essay on cartographic design — how maps encode worldview, and the design lessons this site's maps borrow from that history.
+updated: 2026-07-21
 ---
 
+The Andean Road System—known in Quechua as **Qhapaq Ñan** (the "Great Road")—is one of history's most impressive infrastructure achievements. It's the network the Incas built to connect and control their vast empire across South America.
+
+## The Basics
+
+The Incan Empire (roughly 1400–1533 CE) stretched across western South America—modern Peru, Ecuador, Bolivia, parts of Chile and Argentina, and northern Colombia. To hold this together, they built an extraordinary road system: approximately **40,000 kilometers** (25,000 miles) of interconnected routes. For context, that's longer than the circumference of the Earth.
+
+## The Network Structure
+
+The road system had a hierarchical design:
+
+**Main highways** ran in two primary directions:
+- **North-South** along the spine of the Andes (the highlands, or "sierra")
+- **East-West** connecting the highlands to coastal regions and the Amazon basin
+
+The most famous route, the **Capac Nan** (Royal Road), ran the length of the empire from Quito (Ecuador) south to Cusco and beyond into what's now Chile and Argentina.
+
+## Engineering Marvel
+
+What makes Qhapaq Ñan remarkable:
+
+- **Varied terrain**: The roads climbed to 14,000+ feet in the mountains, crossed suspension bridges over deep gorges, descended to coastal deserts, and navigated rainforest passages. Each region required different engineering.
+- **Construction quality**: Stone-paved in the highlands (with sophisticated drainage), clay and gravel elsewhere. Surfaces were graded and maintained.
+- **Infrastructure**: Way stations (tambos) spaced a day's travel apart provided shelter, food, and storage. Administrative centers coordinated logistics.
+- **No wheels or beasts of burden**: The Incas had llamas and alpacas for cargo, and the roads were built for foot traffic and pack animals—not wagons.
+
+## Purpose
+
+The roads served multiple functions:
+
+1. **Control & administration**: Movement of officials, census-taking, law enforcement
+2. **Military**: Rapid deployment of armies across the empire
+3. **Economic**: Trade in textiles, pottery, agricultural goods, coca, and metal work
+4. **Communication**: A relay of runners (chasqui) carried messages across the empire in days
+5. **Integration**: Binding diverse ethnic groups into a unified state
+
+## The Chasqui System
+
+This was brilliant: runners stationed at intervals relayed messages and light goods. A message could travel from Cusco to Quito (about 1,500 miles) in roughly 3–5 days—faster than European postal systems centuries later.
+
+## Legacy
+
+Much of the road survives today. Sections are still walked by pilgrims and hikers, particularly the famous **Inca Trail** to Machu Picchu. The system demonstrates sophisticated understanding of logistics, landscape management, and political geography—all without written language or wheeled transport.
+
+The Spanish conquistadors actually *used* the roads to their advantage when conquering the empire, which speaks to how effective the network was.
+
+---
+
+**Given your andean-road.com project**, there's rich material here: the practical geography (how routes navigate elevation gain and climate zones), the cultural significance (indigenous perspectives on the roads), the modern experience (hiking sections), and the wine/agriculture angles (the roads connected growing regions). Are you thinking about featuring the historical Qhapaq Ñan itself, or more about contemporary travel along those routes?
+
+The Andean Road System—known in Quechua as Qhapaq Ñan (the "Great Road")—is one of history's most impressive infrastructure achievements. It's the network the Incas built to connect and control their vast empire across South America.
+
+The Basics
+
+The Incan Empire (roughly 1400–1533 CE) stretched across western South America—modern Peru, Ecuador, Bolivia, parts of Chile and Argentina, and northern Colombia. To hold this together, they built an extraordinary road system: approximately 40,000 kilometers (25,000 miles) of interconnected routes. For context, that's longer than the circumference of the Earth.
+
+The Network Structure
+
+The road system had a hierarchical design:
+
+Main highways ran in two primary directions:
+
+North-South along the spine of the Andes (the highlands, or "sierra")
+East-West connecting the highlands to coastal regions and the Amazon basin
+
+The most famous route, the Capac Nan (Royal Road), ran the length of the empire from Quito (Ecuador) south to Cusco and beyond into what's now Chile and Argentina.
+
+Engineering Marvel
+
+What makes Qhapaq Ñan remarkable:
+
+Varied terrain: The roads climbed to 14,000+ feet in the mountains, crossed suspension bridges over deep gorges, descended to coastal deserts, and navigated rainforest passages. Each region required different engineering.
+Construction quality: Stone-paved in the highlands (with sophisticated drainage), clay and gravel elsewhere. Surfaces were graded and maintained.
+Infrastructure: Way stations (tambos) spaced a day's travel apart provided shelter, food, and storage. Administrative centers coordinated logistics.
+No wheels or beasts of burden: The Incas had llamas and alpacas for cargo, and the roads were built for foot traffic and pack animals—not wagons.
+Purpose
+
+The roads served multiple functions:
+
+Control & administration: Movement of officials, census-taking, law enforcement
+Military: Rapid deployment of armies across the empire
+Economic: Trade in textiles, pottery, agricultural goods, coca, and metal work
+Communication: A relay of runners (chasqui) carried messages across the empire in days
+Integration: Binding diverse ethnic groups into a unified state
+The Chasqui System
+
+This was brilliant: runners stationed at intervals relayed messages and light goods. A message could travel from Cusco to Quito (about 1,500 miles) in roughly 3–5 days—faster than European postal systems centuries later.
+
+Legacy
+
+Much of the road survives today. Sections are still walked by pilgrims and hikers, particularly the famous Inca Trail to Machu Picchu. The system demonstrates sophisticated understanding of logistics, landscape management, and political geography—all without written language or wheeled transport.
+
+The Spanish conquistadors actually used the roads to their advantage when conquering the empire, which speaks to how effective the network was.
+
+Given your andean-road.com project, there's rich material here: the practical geography (how routes navigate elevation gain and climate zones), the cultural significance (indigenous perspectives on the roads), the modern experience (hiking sections), and the wine/agriculture angles (the roads connected growing regions). Are you thinking about featuring the historical Qhapaq Ñan itself, or more about contemporary travel along those routes?
 
 # **Maps & The Internet**
 

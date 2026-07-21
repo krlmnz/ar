@@ -1,6 +1,7 @@
 ---
 layout: layouts/base.njk
 fullBleed: true
+mapPage: true
 ---
 {# MAP-SPLIT — full-width map starting under the header, cards to the LEFT.
    The map is the page. Use for browsing a set of places in one region.
@@ -27,23 +28,7 @@ fullBleed: true
 
     <ul class="mapcards mapcards--stack">
       {% for f in feats %}
-      <li>
-        <article class="mapcard" data-feature="{{ f.id }}" >
-          <button type="button" class="mapcard__hit" data-goto="{{ f.id }}" aria-pressed="false"
-                  aria-label="Show {{ f.title }} on the map">
-            <span class="mapcard__icon">
-              {% set iconName = placeIcons[f.type] or placeIcons._default %}
-              {% icon iconName, weight="fill", size=18 %}
-            </span>
-            <span class="mapcard__body">
-              <span class="mapcard__overline">{{ f.type | replace("-", " ") }}</span>
-              <span class="mapcard__title">{{ f.title }}</span>
-              <span class="mapcard__sub">{{ f.subtitle }}</span>
-            </span>
-          </button>
-          <a class="mapcard__link" href="{{ f.url }}">Read more <span aria-hidden="true">→</span></a>
-        </article>
-      </li>
+      {% include "partials/mapcard.njk" %}
       {% endfor %}
     </ul>
   </div>

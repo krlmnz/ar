@@ -1,0 +1,22 @@
+{# One place card wired to the map. Expects `f`, a feature from toFeatures.
+   Used by map-split, map-stack, map-area and the /map/ directory. #}
+<li>
+  <article class="mapcard" data-feature="{{ f.id }}"{% if f.category %} data-cat="{{ f.category }}"{% endif %}>
+    <button type="button" class="mapcard__hit" data-goto="{{ f.id }}" aria-pressed="false"
+            aria-label="Show {{ f.title }} on the map">
+      <span class="mapcard__icon">
+        {% set iconName = placeIcons[f.type] or placeIcons._default %}
+        {% icon iconName, weight="fill", size=18 %}
+      </span>
+      <span class="mapcard__body">
+        <span class="mapcard__overline">{{ f.type | replace("-", " ") }}</span>
+        <span class="mapcard__title">{{ f.title }}</span>
+        {% if f.subtitle %}<span class="mapcard__sub">{{ f.subtitle }}</span>{% endif %}
+        {% if f.meta and f.meta.length %}
+        <span class="mapcard__meta">{% for m in f.meta %}<span>{{ m }}</span>{% endfor %}</span>
+        {% endif %}
+      </span>
+    </button>
+    <a class="mapcard__link" href="{{ f.url }}">Read more <span aria-hidden="true">→</span></a>
+  </article>
+</li>

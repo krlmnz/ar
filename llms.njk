@@ -1,0 +1,36 @@
+---
+permalink: /llms.txt
+eleventyExcludeFromCollections: true
+---
+{#- Generated from the same collections the site renders, so it can never
+    drift from the real content the way the old hand-written llms.txt did.
+    Output is plain markdown per llmstxt.org — titles pass through `safe`
+    because autoescape would turn "&" into "&amp;" in a text file. -#}
+# {{ site.title }}
+
+> {{ site.description | safe }}
+
+Andean Road is a personal travel guide to Chile written by one author — Karol, born in Chile, raised in New York. It is written in English, and every place listed here has been visited by the author personally; nothing is aggregated or scraped. Guides are multi-day itineraries, places are individual spots worth the trip, and practical pages cover the unglamorous essentials.
+
+## Guides
+{% for guide in collections.guides %}
+- [{{ guide.data.title | safe }}]({{ site.url }}/guides/{{ guide.data.slug }}/): {{ guide.data.description | safe }}
+{%- endfor %}
+
+## Places
+{% for place in collections.places %}
+- [{{ place.data.title | safe }}]({{ site.url }}/places/{{ place.data.slug }}/): {{ place.data.subtitle | safe }}{% if place.data.region and regions[place.data.region] %} — {{ regions[place.data.region].label | safe }}{% endif %}
+{%- endfor %}
+
+## Practical
+{% for item in collections.practical %}
+- [{{ item.data.title | safe }}]({{ site.url }}/practical/{{ item.data.slug }}/): {{ item.data.description | safe }}
+{%- endfor %}
+
+## Machine-readable
+
+- [Places API]({{ site.url }}/api/places.json): every place as JSON — slug, coordinates, region, cost, tags, links
+- [Guides API]({{ site.url }}/api/guides.json): every guide as JSON, including the ordered slugs of the places it visits
+- [Search index]({{ site.url }}/api/search.json): the index the site's own search uses
+- [Sitemap]({{ site.url }}/sitemap.xml): every indexable page with last-modified dates
+- [Atom feed]({{ site.url }}/feed.xml): the most recently updated pages across guides, places, and practical

@@ -29,7 +29,6 @@ tags:
 seo:
   title: "Santiago in a Weekend — Your 2-Day Guide to Chile's Capital"
   description: "The best way to spend a weekend in Santiago: where to stay, what to eat, and what to see in El Golf and Lastarria."
-status: published
 updated: 2026-03-28
 ---
 

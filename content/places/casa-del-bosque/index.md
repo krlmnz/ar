@@ -42,7 +42,6 @@ spanish:
       meaning: "What's your reserve wine?"
 cover: cover.jpg
 cover_alt: "Vineyard rows stretching toward the Andes at Casa del Bosque"
-images: auto
 related:
   - kingston-family
   - bodegas-re
@@ -53,7 +52,6 @@ near:
 seo:
   title: "Casa del Bosque Winery — Casablanca Valley Wine Tour from Santiago"
   description: "Visit Casa del Bosque for vineyard tours, tastings, and lunch at Tanino with panoramic valley views. Easy day trip from Santiago, Chile."
-status: published
 updated: 2026-03-28
 author_note: true
 ---

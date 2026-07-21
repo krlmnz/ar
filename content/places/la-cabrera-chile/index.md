@@ -23,13 +23,11 @@ reservations: recommended
 duration: "quick-stop"
 cover: cover.jpg
 cover_alt: "Grilled steak at La Cabrera Chile in Las Condes"
-images: auto
 related:
   - w-santiago
   - hyatt-centric-santiago
 near:
   - w-santiago
-status: published
 updated: 2026-03-28
 author_note: true
 ---

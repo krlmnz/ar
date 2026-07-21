@@ -1,0 +1,37 @@
+---
+permalink: /api/guides.json
+eleventyExcludeFromCollections: true
+---
+{#- Every published guide as JSON. `places` is the guide's own ordered slug
+    list — join it against /api/places.json for the full detail. Optional
+    keys are omitted when a guide doesn't have them. -#}
+[
+{%- for guide in collections.guides %}
+  {
+    "slug": {{ guide.data.slug | dump | safe }},
+    "title": {{ guide.data.title | dump | safe }},
+    "url": {{ (site.url + "/guides/" + guide.data.slug + "/") | dump | safe }}
+    {%- if guide.data.description %},
+    "description": {{ guide.data.description | dump | safe }}
+    {%- endif %}
+    {%- if guide.data.duration %},
+    "duration": {{ guide.data.duration | dump | safe }}
+    {%- endif %}
+    {%- if guide.data.difficulty %},
+    "difficulty": {{ guide.data.difficulty | dump | safe }}
+    {%- endif %}
+    {%- if guide.data.audience %},
+    "audience": {{ guide.data.audience | dump | safe }}
+    {%- endif %}
+    {%- if guide.data.tags %},
+    "tags": {{ guide.data.tags | dump | safe }}
+    {%- endif %}
+    {%- if guide.data.places %},
+    "places": {{ guide.data.places | dump | safe }}
+    {%- endif %}
+    {%- if guide.data.updated %},
+    "updated": {{ guide.data.updated | isoDate | dump | safe }}
+    {%- endif %}
+  }{% if not loop.last %},{% endif %}
+{%- endfor %}
+]

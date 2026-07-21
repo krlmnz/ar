@@ -37,11 +37,9 @@ bring:
 tip: "Bring layers — the temperature drops fast at altitude."
 cover: cover.jpg
 cover_alt: "Terraced natural hot spring pools at Valle de Colina with Andes mountains behind"
-images: auto
 related:
   - termas-geometricas
 near: []
-status: published
 updated: 2026-03-28
 author_note: true
 ---

@@ -29,13 +29,11 @@ requires:
   - car
 cover: cover.jpg
 cover_alt: "Matetic Vineyards estate with Pacific fog rolling over the hills"
-images: auto
 related:
   - casa-del-bosque
   - kingston-family
 near:
   - casa-del-bosque
-status: published
 updated: 2026-03-28
 author_note: true
 ---

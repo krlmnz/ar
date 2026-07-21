@@ -14,6 +14,7 @@
   var live = dialog.querySelector('.search__status');
 
   var indexPromise = null;
+  var indexLoaded = false;
   var items = [];
   var regionLookup = []; // [{needle, slug}] — real region slugs + labels only
   var selected = -1;
@@ -81,10 +82,12 @@
               }
             }
           });
+          indexLoaded = true;
         })
         .catch(function () {
-          indexPromise = null; // allow a retry on the next open
+          indexPromise = null; // allow a retry — next open OR next keystroke
           list.innerHTML = '<li class="search__empty" role="presentation">Search is unavailable right now.</li>';
+          live.textContent = 'Search is unavailable right now.';
         });
     }
     return indexPromise;
@@ -133,6 +136,14 @@
   }
 
   function runSearch(q) {
+    // Until the index has actually arrived, a search would render the "No
+    // matches" empty state over content that very much exists (or clobber the
+    // failure notice). Defer instead — and since a failed fetch resets
+    // indexPromise, every keystroke doubles as a retry on flaky connections.
+    if (!indexLoaded) {
+      loadIndex().then(function () { if (indexLoaded) runSearch(input.value); });
+      return;
+    }
     q = fold(q).trim();
     if (!q) { render([], ''); return; }
     var tokens = q.split(/\s+/);

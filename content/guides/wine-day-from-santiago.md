@@ -25,7 +25,6 @@ tags:
 seo:
   title: "Casablanca Valley Wine Tour — Best Day Trip from Santiago, Chile"
   description: "A curated guide to the best wineries in Casablanca Valley. Route suggestions, restaurant picks, and insider tips."
-status: published
 updated: 2026-03-28
 ---
 

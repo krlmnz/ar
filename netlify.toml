@@ -1,7 +1,8 @@
 [build]
-command = "npm run build"
+# tokens:check fails the deploy if tokens.css drifted from the engine output —
+# the whole point of the drift detector is that it runs where it can say no.
+command = "npm run tokens:check && npm run build"
 publish = "_site"
-functions = "functions"
 
 [build.environment]
 NODE_VERSION = "20"

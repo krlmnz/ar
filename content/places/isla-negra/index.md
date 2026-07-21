@@ -28,14 +28,12 @@ requires:
   - car
 cover: cover.jpg
 cover_alt: "Pablo Neruda's house at Isla Negra overlooking the Pacific Ocean"
-images: auto
 related:
   - la-chascona
 near: []
 seo:
   title: "Isla Negra — Pablo Neruda's Favorite House on the Chilean Coast"
   description: "Visit Isla Negra, Neruda's boat-shaped oceanfront home where he and Matilde are buried. Filled with his obsessive collections of shells, figureheads, and maps."
-status: published
 updated: 2026-03-28
 author_note: true
 ---

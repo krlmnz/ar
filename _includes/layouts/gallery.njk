@@ -1,36 +1,8 @@
 ---
-layout: layouts/base.njk
+layout: layouts/page.njk
+pageKind: gallery
 ---
-{# GALLERY — image-led page. Figures fall back to a labelled placeholder until
-   real photography exists, so the layout is usable before the shoot.
-   Front matter: title, overline, subtitle, figures: [{src, alt, caption}] #}
-
-{% if crumbs %}{% include "partials/breadcrumbs.njk" %}{% endif %}
-
-<article class="tpl tpl--gallery">
-  {% include "partials/page-header.njk" %}
-
-  {% if content %}
-  <div class="prose content-column">
-    {{ content | safe }}
-  </div>
-  {% endif %}
-
-  {% if figures and figures.length %}
-  {# The first figure runs full width as the opener, the rest tile beneath it. #}
-  <div class="figure-grid figure-grid--feature">
-    {% for fig in figures %}
-    <figure class="figure{{ ' figure--feature' if loop.first }}">
-      {% if fig.src %}
-        <img src="{{ fig.src }}" alt="{{ fig.alt }}" loading="lazy" decoding="async" style="width:100%;height:auto;display:block">
-      {% else %}
-        <div class="placeholder-img" role="img" aria-label="{{ fig.alt or fig.caption }}">
-          {% icon "image", size=24 %}
-        </div>
-      {% endif %}
-      {% if fig.caption %}<figcaption>{{ fig.caption }}</figcaption>{% endif %}
-    </figure>
-    {% endfor %}
-  </div>
-  {% endif %}
-</article>
+{#- GALLERY — image-led page; figures fall back to a labelled placeholder
+    until real photography exists. Front matter: title, overline, subtitle,
+    figures: [{src, alt, caption}]. Rendering lives in page.njk. -#}
+{{- content | safe -}}

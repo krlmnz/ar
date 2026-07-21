@@ -1,17 +1,14 @@
 ---
 # GUIDE — a multi-day itinerary in the original guides collection.
-# DRAFT. While this is false the place is kept out of the directory, every
-# map, and all region/tag pages — but the page itself still builds so you can
-# preview it. Flip to true (or delete the line) to publish.
-#
-# This matters: an unedited place with 0,0 coordinates would otherwise stretch
-# every map on the site from Chile to the Gulf of Guinea.
+# DRAFT. While this is false the guide is kept out of the guides list, search,
+# feeds and the sitemap — but the page itself still builds so you can preview
+# it. Flip to true (or delete the line) to publish.
 published: false
 
 title: "__TITLE__"
 slug: __SLUG__
 duration: "3 days"
-description: ""
+description: ""                # one sentence — it is the meta description and the search-index summary; write it as the answer to "why go?"
 places: []                     # slugs, in order
 seo:
   title: ""

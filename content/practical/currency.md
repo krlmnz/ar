@@ -7,7 +7,6 @@ category: money
 seo:
   title: "Chile Currency Guide — What Things Cost in Chilean Pesos"
   description: "Chile uses the Chilean Peso (CLP). A coffee is 2,500 CLP, a great dinner for two is 45,000 CLP. Here's what everything actually costs."
-status: published
 updated: 2026-03-28
 ---
 

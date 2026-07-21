@@ -1,6 +1,9 @@
 ---
 layout: layouts/base.njk
 pagination:
+  # Without this, only the first generated page joins collections.all — the
+  # sitemap and search index would silently miss every other audience page.
+  addAllPagesToCollections: true
   data: audiences
   size: 1
   alias: audienceSlug
@@ -8,6 +11,7 @@ pagination:
 permalink: "/for/{{ audienceSlug }}/"
 eleventyComputed:
   title: "{{ audiences[audienceSlug].label | safe }}"
+  searchContext: "audience:{{ audienceSlug }}"
   seo:
     title: "{{ audiences[audienceSlug].label | safe }} — Andean Road"
     description: "{{ audiences[audienceSlug].tagline | safe }}"

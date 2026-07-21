@@ -44,9 +44,11 @@
   --route-casing: rgba(24, 23, 22, 0.14); /* soft band, reads on light land   */
 
   /* ── Map chrome ──────────────────────────────────────────────────────────
-     Keyed to the BASEMAP, not the page. The Mapbox style is light-only, so
-     these hold their light values under [data-theme="dark"] — a marker tuned
-     to the page would vanish against the map. See DESIGN-SYSTEM §10. */
+     Keyed to the BASEMAP, not the page — a marker tuned to the page theme
+     would vanish against a basemap of the opposite polarity. The engine
+     stamps data-map-theme on <html> to say which basemap is actually up:
+     it tracks the page theme only when a dark style is configured
+     (mapbox.styleDark), and stays "light" otherwise. See DESIGN-SYSTEM §10. */
   --map-surface:     #FFFFFF;
   --map-surface-2:   #F5F4F2;
   --map-border:      #E2E0DC;
@@ -69,4 +71,18 @@
   --panel-text:    #F0F0EE;
   --panel-text-2:  #9CA3AF;
 
+}
+
+/* A dark basemap is up (engine stamped data-map-theme="dark"): the chrome
+   follows it. Same values as the dark page panels so popup and page agree. */
+[data-map-theme="dark"] {
+  --map-surface:     #1C1F22;
+  --map-surface-2:   #24282C;
+  --map-border:      #434547;
+  --map-text:        #F0F0EE;
+  --map-text-2:      #9CA3AF;
+  --map-shadow:      0 1px 3px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.35);
+  --map-shadow-pop:  0 8px 32px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.4);
+  /* Route casing flips polarity: a dark halo is invisible on dark land. */
+  --route-casing:    rgba(255, 255, 255, 0.22);
 }

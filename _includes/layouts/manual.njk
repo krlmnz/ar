@@ -1,59 +1,8 @@
 ---
-layout: layouts/base.njk
+layout: layouts/page.njk
+pageKind: manual
 ---
-{# MANUAL — long reference content: documentation, a handbook, a textbook chapter.
-   Built for pages people navigate and return to rather than read once.
-   Front matter: title, overline, subtitle, part, toc (default true),
-                 prev/next: {label, url} #}
-
-{% if crumbs %}{% include "partials/breadcrumbs.njk" %}{% endif %}
-
-<article class="tpl tpl--manual">
-  {% include "partials/page-header.njk" %}
-
-  {% set headings = content | toc %}
-  {% set showToc = toc !== false and headings.length > 2 %}
-
-  <div class="manual{{ ' manual--with-toc' if showToc }}">
-    <div class="manual__body prose">
-      {{ content | safe }}
-    </div>
-
-    {% if showToc %}
-    <aside class="manual__aside" aria-labelledby="toc-heading">
-      {# A <details> on small screens so the contents don't push the text down;
-         forced open on wide screens where it sits in its own column. #}
-      <details class="toc" open>
-        <summary class="toc__heading" id="toc-heading">On this page</summary>
-        <nav>
-          <ol class="toc__list">
-            {% for h in headings %}
-            <li class="toc__item toc__item--h{{ h.level }}">
-              <a href="#{{ h.id }}">{{ h.text }}</a>
-            </li>
-            {% endfor %}
-          </ol>
-        </nav>
-      </details>
-    </aside>
-    {% endif %}
-  </div>
-
-  {% if prev or next %}
-  <nav class="manual-nav" aria-label="Section">
-    {% if prev %}
-    <a class="manual-nav__link manual-nav__link--prev" href="{{ prev.url }}">
-      <span class="manual-nav__dir">← Previous</span>
-      <span class="manual-nav__label">{{ prev.label }}</span>
-    </a>
-    {% else %}<span></span>{% endif %}
-
-    {% if next %}
-    <a class="manual-nav__link manual-nav__link--next" href="{{ next.url }}">
-      <span class="manual-nav__dir">Next →</span>
-      <span class="manual-nav__label">{{ next.label }}</span>
-    </a>
-    {% endif %}
-  </nav>
-  {% endif %}
-</article>
+{#- MANUAL — long reference content people navigate and return to. Front
+    matter: title, overline, subtitle, part, toc (default true),
+    prev/next: {label, url}. Rendering lives in page.njk. -#}
+{{- content | safe -}}

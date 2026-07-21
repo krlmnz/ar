@@ -22,13 +22,11 @@ reservations: required
 duration: "quick-stop"
 cover: cover.jpg
 cover_alt: "Wood-fired steak at La Maga Uruguayan Steakhouse in Pucón"
-images: auto
 related:
   - termas-geometricas
   - volcan-villarrica
 near:
   - volcan-villarrica
-status: published
 updated: 2026-03-28
 author_note: true
 ---

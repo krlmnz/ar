@@ -190,7 +190,7 @@ const line = (r) =>
   `  ${r.pass ? "PASS" : "FAIL"} ${String(r.ratio).padStart(6)}:1 ` +
   `(needs ${r.need})  ${r.mode.padEnd(5)}  ${r.pair}`;
 
-console.log(`\nNeutral source ${cfg.neutralSource} · tint ${cfg.neutralTint} · monochrome ${cfg.monochrome}`);
+console.log(`\nNeutral source ${cfg.neutralSource} · tint ${cfg.neutralTint}`);
 rows.forEach((r) => console.log(line(r)));
 console.log(`\n${rows.length} pairings checked · ${fail.length} failure${fail.length === 1 ? "" : "s"}\n`);
 

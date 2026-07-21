@@ -1,0 +1,21 @@
+{# Site search dialog. A native <dialog>, so it stays closed (and focus stays
+   trapped once open) with zero script of its own — search.js opens it from
+   the header button, "/" or Cmd/Ctrl+K. A no-JS visitor never sees it and
+   loses nothing: every page is still reachable through the nav. #}
+<dialog class="search" aria-label="Search">
+  <div class="search__field">
+    {% icon "magnifying-glass", size=18 %}
+    <input class="search__input" type="search" role="combobox"
+           aria-expanded="false" aria-controls="search-results" aria-autocomplete="list"
+           aria-label="Search"
+           placeholder="Search places, guides, practical…"
+           autocomplete="off" autocapitalize="off" spellcheck="false">
+  </div>
+  <ul class="search__results" id="search-results" role="listbox" aria-label="Search results"></ul>
+  <p class="search__status" role="status" aria-live="polite"></p>
+  <footer class="search__hints">
+    <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+    <span><kbd>Enter</kbd> open</span>
+    <span><kbd>Esc</kbd> close</span>
+  </footer>
+</dialog>

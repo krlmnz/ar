@@ -28,14 +28,12 @@ requires:
   - car
 cover: cover.jpg
 cover_alt: "Clay amphora wine vessels at Bodegas RE winery"
-images: auto
 related:
   - casa-del-bosque
   - kingston-family
   - matetic-vineyards
 near:
   - kingston-family
-status: published
 updated: 2026-03-28
 author_note: true
 ---

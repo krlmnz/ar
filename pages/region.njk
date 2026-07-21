@@ -1,6 +1,9 @@
 ---
 layout: layouts/base.njk
 pagination:
+  # Without this, only the first generated page joins collections.all — the
+  # sitemap and search index would silently miss every other region page.
+  addAllPagesToCollections: true
   data: regions
   size: 1
   alias: regionSlug
@@ -8,6 +11,7 @@ pagination:
 permalink: "/regions/{{ regionSlug }}/"
 eleventyComputed:
   title: "{{ regions[regionSlug].label | safe }}"
+  searchContext: "region:{{ regionSlug }}"
   seo:
     title: "{{ regions[regionSlug].label | safe }} — Andean Road"
     description: "{{ regions[regionSlug].description | safe }}. Where to eat, stay and go."

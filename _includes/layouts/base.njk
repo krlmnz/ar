@@ -4,23 +4,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% if seo and seo.title %}{{ seo.title }}{% elif title %}{{ title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
-  <meta name="description" content="{% if seo and seo.description %}{{ seo.description }}{% elif description %}{{ description }}{% else %}{{ site.description }}{% endif %}">
+  {%- set metaDescription = seo.description if seo and seo.description else (description or subtitle or site.description) %}
+  <meta name="description" content="{{ metaDescription }}">
 
   {# Canonical URL #}
   <link rel="canonical" href="{{ site.url }}{{ page.url }}">
+  {% if published == false or noindex %}<meta name="robots" content="noindex">{% endif %}
 
-  {# Open Graph #}
-  <meta property="og:title" content="{% if seo and seo.title %}{{ seo.title }}{% elif title %}{{ title }}{% endif %}">
-  <meta property="og:description" content="{% if seo and seo.description %}{{ seo.description }}{% elif description %}{{ description }}{% endif %}">
-  <meta property="og:type" content="website">
+  {# Open Graph. `resolveCover` only returns a URL when the image file actually
+     exists on disk — a dead og:image is worse than none. #}
+  {%- set coverUrl = cover | resolveCover(page) if cover else '' %}
+  <meta property="og:title" content="{% if seo and seo.title %}{{ seo.title }}{% elif title %}{{ title }}{% else %}{{ site.title }}{% endif %}">
+  <meta property="og:description" content="{{ metaDescription }}">
+  <meta property="og:type" content="{{ 'article' if updated else 'website' }}">
   <meta property="og:url" content="{{ site.url }}{{ page.url }}">
   <meta property="og:site_name" content="{{ site.title }}">
-  {% if cover %}<meta property="og:image" content="{{ site.url }}{{ cover }}">{% endif %}
+  <meta property="og:locale" content="en_US">
+  {% if updated %}<meta property="article:modified_time" content="{{ updated | isoDate }}">{% endif %}
+  {% if coverUrl %}<meta property="og:image" content="{{ site.url }}{{ coverUrl }}">
+  {% if cover_alt %}<meta property="og:image:alt" content="{{ cover_alt }}">{% endif %}{% endif %}
 
   {# Twitter Card #}
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="{% if seo and seo.title %}{{ seo.title }}{% elif title %}{{ title }}{% endif %}">
-  <meta name="twitter:description" content="{% if seo and seo.description %}{{ seo.description }}{% elif description %}{{ description }}{% else %}{{ site.description }}{% endif %}">
+  <meta name="twitter:card" content="{{ 'summary_large_image' if coverUrl else 'summary' }}">
+  <meta name="twitter:title" content="{% if seo and seo.title %}{{ seo.title }}{% elif title %}{{ title }}{% else %}{{ site.title }}{% endif %}">
+  <meta name="twitter:description" content="{{ metaDescription }}">
+  {% if coverUrl %}<meta name="twitter:image" content="{{ site.url }}{{ coverUrl }}">{% endif %}
+
+  <link rel="alternate" type="application/atom+xml" title="{{ site.title }}" href="/feed.xml">
 
   {% include "partials/analytics.njk" %}
 
@@ -30,8 +40,9 @@
     if (t) document.documentElement.dataset.theme = t;
   </script>
 
-  {# Map pages talk to Mapbox — start the handshake during HTML parse #}
-  {% if page.url == "/map/" %}
+  {# Map layouts talk to Mapbox — start the handshake during HTML parse.
+     Every map layout sets mapPage: true in its front matter. #}
+  {% if mapPage %}
   <link rel="preconnect" href="https://api.mapbox.com">
   <link rel="preconnect" href="https://events.mapbox.com">
   {% endif %}
@@ -42,8 +53,9 @@
 
   {# Styles #}
   <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/search.css">
 </head>
-<body>
+<body{% if searchContext %} data-search-context="{{ searchContext }}"{% endif %}>
   <a href="#main-content" class="skip-link">Skip to content</a>
 
   {% include "partials/header.njk" %}
@@ -55,6 +67,7 @@
   </main>
 
   {% include "partials/footer.njk" %}
+  {% include "partials/search.njk" %}
 
   <script>
     const root = document.documentElement;
@@ -62,7 +75,10 @@
       const isDark = root.dataset.theme === 'dark';
       root.dataset.theme = isDark ? '' : 'dark';
       localStorage.setItem('theme', isDark ? '' : 'dark');
+      // The map engine re-styles its basemap on this — see andean-map.js.
+      window.dispatchEvent(new CustomEvent('themechange'));
     }
   </script>
+  <script src="/assets/js/search.js" defer></script>
 </body>
 </html>
