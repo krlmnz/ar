@@ -61,6 +61,24 @@
 
   var map = new mapboxgl.Map(opts);
 
+  // A URL-restricted token used from an origin that isn't on its allow-list
+  // (Netlify deploy previews, most often) returns 401 and the canvas stays
+  // blank. Collapse the map surface instead — the page's text and its list of
+  // places don't depend on it, and every card link works without the map.
+  map.on("error", function (e) {
+    var status = e && e.error && e.error.status;
+    if (status !== 401 && status !== 403) return;
+    var shell = root.closest(".mapshell") || root;
+    shell.setAttribute("hidden", "");
+    document.documentElement.classList.add("no-map");
+    if (status && !window.__mapAuthWarned) {
+      window.__mapAuthWarned = true;
+      console.warn("[andean-road] Mapbox rejected this origin (" + status +
+        "). Add " + location.hostname + " to the token's URL restrictions, " +
+        "or use a separate token for this context.");
+    }
+  });
+
   /* ---- markers ------------------------------------------------------- */
 
   var markers = {};

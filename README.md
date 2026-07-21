@@ -70,10 +70,23 @@ modes: `pins`, `route`, `story`. Layouts emit a JSON config block and call
 nothing.
 
 The token is a public `pk.` token — it ships to the browser by design — but it
-is kept out of git (see `_data/mapbox.js`). **It should also carry a URL
-restriction** in the Mapbox account settings so it only works from this site's
-domains. An unrestricted token can be lifted from the page and billed to the
-account.
+is kept out of git (see `_data/mapbox.js`) and should carry **URL restrictions**
+in the Mapbox account:
+
+```
+andean-road.com
+andean-road.netlify.app
+localhost
+```
+
+Mapbox supports **no wildcards**, but subdomains of an allowed URL are allowed
+automatically — so `andean-road.com` already covers `www.`. Netlify deploy
+previews (`deploy-preview-1--andean-road.netlify.app`) use `--`, which makes
+them siblings of `netlify.app` rather than subdomains of the site, so no entry
+covers them short of allowing every site on Netlify. Preview maps therefore
+fail; the engine catches the 401 and collapses the map surface, leaving the
+page's text and place links intact. Add the specific preview host, or set a
+separate `MAPBOX_TOKEN` on the deploy-preview context, if you need them live.
 
 ## Known gaps
 
