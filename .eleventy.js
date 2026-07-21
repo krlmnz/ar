@@ -5,6 +5,12 @@ const markdownIt = require('markdown-it');
 const markdownItAnchor = require('markdown-it-anchor');
 
 module.exports = function(eleventyConfig) {
+  // --serve honours PORT so a preview harness can hand us a free port.
+  // Without this, Eleventy ignores the environment and pins itself to 8080.
+  if (process.env.PORT) {
+    eleventyConfig.setServerOptions({ port: Number(process.env.PORT) });
+  }
+
   // Inline SVG icons, resolved from the @phosphor-icons/core package.
   // Nothing to download — every Phosphor icon is already available by name.
   //
