@@ -1,5 +1,5 @@
 ---
-layout: base.njk
+layout: layouts/base.njk
 ---
 
 {% set crumbs = [
@@ -8,19 +8,18 @@ layout: base.njk
 ] %}
 {% include "partials/breadcrumbs.njk" %}
 
+{% set overline = "Practical" %}
+
 <article>
-  <header class="place-header">
-    <div class="place-header__type">Practical</div>
-    <h1 class="place-header__title">{{ title }}</h1>
-  </header>
+  {% include "partials/page-header.njk" %}
 
   <div class="prose content-column">
     {{ content | safe }}
   </div>
 
-  <div style="margin-top:var(--space-7);max-width:var(--content-width)">
+  <div class="section-block">
     <hr class="rule">
-    <h3 style="font-family:var(--font-display);font-size:var(--text-h3);font-weight:600;margin-bottom:var(--space-2)">More practical info</h3>
+    <h2 class="subhead">More practical info</h2>
     <div class="practical-list">
       {% for p in collections.practical %}
         {% if p.data.slug != slug %}

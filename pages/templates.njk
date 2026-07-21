@@ -1,0 +1,66 @@
+---
+layout: layouts/base.njk
+permalink: /templates/
+title: Templates
+seo:
+  title: "Templates — Andean Road"
+  description: "Page templates and map layouts you can pick up and write markdown into — article, itinerary, FAQ, reference, gallery, manual, plus six ways to put a map on the page."
+---
+
+{% set crumbs = [{ label: "Templates" }] %}
+{% include "partials/breadcrumbs.njk" %}
+
+{% set writing = [] %}
+{% set maps = [] %}
+{% for t in collections.templates %}
+  {% if "map-" in t.fileSlug %}{% set maps = (maps.push(t), maps) %}
+  {% else %}{% set writing = (writing.push(t), writing) %}{% endif %}
+{% endfor %}
+
+<div class="hero">
+  <div class="hero-overline">Write, don't design</div>
+  <h1 class="hero-title">Templates</h1>
+  <p class="hero-lede">{{ collections.templates | length }} layouts built on the Andean Road tokens — {{ writing | length }} for writing, {{ maps | length }} for maps. Pick one, set a <code>layout:</code> in your front matter, and write markdown. Each page documents its own fields.</p>
+</div>
+
+<hr class="rule rule--heavy">
+
+<section class="section">
+  <div class="section-label">For writing</div>
+  <h2 class="section-title">Page templates</h2>
+  <div class="section-description">Every one extends the same base layout and shares one masthead partial, so breadcrumbs, rhythm and dark mode behave identically. Below the masthead each takes a different shape — a timeline, an accordion, a table, a figure grid, a contents rail — chosen to fit how that content is read.</div>
+
+  {% for t in writing %}
+  <a href="{{ t.url }}" class="guide-entry">
+    <div class="guide-entry__overline">layouts/{{ t.fileSlug }}.njk</div>
+    <h3 class="guide-entry__title">{{ t.data.title }}</h3>
+    <div class="guide-entry__description">{{ t.data.summary or t.data.subtitle }}</div>
+  </a>
+  {% endfor %}
+</section>
+
+<section class="section">
+  <div class="section-label">For maps</div>
+  <h2 class="section-title">Map layouts</h2>
+  <div class="section-description">Six ways to put a map on a page, each answering a different question. They share one engine and one set of cartographic tokens — the categorical palette, the marker shapes, the legend — so a reader moving between them is always reading the same map language.</div>
+
+  {% for t in maps %}
+  <a href="{{ t.url }}" class="guide-entry">
+    <div class="guide-entry__overline">layouts/{{ t.fileSlug }}.njk</div>
+    <h3 class="guide-entry__title">{{ t.data.title }}</h3>
+    <div class="guide-entry__description">{{ t.data.summary or t.data.subtitle }}</div>
+  </a>
+  {% endfor %}
+</section>
+
+<hr class="rule rule--section">
+
+<section class="section">
+  <div class="section-label">Getting started</div>
+  <h2 class="section-title">Adding a page</h2>
+
+  <div class="callout">
+    <div class="callout__label">The whole contract</div>
+    <p>Create a markdown file, set <code>layout: layouts/&lt;name&gt;.njk</code> and a <code>title</code>. Everything else in the front matter is optional and degrades cleanly when left out. Map layouts additionally take a list of place slugs — the coordinates come from the place files, so a map never holds its own copy of the data.</p>
+  </div>
+</section>

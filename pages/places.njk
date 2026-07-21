@@ -1,0 +1,50 @@
+---
+layout: layouts/base.njk
+permalink: /places/
+title: All Places
+seo:
+  title: "All Places — Andean Road"
+  description: "Every place worth going in Chile — restaurants, vineyards, hot springs, volcanoes and museums, grouped by region."
+---
+
+<div class="hero">
+  <div class="hero-overline">The full list</div>
+  <h1 class="hero-title">Places</h1>
+  <p class="hero-lede">Every place on this site, grouped by region. {{ collections.places | length }} in total — each one somewhere I've actually been.</p>
+</div>
+
+<hr class="rule rule--heavy">
+
+{% for slug, region in regions %}
+  {% set placesHere = [] %}
+  {% for item in collections.places %}
+    {% if item.data.region == slug %}{% set placesHere = (placesHere.push(item), placesHere) %}{% endif %}
+  {% endfor %}
+
+  {% if placesHere | length %}
+  <section class="section">
+    <div class="section-label">{{ region.description }}</div>
+    <div class="section-title">
+      <a href="/regions/{{ slug }}/" style="color:inherit;text-decoration:none">{{ region.label }}</a>
+    </div>
+
+    {% for item in placesHere %}
+      {% include "partials/place-entry.njk" %}
+    {% endfor %}
+  </section>
+  {% endif %}
+{% endfor %}
+
+<hr class="rule rule--section">
+
+<section class="section">
+  <div class="section-label">Another way in</div>
+  <div class="section-title">Browse by trip style</div>
+  <div class="section-description">Same places, sorted by the kind of trip you're planning.</div>
+
+  <div class="practical-list">
+    {% for slug, audience in audiences %}
+    <a href="/for/{{ slug }}/" class="practical-link">{{ audience.label }}</a>
+    {% endfor %}
+  </div>
+</section>

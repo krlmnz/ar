@@ -1,0 +1,17 @@
+{# Masthead shared by every page-type layout.
+   Reads: overline, title, subtitle (or description), byline, updated. #}
+<header class="page-header">
+  {% if overline %}<div class="page-header__type">{{ overline }}</div>{% endif %}
+  <h1 class="page-header__title">{{ title }}</h1>
+  {% set standfirst = subtitle or description %}
+  {% if standfirst %}<p class="page-header__subtitle">{{ standfirst }}</p>{% endif %}
+
+  {% if meta or byline or updated or reading_time %}
+  <div class="page-header__meta">
+    {% for m in meta %}{% if m %}<span>{{ m }}</span>{% endif %}{% endfor %}
+    {% if byline %}<span>{{ byline }}</span>{% endif %}
+    {% if updated %}<span><time datetime="{{ updated | isoDate }}">{{ updated | dateFormat }}</time></span>{% endif %}
+    {% if reading_time %}<span>{{ reading_time }}</span>{% endif %}
+  </div>
+  {% endif %}
+</header>

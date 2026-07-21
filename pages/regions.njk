@@ -1,0 +1,30 @@
+---
+layout: layouts/base.njk
+permalink: /regions/
+title: Regions
+seo:
+  title: "Regions — Andean Road"
+  description: "Chile by region: Santiago, Casablanca Valley wine country, the Central Coast, the Andes, Pomaire, and the Lake District."
+---
+
+<div class="hero">
+  <div class="hero-overline">By geography</div>
+  <h1 class="hero-title">Regions</h1>
+  <p class="hero-lede">Chile is long — 2,600 miles of it. Here's the country broken into the pieces you'd actually plan a trip around.</p>
+</div>
+
+<hr class="rule rule--heavy">
+
+<section class="section">
+  {% for slug, region in regions %}
+    {% set count = 0 %}
+    {% for item in collections.places %}
+      {% if item.data.region == slug %}{% set count = count + 1 %}{% endif %}
+    {% endfor %}
+  <a href="/regions/{{ slug }}/" class="guide-entry">
+    <div class="guide-entry__overline">{{ count }} place{{ "s" if count != 1 }}</div>
+    <div class="guide-entry__title">{{ region.label }}</div>
+    <div class="guide-entry__description">{{ region.description }}</div>
+  </a>
+  {% endfor %}
+</section>

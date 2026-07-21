@@ -1,0 +1,48 @@
+---
+layout: layouts/base.njk
+---
+{# ITINERARY — numbered days or steps. The markdown body is the intro; the
+   sequence comes from front matter so it stays structured data.
+   Front matter: title, overline, subtitle, steps: [{overline, title, body, place}] #}
+
+{% if crumbs %}{% include "partials/breadcrumbs.njk" %}{% endif %}
+
+<article class="tpl tpl--itinerary">
+  {% include "partials/page-header.njk" %}
+
+  {% if content %}
+  <div class="prose content-column">
+    {{ content | safe }}
+  </div>
+  {% endif %}
+
+  {% if steps and steps.length %}
+  {% set placeCount = 0 %}
+  {% for s in steps %}{% if s.place %}{% set placeCount = placeCount + 1 %}{% endif %}{% endfor %}
+  <div class="itin-summary">
+    <span>{{ steps | length }} {{ "stop" if steps | length == 1 else "stops" }}</span>
+    {% if placeCount %}<span>{{ placeCount }} linked {{ "place" if placeCount == 1 else "places" }}</span>{% endif %}
+  </div>
+
+  {# role="list" restores list semantics that list-style:none strips in Safari #}
+  <ol class="steps steps--timeline" role="list">
+    {% for step in steps %}
+    <li class="step">
+      <div>
+        {% if step.overline %}<div class="step__overline">{{ step.overline }}</div>{% endif %}
+        <h2 class="step__title">{{ step.title }}</h2>
+        {% if step.body %}<p class="step__body">{{ step.body }}</p>{% endif %}
+        {% if step.place %}
+          {% set linked = collections.places | findBySlug(step.place) %}
+          {% if linked %}
+          <p class="step__body">
+            <a href="/places/{{ linked.data.slug }}/">{{ linked.data.title }} →</a>
+          </p>
+          {% endif %}
+        {% endif %}
+      </div>
+    </li>
+    {% endfor %}
+  </ol>
+  {% endif %}
+</article>

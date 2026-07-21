@@ -1,5 +1,5 @@
 ---
-layout: base.njk
+layout: layouts/base.njk
 ---
 
 {% set regionData = regions[region] if regions and region %}
@@ -10,20 +10,17 @@ layout: base.njk
 ] %}
 {% include "partials/breadcrumbs.njk" %}
 
-<article>
-  <header class="place-header">
-    <div class="place-header__type">{{ type | replace("-", " ") }}</div>
-    <h1 class="place-header__title">{{ title }}</h1>
-    {% if subtitle %}<p class="place-header__subtitle">{{ subtitle }}</p>{% endif %}
+{% set m = [] %}
+{% if regionData %}{% set m = (m.push(regionData.label), m) %}{% endif %}
+{% if cost_level %}{% set m = (m.push(cost_level), m) %}{% endif %}
+{% if duration %}{% set m = (m.push(duration | replace("-", " ")), m) %}{% endif %}
+{% if time_from and time_from.santiago %}{% set m = (m.push(time_from.santiago + " from Santiago"), m) %}{% endif %}
+{% if reservations and reservations != "none" %}{% set m = (m.push("Reservations " + reservations), m) %}{% endif %}
+{% set overline = type | replace("-", " ") %}
+{% set meta = m %}
 
-    <div class="place-header__meta">
-      {% if regionData %}<span>{{ regionData.label }}</span>{% endif %}
-      {% if cost_level %}<span>{{ cost_level }}</span>{% endif %}
-      {% if duration %}<span>{{ duration | replace("-", " ") }}</span>{% endif %}
-      {% if time_from and time_from.santiago %}<span>{{ time_from.santiago }} from Santiago</span>{% endif %}
-      {% if reservations and reservations != "none" %}<span>Reservations {{ reservations }}</span>{% endif %}
-    </div>
-  </header>
+<article>
+  {% include "partials/page-header.njk" %}
 
   <div class="prose content-column">
     {{ content | safe }}
@@ -36,8 +33,8 @@ layout: base.njk
   {% endif %}
 
   {% if spanish and spanish.useful_phrases %}
-  <div class="content-column" style="margin-top:var(--space-6)">
-    <h3 style="font-family:var(--font-display);font-size:var(--text-h3);font-weight:600;margin-bottom:var(--space-2)">Phrases you'll need</h3>
+  <div class="content-column section-block">
+    <h2 class="subhead">Phrases you'll need</h2>
     <div class="phrase-list">
       {% for p in spanish.useful_phrases %}
       <div class="phrase-item">
@@ -47,15 +44,15 @@ layout: base.njk
       {% endfor %}
     </div>
     {% if spanish.pronunciation %}
-    <p style="font-family:var(--font-ui);font-size:var(--text-caption);color:var(--text-3);margin-top:var(--space-2)">{{ spanish.pronunciation }}</p>
+    <p class="note-line">{{ spanish.pronunciation }}</p>
     {% endif %}
   </div>
   {% endif %}
 
   {% if bring %}
-  <div class="content-column" style="margin-top:var(--space-5)">
-    <h3 style="font-family:var(--font-display);font-size:var(--text-h3);font-weight:600;margin-bottom:var(--space-2)">What to bring</h3>
-    <div style="display:flex;flex-wrap:wrap;gap:var(--space-1)">
+  <div class="content-column section-block">
+    <h2 class="subhead">What to bring</h2>
+    <div class="tag-row">
       {% for item in bring %}
       <span class="tag">{{ item }}</span>
       {% endfor %}
@@ -63,8 +60,19 @@ layout: base.njk
   </div>
   {% endif %}
 
+  {% if tags and tags.length %}
+  <div class="content-column section-block">
+    <h2 class="subhead">More like this</h2>
+    <div class="tag-row">
+      {% for t in tags %}
+      <a href="/tags/{{ t }}/" class="tag">{{ tagInfo[t].label if tagInfo[t] else t | replace("-", " ") }}</a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
   {% if google_maps %}
-  <div class="content-column" style="margin-top:var(--space-5);display:flex;gap:var(--space-2);flex-wrap:wrap">
+  <div class="content-column section-block btn-row">
     <a href="{{ google_maps }}" target="_blank" rel="noopener" class="btn btn--filled">View on Google Maps</a>
     {% if website %}
     <a href="{{ website }}" target="_blank" rel="noopener" class="btn">Visit website</a>
@@ -73,9 +81,9 @@ layout: base.njk
   {% endif %}
 
   {% if related and related.length %}
-  <div style="margin-top:var(--space-7);max-width:var(--content-width)">
+  <div class="section-block">
     <hr class="rule">
-    <h3 style="font-family:var(--font-display);font-size:var(--text-h3);font-weight:600;margin-bottom:var(--space-3)">You might also like</h3>
+    <h2 class="subhead">You might also like</h2>
     <div class="place-grid">
       {% for relSlug in related %}
         {% set place = collections.places | findBySlug(relSlug) %}
@@ -93,8 +101,8 @@ layout: base.njk
 {
   "@context": "https://schema.org",
   "@type": "TouristAttraction",
-  "name": "{{ title }}",
-  "description": "{{ subtitle or description }}",
+  "name": {{ title | dump | replace("</", "<\\/") | safe }},
+  "description": {{ (subtitle or description or "") | dump | replace("</", "<\\/") | safe }},
   {% if coordinates %}"geo": {"@type": "GeoCoordinates", "latitude": {{ coordinates.lat }}, "longitude": {{ coordinates.lng }}},{% endif %}
   "address": {"@type": "PostalAddress", "addressCountry": "CL"},
   "url": "{{ site.url }}/places/{{ slug }}/"

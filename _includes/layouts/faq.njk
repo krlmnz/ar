@@ -1,0 +1,47 @@
+---
+layout: layouts/base.njk
+---
+{# FAQ — questions and answers. Emits FAQPage structured data automatically.
+   Front matter: title, overline, subtitle, faqs: [{q, a}] #}
+
+{% if crumbs %}{% include "partials/breadcrumbs.njk" %}{% endif %}
+
+<article class="tpl tpl--faq">
+  {% include "partials/page-header.njk" %}
+
+  {% if content %}
+  <div class="prose content-column">
+    {{ content | safe }}
+  </div>
+  {% endif %}
+
+  {% if faqs and faqs.length %}
+  {# <details> gives a real accordion with zero JS — keyboard operable and
+     announced correctly by screen readers. The first one opens by default. #}
+  <div class="faq-list">
+    {% for item in faqs %}
+    <details class="faq-item"{% if loop.first %} open{% endif %}>
+      <summary class="faq-item__q">{{ item.q }}</summary>
+      <div class="faq-item__a">{{ item.a }}</div>
+    </details>
+    {% endfor %}
+  </div>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {%- for item in faqs %}
+      {
+        "@type": "Question",
+        {# dump escapes quotes but not "</", which would close the <script> early #}
+        "name": {{ item.q | dump | replace("</", "<\\/") | safe }},
+        "acceptedAnswer": { "@type": "Answer", "text": {{ item.a | dump | replace("</", "<\\/") | safe }} }
+      }{% if not loop.last %},{% endif %}
+      {%- endfor %}
+    ]
+  }
+  </script>
+  {% endif %}
+</article>

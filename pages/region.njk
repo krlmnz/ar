@@ -1,0 +1,47 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: regions
+  size: 1
+  alias: regionSlug
+  resolve: keys
+permalink: "/regions/{{ regionSlug }}/"
+eleventyComputed:
+  title: "{{ regions[regionSlug].label | safe }}"
+  seo:
+    title: "{{ regions[regionSlug].label | safe }} — Andean Road"
+    description: "{{ regions[regionSlug].description | safe }}. Where to eat, stay and go."
+---
+
+{% set region = regions[regionSlug] %}
+
+<div class="hero">
+  <div class="hero-overline">Region</div>
+  <h1 class="hero-title">{{ region.label }}</h1>
+  <p class="hero-lede">{{ region.description }}.</p>
+</div>
+
+<hr class="rule rule--heavy">
+
+<section class="section">
+  {% for item in collections.places %}
+    {% if item.data.region == regionSlug %}
+      {% include "partials/place-entry.njk" %}
+    {% endif %}
+  {% endfor %}
+</section>
+
+<hr class="rule rule--section">
+
+<section class="section">
+  <div class="section-label">Keep exploring</div>
+  <div class="section-title">Other regions</div>
+
+  <div class="practical-list">
+    {% for slug, r in regions %}
+      {% if slug != regionSlug %}
+      <a href="/regions/{{ slug }}/" class="practical-link">{{ r.label }}</a>
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>

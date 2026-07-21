@@ -1,0 +1,250 @@
+{# Directory + map.
+   Desktop: scrolling directory left, sticky map right.
+   Mobile:  map on top, directory as a horizontal snap rail beneath.
+   Selecting a place in either surface drives the other. #}
+
+<div class="dirmap" id="dirmap">
+
+  {# Selection is otherwise conveyed only visually (active card / marker + a popup
+     placed far from the control), so announce it here. #}
+  <p id="dirmap-status" class="sr-only" role="status" aria-live="polite"></p>
+
+  <div class="dirmap__list" role="region" aria-label="Directory of places">
+    <div class="dirmap__list-head">
+      <span class="dirmap__count">{{ collections.places | length }} places</span>
+      <button type="button" class="dirmap__reset" data-map-reset>
+        {% icon "arrows-in", size=14 %} Reset map
+      </button>
+    </div>
+
+    <ul class="dirmap__cards">
+      {%- for item in collections.places %}
+      {%- if item.data.coordinates %}
+      {%- set iconName = placeIcons[item.data.type] or placeIcons._default %}
+      <li>
+        <article class="place-entry place-entry--card" id="card-{{ item.data.slug }}" data-slug="{{ item.data.slug }}">
+          {# aria-label keeps the button's name short: without it the name would be
+             the whole card — overline, title, full subtitle, cost and duration. #}
+          <button type="button" class="place-entry__jump" data-jump="{{ item.data.slug }}"
+                  aria-pressed="false"
+                  aria-label="Show {{ item.data.title }} on the map">
+            <span class="place-entry__icon">{% icon iconName, weight="fill", size=24 %}</span>
+            <span class="place-entry__body">
+              <span class="place-entry__overline">{{ item.data.type | replace("-", " ") }}</span>
+              <span class="place-entry__name">{{ item.data.title }}</span>
+              <span class="place-entry__description">{{ item.data.subtitle }}</span>
+              <span class="place-entry__meta">
+                {% if item.data.cost_level %}<span>{{ item.data.cost_level }}</span>{% endif %}
+                {% if item.data.duration %}<span>{{ item.data.duration | replace("-", " ") }}</span>{% endif %}
+              </span>
+            </span>
+          </button>
+          <a class="place-entry__link" href="/places/{{ item.data.slug }}/">
+            Read more <span aria-hidden="true">→</span>
+          </a>
+        </article>
+      </li>
+      {%- endif %}
+      {%- endfor %}
+    </ul>
+  </div>
+
+  <div class="dirmap__map">
+    <div id="map" class="dirmap__canvas" role="application" aria-label="Map of every place on Andean Road"></div>
+    <div class="dirmap__controls">
+      <button type="button" class="dirmap__control" data-map-zoom="in" aria-label="Zoom in" title="Zoom in">
+        {% icon "plus", size=18 %}
+      </button>
+      <button type="button" class="dirmap__control" data-map-zoom="out" aria-label="Zoom out" title="Zoom out">
+        {% icon "minus", size=18 %}
+      </button>
+    </div>
+  </div>
+</div>
+
+{# Marker template — one circular Phosphor badge per place type #}
+<template id="map-marker">
+  <button type="button" class="map-marker"><span class="map-marker__icon"></span></button>
+</template>
+
+{# Icon sprites, hidden — cloned into markers so each type keeps its glyph #}
+<div class="dirmap__sprites" hidden aria-hidden="true">
+  {%- for type, iconName in placeIcons %}
+  <span data-sprite="{{ type }}">{% icon iconName, weight="fill", size=24 %}</span>
+  {%- endfor %}
+</div>
+
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/{{ mapbox.version }}/mapbox-gl.css">
+<script src="https://api.mapbox.com/mapbox-gl-js/{{ mapbox.version }}/mapbox-gl.js" defer></script>
+<script defer>
+  window.addEventListener("load", function () {
+    var places = [
+      {%- for item in collections.places %}
+      {%- if item.data.coordinates %}
+      { slug: "{{ item.data.slug }}",
+        title: {{ item.data.title | dump | safe }},
+        type: {{ (item.data.type or "") | dump | safe }},
+        url: "/places/{{ item.data.slug }}/",
+        lng: {{ item.data.coordinates.lng }},
+        lat: {{ item.data.coordinates.lat }} }{% if not loop.last %},{% endif %}
+      {%- endif %}
+      {%- endfor %}
+    ];
+
+    var root = document.getElementById("dirmap");
+    var status = document.getElementById("dirmap-status");
+
+    // If the Mapbox bundle never arrives, collapse the map rather than leaving a
+    // large empty box with dead controls. The directory stays fully usable —
+    // every card's "Read more" is a plain link that needs no JS.
+    if (!window.mapboxgl || !places.length) {
+      root.classList.add("dirmap--nomap");
+      return;
+    }
+
+    var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    mapboxgl.accessToken = "{{ mapbox.token }}";
+
+    var bounds = new mapboxgl.LngLatBounds();
+    places.forEach(function (p) { bounds.extend([p.lng, p.lat]); });
+
+    var map = new mapboxgl.Map({
+      container: "map",
+      style: "{{ mapbox.style }}",
+      bounds: bounds,
+      fitBoundsOptions: { padding: 48 },
+      cooperativeGestures: true
+    });
+
+    var sprites = document.querySelector(".dirmap__sprites");
+    var markerTpl = document.getElementById("map-marker");
+    var markers = {};
+    var activeSlug = null;
+
+    // One popup instance, reused — cheaper than constructing per interaction.
+    // closeOnClick MUST be false: a marker click bubbles to the map canvas, and
+    // Mapbox's own close-on-click would shut the popup in the same tick we open it.
+    // focusAfterOpen must be false: it defaults to true, and addTo() would pull
+    // keyboard focus out of the directory onto the popup link on every select().
+    var popup = new mapboxgl.Popup({
+      offset: 26,
+      closeButton: false,
+      closeOnClick: false,
+      focusAfterOpen: false,
+      className: "map-popup"
+    });
+
+    function spriteFor(type) {
+      var node = sprites.querySelector('[data-sprite="' + type + '"]')
+              || sprites.querySelector('[data-sprite="_default"]');
+      return node.firstElementChild.cloneNode(true);
+    }
+
+    function select(slug, opts) {
+      opts = opts || {};
+      if (activeSlug === slug) return;
+
+      var prev = document.querySelector(".place-entry--active");
+      if (prev) prev.classList.remove("place-entry--active");
+      Object.keys(markers).forEach(function (s) {
+        markers[s].getElement().classList.toggle("map-marker--active", s === slug);
+      });
+
+      activeSlug = slug;
+      var place = places.filter(function (p) { return p.slug === slug; })[0];
+      if (!place) return;
+
+      document.querySelectorAll("[data-jump]").forEach(function (b) {
+        b.setAttribute("aria-pressed", b.getAttribute("data-jump") === slug ? "true" : "false");
+      });
+
+      var card = document.getElementById("card-" + slug);
+      if (card) {
+        card.classList.add("place-entry--active");
+        if (opts.scrollCard) {
+          card.scrollIntoView({
+            behavior: reduceMotion ? "auto" : "smooth",
+            block: "nearest",
+            inline: "center"
+          });
+        }
+      }
+
+      if (opts.fly !== false) {
+        var camera = { center: [place.lng, place.lat], zoom: Math.max(map.getZoom(), 11) };
+        if (reduceMotion) {
+          map.jumpTo(camera);
+        } else {
+          camera.duration = 900;
+          map.flyTo(camera);
+        }
+      }
+
+      // Built as DOM, not an HTML string — place titles are author-supplied and
+      // would otherwise need escaping (e.g. an "&" or "<" in a name).
+      var body = document.createElement("div");
+      var overline = document.createElement("span");
+      overline.className = "map-popup__overline";
+      overline.textContent = place.type.replace(/-/g, " ");
+      var link = document.createElement("a");
+      link.className = "map-popup__title";
+      link.href = place.url;
+      link.textContent = place.title;
+      body.appendChild(overline);
+      body.appendChild(link);
+
+      popup.setLngLat([place.lng, place.lat]).setDOMContent(body).addTo(map);
+
+      if (status) status.textContent = "Showing " + place.title + " on the map.";
+    }
+
+    places.forEach(function (p) {
+      var el = markerTpl.content.firstElementChild.cloneNode(true);
+      el.setAttribute("aria-label", p.title);
+      el.querySelector(".map-marker__icon").appendChild(spriteFor(p.type));
+      el.addEventListener("click", function (e) {
+        e.stopPropagation(); // don't let the map's click handler clear the selection
+        select(p.slug, { scrollCard: true });
+      });
+
+      markers[p.slug] = new mapboxgl.Marker({ element: el, anchor: "center" })
+        .setLngLat([p.lng, p.lat])
+        .addTo(map);
+    });
+
+    document.querySelectorAll("[data-jump]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        select(btn.getAttribute("data-jump"));
+      });
+    });
+
+    // Drop the selection without moving the camera — for a stray click on the map.
+    function clearSelection() {
+      activeSlug = null;
+      popup.remove();
+      var prev = document.querySelector(".place-entry--active");
+      if (prev) prev.classList.remove("place-entry--active");
+      Object.keys(markers).forEach(function (s) {
+        markers[s].getElement().classList.remove("map-marker--active");
+      });
+      document.querySelectorAll("[data-jump]").forEach(function (b) {
+        b.setAttribute("aria-pressed", "false");
+      });
+    }
+
+    function resetView() {
+      clearSelection();
+      map.fitBounds(bounds, { padding: 48, duration: reduceMotion ? 0 : 700 });
+      if (status) status.textContent = "Map reset to show all places.";
+    }
+
+    map.on("click", clearSelection);
+
+    document.querySelectorAll("[data-map-reset]").forEach(function (b) {
+      b.addEventListener("click", resetView);
+    });
+    document.querySelector('[data-map-zoom="in"]').addEventListener("click", function () { map.zoomIn(); });
+    document.querySelector('[data-map-zoom="out"]').addEventListener("click", function () { map.zoomOut(); });
+  });
+</script>

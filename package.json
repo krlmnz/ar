@@ -12,5 +12,8 @@
     "js-yaml": "^4.1.0",
     "markdown-it": "^14.0.0",
     "markdown-it-anchor": "^8.6.7"
+  },
+  "devDependencies": {
+    "@phosphor-icons/core": "^2.1.1"
   }
 }

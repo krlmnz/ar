@@ -16,3 +16,9 @@ Thumbs.db
 # Environment
 .env
 .env.local
+
+# Credentials — see _data/mapbox.js
+_data/mapbox.local.json
+
+# Local Netlify folder
+.netlify

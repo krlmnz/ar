@@ -1,0 +1,16 @@
+{# Shared map plumbing. A layout sets `mapConfig` (a dict) then includes this.
+   Everything the engine needs — sprites, live region, config, scripts. #}
+
+<div data-map-sprites hidden aria-hidden="true">
+  {%- for type, iconName in placeIcons %}
+  <span data-sprite="{{ type }}">{% icon iconName, weight="fill", size=16 %}</span>
+  {%- endfor %}
+</div>
+
+<p id="map-status" class="sr-only" role="status" aria-live="polite"></p>
+
+<script type="application/json" id="map-config">{{ mapConfig | dump | safe }}</script>
+
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/{{ mapbox.version }}/mapbox-gl.css">
+<script src="https://api.mapbox.com/mapbox-gl-js/{{ mapbox.version }}/mapbox-gl.js" defer></script>
+<script src="/assets/js/andean-map.js" defer></script>

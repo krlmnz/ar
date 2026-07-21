@@ -1,5 +1,5 @@
 ---
-layout: base.njk
+layout: layouts/base.njk
 ---
 
 {% set crumbs = [
@@ -8,21 +8,19 @@ layout: base.njk
 ] %}
 {% include "partials/breadcrumbs.njk" %}
 
+{% set overline = "Guide · " + duration if duration else "Guide" %}
+
 <article>
-  <header class="place-header">
-    <div class="place-header__type">Guide · {{ duration }}</div>
-    <h1 class="place-header__title">{{ title }}</h1>
-    {% if description %}<p class="place-header__subtitle">{{ description }}</p>{% endif %}
-  </header>
+  {% include "partials/page-header.njk" %}
 
   <div class="prose content-column">
     {{ content | safe }}
   </div>
 
   {% if places and places.length %}
-  <div style="margin-top:var(--space-7);max-width:var(--content-width)">
+  <div class="section-block">
     <hr class="rule">
-    <h3 style="font-family:var(--font-display);font-size:var(--text-h3);font-weight:600;margin-bottom:var(--space-3)">Places in this guide</h3>
+    <h2 class="subhead">Places in this guide</h2>
     <div class="place-grid">
       {% for placeSlug in places %}
         {% set place = collections.places | findBySlug(placeSlug) %}

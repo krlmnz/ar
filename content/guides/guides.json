@@ -1,4 +1,4 @@
 {
-  "layout": "guide.njk",
+  "layout": "layouts/guide.njk",
   "permalink": "/guides/{{ slug }}/index.html"
 }

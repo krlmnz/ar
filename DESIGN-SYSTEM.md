@@ -110,76 +110,82 @@ h1 {
 
 ## 4. Color System
 
-### Light Mode (Warm Paper)
+> Source of truth is `assets/css/tokens.css`. The tables below are generated from
+> it — if they disagree, the CSS wins and this section is stale.
 
-| Token | Hex | Usage |
-|-------|-----|-------|
-| `--bg` | #FAFAF8 | Page background (warm, off-white, slightly beige) |
-| `--surface` | #FFFFFF | Card/elevated surfaces, forms |
-| `--text` | #171717 | Primary text, headlines |
-| `--text-2` | #525252 | Secondary text, descriptive copy |
-| `--text-3` | #A3A3A1 | Tertiary/disabled text, hints |
-| `--border` | #EBEBEA | Default borders, subtle dividers |
-| `--border-subtle` | #F5F5F3 | Subtle separators, barely visible |
-| `--accent` | #171717 | Links, CTAs, interactive elements |
-| `--rule` | #D5D5D3 | Horizontal rules, structural lines |
+### Primitives
 
-### Dark Mode
+Raw greyscale with a warm paper undertone. **Primitives do not flip between
+themes.** Never reference one directly for `color` or `background` in a component
+— use a semantic token, or dark mode will break.
 
-| Token | Hex | Usage |
-|-------|-----|-------|
-| `--bg` | #111111 | Page background, true black |
-| `--surface` | #1A1A1A | Elevated surfaces, cards |
-| `--text` | #F0F0EE | Primary text, high contrast |
-| `--text-2` | #A0A09E | Secondary text, readable but softer |
-| `--text-3` | #6B6B69 | Tertiary text, disabled states |
-| `--border` | #2A2A2A | Borders, visible but restrained |
-| `--border-subtle` | #1F1F1F | Subtle separators |
-| `--accent` | #F0F0EE | Links, interactive elements |
-| `--rule` | #333333 | Structural rules |
+| Token | Hex |
+|---|---|
+| `--white` | #FFFFFF |
+| `--gray-50` | #FAFAF8 |
+| `--gray-100` | #F5F5F3 |
+| `--gray-200` | #E5E5E5 |
+| `--gray-300` | #E5E5E5 *(same as 200 — collapse on next palette revision)* |
+| `--gray-400` | #A3A3A1 |
+| `--gray-500` | #737373 |
+| `--gray-600` | #6B7280 |
+| `--gray-700` | #404040 |
+| `--gray-800` | #262626 |
+| `--gray-900` | #111416 |
+| `--black` | #0A0A0A |
 
-### Color Philosophy
+### Semantic tokens
 
-**Monochrome first.** Grayscale supports the editorial voice — the writing is the color. All contrast and hierarchy come from typography and spacing.
+These are what components use. Every one has a dark-mode value.
 
-**Future color is intentional.** When color is introduced (expected in v2):
-- Map pins: Single accent color (e.g., warm terracotta for "experience" vs. cool blue for "practical")
-- Audience segment tints: Subtle background tints on audience cards (very low saturation, 10-15% opacity)
-- Interactive data: Visualizations use a limited palette (max 4 colors)
+| Token | Light | Dark | Usage |
+|---|---|---|---|
+| `--bg` | #FAFAF8 | #111416 | Page background |
+| `--surface` | #FFFFFF | #1C1F22 | Cards, elevated surfaces |
+| `--text` | #111416 | #F0F0EE | Primary text, headlines |
+| `--text-2` | #6B7280 | #9CA3AF | Secondary text, descriptions |
+| `--text-3` | #737373 | #8A8A88 | Overlines, captions, meta |
+| `--border` | #E5E5E5 | #434547 | Borders, dividers |
+| `--border-subtle` | #F5F5F3 | #1F1F1F | Barely-visible separators |
+| `--accent` | #111416 | #F0F0EE | Links, interactive |
+| `--accent-hover` | — | #D4D4D2 | Hover state |
+| `--accent-soft` | #F5F5F3 | #1F1F1F | Tinted backgrounds, callouts |
+| `--rule` | #E5E5E5 | #333333 | Horizontal rules |
 
-**When color appears, it should feel like a single accent on a black-and-white photograph.** No rainbow gradients. No decorative color. Earned color.
+**Measured contrast** (in-browser, against the page background):
+
+| | Light | Dark |
+|---|---|---|
+| `--text` | 15.9:1 | 16.2:1 |
+| `--text-2` | 4.63:1 | 7.28:1 |
+| `--text-3` | 4.54:1 | 5.35:1 |
+
+All pass WCAG AA for normal text. The light-mode margin on `--text-2` and
+`--text-3` is thin — **do not lighten them.**
+
+### Color philosophy
+
+**Monochrome first.** Greyscale supports the editorial voice — the writing is the
+color. Hierarchy comes from typography and spacing.
+
+**Future color is intentional.** Map pins, audience-segment tints, and data
+visualisation are where color is earned. When it appears it should read like a
+single accent on a black-and-white photograph. No decorative color.
 
 ### Implementation
 
-```css
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #FAFAF8;
-    --surface: #FFFFFF;
-    --text: #171717;
-    --text-2: #525252;
-    --text-3: #A3A3A1;
-    --border: #EBEBEA;
-    --border-subtle: #F5F5F3;
-    --accent: #171717;
-    --rule: #D5D5D3;
-  }
-}
+The theme is an **attribute on `<html>`**, not a media query — it has to be
+user-switchable and remembered.
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #111111;
-    --surface: #1A1A1A;
-    --text: #F0F0EE;
-    --text-2: #A0A09E;
-    --text-3: #6B6B69;
-    --border: #2A2A2A;
-    --border-subtle: #1F1F1F;
-    --accent: #F0F0EE;
-    --rule: #333333;
-  }
-}
+```css
+:root            { --bg: var(--gray-50);  --text: var(--gray-900); /* … */ }
+[data-theme="dark"] { --bg: #111416;      --text: #F0F0EE;         /* … */ }
 ```
+
+The toggle writes `localStorage.theme` and sets `document.documentElement.dataset.theme`.
+The read-back runs as a **blocking inline script in `<head>`** (see
+`layouts/base.njk`) so the saved theme is applied before first paint — moving it
+to the end of `<body>` reintroduces a white flash for dark-mode users.
 
 ---
 
@@ -788,80 +794,115 @@ Tested combinations:
 
 ---
 
-## 10. Future: Maps Architecture
+## 10. Maps & Directory (shipped)
 
-Maps are currently in design exploration. This section documents the planned system.
+The `/map/` page pairs a **directory** with an **interactive map**. Selecting a
+place in either surface drives the other.
 
-### Data Model
+### Files
 
-All place entries already include:
-```json
-{
-  "name": "Atacama",
-  "coordinates": {
-    "lat": -22.9,
-    "lng": -68.2
-  },
-  "region": "Northern Chile",
-  "google_maps": "https://maps.google.com/?q=...",
-  "type": "region"
-}
-```
+| File | Role |
+|---|---|
+| `_includes/partials/map.njk` | The component — markup + inline JS. Self-contained; include it anywhere. |
+| `_data/mapbox.json` | Access token, style URL, GL JS version. Never hardcode these in templates. |
+| `_data/placeIcons.json` | Place `type` → Phosphor icon name. Add a row when you add a type. |
+| `assets/css/main.css` | `.dirmap` block (layout, markers, popups) and the `.place-entry--card` modifier. |
 
-This structure supports maps immediately.
+Places come from `collections.places`, so the map and directory stay in sync
+automatically as content is added. Nothing is maintained by hand.
 
-### View Toggle
+### Layout
 
-**Planned component** (`.view-toggle`):
-- Two buttons: "List" | "Map"
-- Placed at section level (or page level)
-- Toggle between editorial entries (current) and Leaflet/Mapbox map
+- **Desktop (> 900px):** directory left (`minmax(320px, 380px)`), map right (`1fr`).
+  The map is `position: sticky` so it stays put while the list scrolls.
+- **Mobile (≤ 900px):** map first — it's the orienting element — with the
+  directory beneath as a **horizontal snap rail** (`scroll-snap-type: x mandatory`,
+  cards at `min(82vw, 320px)`).
 
-```html
-<div class="view-toggle">
-  <button class="view-toggle__btn view-toggle__btn--list active">List</button>
-  <button class="view-toggle__btn view-toggle__btn--map">Map</button>
-</div>
-```
+> The mobile `.dirmap__map` must stay `position: relative`, not `static`.
+> It is the containing block for the absolutely-positioned zoom controls; making
+> it static sends them to the top-left of the page.
 
-### Map Styling
+### Icons
 
-- **Tiles**: Monochrome basemap (Stamen Toner or similar)
-- **Pins**: Minimal circles, no markers
-  - Radius: 8px
-  - Stroke: 1px solid var(--text)
-  - Fill: var(--surface)
-  - Hover: Slight enlarge, background shift
-- **Labels**: Overline-sized text, monochrome
-- **Zoom**: Thoughtful defaults per region (not user-controlled at first)
+Place types render as a **black 24px Phosphor glyph in a circle** — a 40px circle
+in cards, a 44px pin on the map. Both use the `{% icon %}` shortcode at `fill`
+weight. Selection inverts the circle (black fill, white glyph).
 
-### Offline Maps
+Unknown types fall back to `_default` (`map-pin`), so a new place type renders
+sensibly before anyone updates `placeIcons.json`.
 
-**Planned downloadable static maps:**
-- SVG or high-res PNG (600px × 800px)
-- Styled in site's monochrome palette
-- Trail/region outlines in --rule color
-- Place labels overlaid
-- Designed like a National Parks map
+### Interaction contract
 
-Example use: Print a 3-day itinerary with a static map at the top.
+- **Card click** → map flies to the place, marker + card go active, popup opens.
+- **Marker click** → same, plus the card scrolls into view.
+- **Map click (empty)** → clears the selection, camera stays put.
+- **Reset** → clears selection and re-fits all places.
+- Cards carry a separate **"Read more →"** link. The card body jumps the map;
+  only that link navigates. Never make the whole card a link — clicking it would
+  navigate away instead of showing the place on the map.
 
-### Mobile Map Experience
+### Popup construction — three non-obvious defaults
 
-**Planned interaction pattern** ("park brochure flip"):
-- Full-viewport map on mobile
-- Bottom sheet (draggable) for place details
-- Tap a pin → sheet slides up with place entry
-- Swipe down → map returns to fullscreen
+`mapboxgl.Popup` needs all three of these, and each fixes a real bug:
 
-No separate "mobile map" page — one cohesive experience.
+| Option | Why |
+|---|---|
+| `closeOnClick: false` | A marker click bubbles to the map canvas; the default would close the popup in the same tick it opened, so marker clicks appeared to do nothing. Marker handlers also call `stopPropagation()`. |
+| `focusAfterOpen: false` | Defaults to **true**. `addTo()` calls `_focusFirstElement()`, pulling keyboard focus out of the directory onto the popup link on every selection — Tab then continued from the map, not the next card. |
+| `setDOMContent()`, not `setHTML()` | Popup content is built from author-supplied titles. String concatenation would need manual escaping; `textContent` handles it. |
 
-### Implementation Notes
+### Accessibility contract
 
-- **Mapbox GL JS** or **Leaflet** with custom tile layer
-- Place tiles cached locally (service worker) for offline mode
-- Map data sourced from existing `_data/places.json`
-- No dynamic API calls; all data is static site generation
+Selection is otherwise conveyed **only** visually, which fails WCAG 4.1.2. The
+component therefore also:
+
+- toggles `aria-pressed` on every `[data-jump]` button,
+- announces through a visually hidden `#dirmap-status` (`role="status"`,
+  `aria-live="polite"`) — "Showing X on the map." / "Map reset…",
+- gives each jump button a short `aria-label` (`Show <title> on the map`).
+  Without it the accessible name is the *entire card* — overline, title, full
+  subtitle, cost and duration read as one run-on string.
+- Markers are 44×44px, meeting the minimum touch target.
+
+`prefers-reduced-motion` is honoured: `jumpTo()` replaces `flyTo()` and
+`scrollIntoView` drops to `behavior: "auto"`. Never pass `essential: true` on
+the camera animation — that flag exists to *override* the user's preference.
+
+### Failure mode
+
+If `mapbox-gl.js` never loads, the script adds `.dirmap--nomap`, which hides the
+map and the reset control and collapses to one column. The directory stays fully
+usable — every card's "Read more" is a plain link that needs no JavaScript.
+
+### Token scoping — important
+
+The map/directory is built on the **Loom token scale** (`--space-1: 12px` …
+`--space-6: 96px`, `--radius: 12px`, `--radius-sm: 6px`). Those tokens are
+declared **on `.dirmap` only**, not in `:root`.
+
+This is deliberate. The site's global scale is 4px-based (`--space-1: 8px` …
+`--space-8: 128px`) and `--radius` is `0px` — the sharp-cornered, Vignelli-derived
+geometry of §3 and §5, which all 60+ other pages depend on. Redefining those
+names globally would silently reflow and round every page on the site.
+
+The same reasoning as the spacing decision elsewhere: **when two scales share
+token names but not values, scope the newer one rather than aliasing.** Aliasing
+would double every gap.
+
+Map chrome (markers, popups, controls) is keyed to `--dm-*` values that do **not**
+flip under `[data-theme="dark"]`, because legibility on a map is relative to the
+basemap, not the page. The Mapbox style is light-only today; when a dark style
+exists, swap it with `map.setStyle()` on theme toggle and let these follow.
+
+### Performance
+
+- Place data is **inlined at build time** — no fetch, so no init waterfall.
+- 19 HTML markers is well under the ~100 threshold where symbol layers become
+  necessary. Past ~100 places, move to a GeoJSON source + symbol layer.
+- One reused `Popup` instance rather than one per interaction.
+- `preconnect` to `api.mapbox.com` is emitted **only** on `/map/`.
+- `cooperativeGestures: true` — the map never hijacks page scroll.
 
 ---
 
@@ -1230,6 +1271,244 @@ Maintain a living style guide:
 - Metadata format (cost levels, durations, categories)
 - Photo guidelines (if adding images)
 - Update frequency (how often places are revisited)
+
+---
+
+## 17. Page Templates
+
+Six layouts you can point a markdown file at. Live index: **/templates/** — each
+page there documents its own front matter.
+
+| Layout | For | Structured front matter |
+|---|---|---|
+| `layouts/article.njk` | Long-form editorial | `byline`, `updated`, `further_reading[]` |
+| `layouts/itinerary.njk` | Numbered days or steps | `steps[]` — `{overline, title, body, place}` |
+| `layouts/faq.njk` | Questions and answers | `faqs[]` — `{q, a}` (emits `FAQPage` JSON-LD) |
+| `layouts/reference.njk` | Lookup tables of facts | `rows[]` — `{label, value, note}` |
+| `layouts/gallery.njk` | Image-led pages | `figures[]` — `{src, alt, caption}` |
+| `layouts/simple.njk` | About, colophon, legal | none |
+| `layouts/manual.njk` | Documentation, handbook, textbook | `toc` (default on), `prev`/`next` — `{label, url}` |
+
+Only `layout` and `title` are ever required. Every other field is optional and
+its markup disappears when omitted — so a half-filled page never renders an empty
+heading or a stray rule.
+
+### How each type differs
+
+The skeleton and tokens are shared; the treatment below the masthead is not.
+Each `<article>` carries a `tpl tpl--<name>` class that scopes its variant CSS.
+
+| Type | Shape |
+|---|---|
+| Article | Lead-in first paragraph at a larger size; wider paragraph rhythm |
+| Itinerary | A summary strip, then numbered stops on one continuous rail |
+| FAQ | Native `<details>` accordion with `+`/`−` affordance — no JavaScript |
+| Reference | Two-column grid, label against value, collapsing to one column under 560px |
+| Gallery | First figure runs full width at 21:9; the rest tile and reflow |
+| Simple | Centred column capped at 62ch, centred masthead |
+| Manual | Sticky contents rail built from the headings, linkable headings, prev/next |
+
+**Manual vs Article vs Reference** — the distinction is use, not length. An
+article is read once and has a byline. A reference is a lookup table of short
+facts. A manual is *navigated*: the reader arrives looking for one section inside
+a long document, links to it, and returns weeks later.
+
+The contents rail is generated by a `toc` filter that parses the already-rendered
+HTML for `h2`/`h3` ids — no plugin, no front matter. It appears only when a page
+has more than two headings. `h4` still gets an anchor but stays out of the rail.
+
+Three implementation notes worth keeping:
+
+- **`markdown-it-anchor` had been a dependency for months without being wired
+  up** — no `setLibrary` call, so no heading anywhere on the site had an `id`.
+  It is now configured with a diacritic-stripping slugify, so *Pucón* yields
+  `#pucon` rather than percent-encoding.
+- The `toc` filter must strip the permalink anchor element before stripping
+  tags, or every contents entry ends with a stray `#`.
+- **There were no `pre`/`code` styles at all.** Code blocks overflowed their
+  column into the contents rail. `.prose pre` now scrolls internally.
+
+- The itinerary rail is drawn **once on the list**, not per step, or it breaks at
+  every row border. Its counter needs `align-self: start` — as a grid item the
+  counter otherwise stretches to the full row height and its background masks
+  the rail behind it.
+- `.reference-item__annotation` was written for a single-line flex row
+  (`white-space: nowrap`). The table variant must reset that, or long notes run
+  off the page edge.
+
+### The shared skeleton
+
+Every layout is the same five moves:
+
+```
+breadcrumbs (if crumbs)  →  partials/page-header.njk
+   →  .prose content-column (the markdown)  →  optional structured block
+```
+
+The masthead already carries a bottom border — do not add an `<hr class="rule">`
+after it or the page shows a double rule.
+
+`partials/page-header.njk` is the single masthead — overline, title, standfirst,
+and a `.meta-line` for byline/date. **Do not hand-roll a header in a new layout**;
+extend the partial instead, or the six pages drift apart.
+
+### Structural CSS
+
+Added in the "Page templates" section of `main.css`, deliberately thin — structure
+and rhythm only, so the writing carries the page:
+
+`.subhead` · `.section-block` · `.steps` / `.step` · `.figure` / `.figure-grid` ·
+`.callout` · `.note-line` · `.tag-row` / `.btn-row`
+
+The masthead's meta row uses the block's own `.page-header__meta` — there is no
+separate `.meta-line`.
+
+Reused rather than reinvented: `.prose`, `.glossary` (FAQ), `.reference-list`
+(reference), `.placeholder-img` (gallery), `.guide-entry` (the index).
+
+### Adding a seventh
+
+1. Add `_includes/layouts/<name>.njk` following the skeleton above.
+2. Add `content/templates/<name>.md` documenting its front matter — the index at
+   `/templates/` picks it up automatically from `collections.templates`, ordered
+   by the `order` field.
+3. Add CSS only if an existing component genuinely does not fit.
+
+
+### Map layouts
+
+Six more layouts put a map on the page. They share one engine
+(`assets/js/andean-map.js`, modes `pins` | `route` | `story`) and one set of
+cartographic tokens, so a reader moving between them reads the same map language.
+
+| Layout | Answers | Cartographic move |
+|---|---|---|
+| `map-split` | What's here — let me compare | Full-bleed map + independently scrolling list, both viewport-height |
+| `map-stack` | Where is this — now let me read | Map as establishing shot, cards and prose below |
+| `map-story` | Tell me a story about this land | Sticky map; IntersectionObserver flies the camera per step |
+| `map-route` | How does this trip go | Ordered line, numbered markers paired to a numbered itinerary |
+| `map-neighborhood` | What should I do next | Close zoom, hue = category, legend + colour-matched grouped list |
+| `map-area` | Which part of the country | Regional overview, colour as a through-line pin → legend → band → card |
+
+Map pages set `fullBleed: true`, which drops `.wrap` from `<main>`; they wrap
+their own text sections.
+
+### Cartographic tokens
+
+`assets/css/map-tokens.css` is **additive** — it introduces no name that already
+exists, so the rest of the site is unaffected. It holds the Andean brand hues, a
+`--viz-1..8` categorical ramp, `--seq-1..5` sequential (for choropleth), the
+`--route-*` set, `--map-*` chrome and `--panel-*` furniture.
+
+**The colour rule for maps:** greyscale carries the page, hue carries the data.
+Colour on a map is only legitimate when something decodes it — a legend, or a
+list that repeats the same colours. `map-split` and `map-stack` deliberately use
+one neutral pin hue because they have no legend; colouring by region there would
+assert a variable the reader has no key for.
+
+### Cartography gotchas, learned the hard way
+
+- **mapbox-gl overwrites the marker element.** It writes an inline `transform`
+  for positioning — which beats any `transform` in the stylesheet, so marker
+  hover/active states must animate something else (width/height, or an inner
+  element). It also stamps `role="img"` over your `<button>`; restore the role
+  after `.addTo(map)` or every marker announces as an image.
+- **Straight lines between stops are not a route.** Drawing point-to-point
+  segments at road weight asserts a road that isn't there. Until real Directions
+  geometry is fetched, the line is dashed and reads as stop order.
+- **Popup class names collide.** `.map-popup` belongs to the older `.dirmap`
+  component; the map engine uses `.mappopup`. Two components cannot share a
+  Mapbox `className`.
+- **Colour on a light basemap needs checking at the glyph, not the swatch.**
+  Inca gold `#EFB42A` is a beautiful brand colour and 1.9:1 on white — unusable
+  as a marker glyph. `--viz-3` is a darkened gold for that reason.
+- `--header-h` must match the real header or the viewport-height layouts overrun.
+
+---
+
+## 18. Audit Log
+
+**2026-07-21 — structural cleanup**
+
+- `.place-header*` → `.page-header*`. It was never place-specific: guides and
+  practical pages used it too (18 occurrences renamed).
+- All layouts moved into `_includes/layouts/`; every `layout:` reference updated.
+  `_includes/` now holds only `layouts/` and `partials/`.
+- Six copy-pasted inline-styled `<h3>` elements replaced with `.subhead`, and the
+  remaining inline styles in `place.njk` promoted to `.note-line`, `.tag-row` and
+  `.btn-row`. One inline style survives, on the gallery `<img>` sizing.
+- `guide`, `place` and `practical` were hand-rolling their own
+  `<header class="page-header">`. All three now use `partials/page-header.njk`,
+  which grew an optional `meta` array to carry the place page's richer meta row.
+- **Dark-mode bug fixed:** `.hero-overline` and `.hero-lede` were set to
+  `var(--gray-900)` — a raw primitive that does not flip — which is the exact
+  colour of the dark background. Both were invisible in dark mode on every page.
+  Now `--text-3` / `--text-2`.
+
+**Rule this produced:** never use a `--gray-*`, `--white` or `--black` primitive
+for `color` or `background` in a component. Primitives do not flip; only the
+semantic tokens (`--text`, `--text-2`, `--text-3`, `--bg`, `--surface`,
+`--border`) have dark-mode values. The exception is map chrome, which is pinned
+to primitives on purpose (§10).
+
+**2026-07-21 — audit pass (52-agent review, 18 confirmed findings)**
+
+Build-breaking and correctness:
+
+- **`updated: "2026-07-21"` crashed the whole build.** YAML hands an unquoted
+  date to Nunjucks as a `Date` but a quoted one as a `String`, and `dateFormat`
+  called `.toLocaleDateString` on it directly. Both date filters now coerce and
+  guard against `NaN`.
+- **The visible date was a day earlier than its own `datetime` attribute.** YAML
+  parses a bare date as UTC midnight; formatting that in a negative-offset locale
+  rolls back a day. `dateFormat` now passes `timeZone: 'UTC'`.
+- **JSON-LD could be terminated early.** `| dump` escapes quotes but not `</`, so
+  a `</` inside any question, answer, title or subtitle would close the
+  `<script>` tag. Both `faq.njk` and `place.njk` now also escape it. `place.njk`
+  was additionally interpolating raw strings straight into JSON — now `| dump`.
+- **New pages published to `/content/<slug>/`.** Added
+  `content/content.11tydata.js` defaulting `permalink` to `/{{ page.fileSlug }}/`.
+
+Semantics:
+
+- `.steps` gained `role="list"` (Safari drops list semantics under
+  `list-style: none`) and `.step__title` is an `<h2>`, not a `<div>`.
+- Every `.subhead` promoted from `h3` to `h2` — these blocks are siblings of the
+  prose column, not children of its last section, so there was no `h2` above them.
+- The templates index had no heading between its `h1` and the footer.
+
+Dead code removed: `.view-toggle` (never used), `.lede` (superseded by
+`.page-header__subtitle`), `.meta-line` (duplicated `.page-header__meta`).
+
+**2026-07-21 — map layouts (67-agent critique, high-severity fixes)**
+
+- `.map-popup` was defined in both `main.css` (for `.dirmap`) and
+  `map-layouts.css`; the older rules won and new popups rendered with no
+  background. The engine now uses `.mappopup`.
+- Marker hover/active scaling never applied — mapbox-gl's inline positioning
+  `transform` overrides the stylesheet. Markers now resize instead.
+- mapbox-gl replaced each marker's `role="button"` with `role="img"`; restored
+  after `.addTo()`.
+- `--cat` was set on the card's icon but read by `.is-active` rules on the card,
+  so the selected-state colour silently fell back. `data-cat` moved up.
+- `--viz-3` (Inca gold) measured **1.87:1** as a glyph on white and the route
+  stop numbers **4.0:1**; both darkened to clear AA.
+- Story cards were dimmed to `opacity: .55` in CSS and un-dimmed by JS, so a
+  no-JS reader got permanently faded prose. Dimming is now opt-in via `.js-story`.
+- `--header-h` was referenced by the viewport-height layouts but never declared.
+
+**Not fixed — needs Mapbox Studio:** the style carries no settlement, place or
+road labels. Every map layout is downstream of that.
+
+**Known, accepted:**
+
+- 15 tokens are declared but unreferenced. Most are scale completeness
+  (`--space-8`, `--gray-400/800`) and are kept as system API.
+- `--gray-200` and `--gray-300` hold the same value (`#E5E5E5`). Harmless, but
+  collapse them if the palette is ever revised.
+- Contrast measured in-browser: secondary text is **4.63:1** and tertiary
+  **4.54:1** in light mode, **7.28:1** and **5.35:1** in dark. All pass WCAG AA,
+  but the light-mode margin is thin — do not lighten `--text-2` or `--text-3`.
 
 ---
 
