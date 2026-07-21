@@ -4,8 +4,9 @@
     {
       "name": "andean-road",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["@11ty/eleventy", "--serve", "--port", "8099"],
-      "port": 8099
+      "runtimeArgs": ["@11ty/eleventy", "--serve"],
+      "port": 8099,
+      "autoPort": true
     }
   ]
 }
