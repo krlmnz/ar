@@ -1,0 +1,53 @@
+---
+permalink: /api/search.json
+eleventyExcludeFromCollections: true
+---
+{#- Search index consumed by /assets/js/search.js. One flat array so the
+    client can score everything in a single pass.
+
+    `text` carries the WHOLE body, not an excerpt. It used to be capped at
+    400 chars to keep the file light, but every single entry hit that cap,
+    so anything past the opening paragraph was invisible to search — the
+    index only ever really searched titles. Full text across every page is
+    ~86 KB before gzip for a file fetched once on first open, which is not
+    a trade worth making.
+
+    `dump` is JSON.stringify under the hood, so every value is escaped
+    correctly no matter what the prose contains. -#}
+{%- macro entry(item, kind) -%}
+  {%- set d = item.data -%}
+  {%- set tags = d.tags -%}
+  {%- if not tags %}{% set tags = [] %}{% elif tags is string %}{% set tags = [tags] %}{% endif -%}
+  {%- set label = '' -%}
+  {%- if d.region and regions[d.region] %}{% set label = regions[d.region].label %}{% endif -%}
+{"title": {{ d.title | dump | safe }},
+ "url": {{ item.url | dump | safe }},
+ "kind": {{ kind | dump | safe }},
+ "type": {{ (d.type or '') | dump | safe }},
+ "region": {{ (d.region or '') | dump | safe }},
+ "region_label": {{ label | dump | safe }},
+ "tags": {{ tags | dump | safe }},
+ "audience": {{ (d.audience or []) | dump | safe }},
+ "cost_level": {{ (d.cost_level or '') | dump | safe }},
+ "sub": {{ (d.subtitle or d.description or '') | dump | safe }},
+ "text": {{ item.templateContent | stripHtml | dump | safe }}}
+{%- endmacro -%}
+{%- set comma = joiner(',') -%}
+[
+{%- for item in collections.places %}{{ comma() }}
+{{ entry(item, 'place') }}
+{%- endfor -%}
+{%- for item in collections.guides %}{{ comma() }}
+{{ entry(item, 'guide') }}
+{%- endfor -%}
+{%- for item in collections.practical %}{{ comma() }}
+{{ entry(item, 'practical') }}
+{%- endfor -%}
+{#- The about page lives outside the three collections; filed under
+    "practical" because the client only groups by those three kinds. -#}
+{%- for item in collections.all %}
+{%- if item.url == '/about/' and item.data.published != false %}{{ comma() }}
+{{ entry(item, 'practical') }}
+{%- endif %}
+{%- endfor %}
+]
