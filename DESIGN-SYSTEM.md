@@ -126,30 +126,20 @@ background. That distinction is not academic: the previous hand-picked
 4.24:1 on `--accent-soft`, the row-hover background they also sit on. They had
 been failing AA on every hover row.
 
-### Primitives
+### Primitives — there are none
 
-Raw greyscale with a warm paper undertone — the hue comes from `--brand-gold`
-with chroma crushed to a whisper, so the greys stay warm by construction rather
-than by hand-picking. **Primitives do not flip between themes.** Never reference
-one directly for `color` or `background` in a component — use a semantic token,
-or dark mode will break.
+There is no `--gray-*`, `--white` or `--black` in the CSS any more. The greyscale
+ramp still exists, warm-tinted and solved, but it lives **inside the generator**;
+its rungs are recorded in `scripts/tokens.audit.json` if you need to read them.
 
-<!-- GENERATED:DOC-PRIMITIVES:START -->
-| Token | Hex |
-|---|---|
-| `--white` | #FFFFFF |
-| `--gray-50` | #FAFAF8 |
-| `--gray-100` | #F2F2F0 |
-| `--gray-200` | #E4E3E1 |
-| `--gray-300` | #CBCAC6 |
-| `--gray-400` | #ADABA6 |
-| `--gray-500` | #95938D |
-| `--gray-600` | #78746E |
-| `--gray-700` | #5A5751 |
-| `--gray-800` | #423F3B |
-| `--gray-900` | #2D2C29 |
-| `--black` | #111010 |
-<!-- GENERATED:DOC-PRIMITIVES:END -->
+Nothing consumed a primitive except two rules, and both were bugs: `.map-container`
+and `.placeholder-img` used `background: var(--gray-100)`. Primitives do not flip
+between themes, so those blocks rendered near-white on a dark page — the same
+failure recorded in §18 for `.hero-overline`. They now use `--accent-soft`, which
+is the identical colour in light mode and correct in dark.
+
+Emitting a palette nobody references invites exactly that mistake. **Components
+consume semantic tokens. That is the whole API.**
 
 ### Semantic tokens
 
@@ -165,10 +155,8 @@ These are what components use. Every one has a dark-mode value.
 | `--text-3` | #726D65 | #95938D | Overlines, captions, meta |
 | `--border` | #E4E3E1 | #5A5751 | Borders, dividers |
 | `--border-subtle` | #F2F2F0 | #2D2C29 | Barely-visible separators |
-| `--accent` | #1D1C1B | #FAFAF8 | Links, interactive |
 | `--accent-hover` | #5A5751 | #ADABA6 | Hover state |
 | `--accent-soft` | #F2F2F0 | #2D2C29 | Tinted backgrounds, row hover |
-| `--rule` | #E4E3E1 | #423F3B | Horizontal rules |
 <!-- GENERATED:DOC-SEMANTIC:END -->
 
 **Measured contrast** — worst case across every surface the token renders on:
@@ -1522,15 +1510,30 @@ Dead code removed: `.view-toggle` (never used), `.lede` (superseded by
 **Not fixed — needs Mapbox Studio:** the style carries no settlement, place or
 road labels. Every map layout is downstream of that.
 
-**Known, accepted:**
+**Known, accepted:** *(superseded — see the entry below)*
 
-- 15 tokens are declared but unreferenced. Most are scale completeness
-  (`--space-8`, `--gray-400/800`) and are kept as system API.
-- `--gray-200` and `--gray-300` hold the same value (`#E5E5E5`). Harmless, but
-  collapse them if the palette is ever revised.
-- Contrast measured in-browser: secondary text is **4.63:1** and tertiary
-  **4.54:1** in light mode, **7.28:1** and **5.35:1** in dark. All pass WCAG AA,
-  but the light-mode margin is thin — do not lighten `--text-2` or `--text-3`.
+**2026-07-21 — colour layer generated, dead tokens removed**
+
+The three "known, accepted" items above are all resolved or void:
+
+- **The unreferenced tokens are gone.** 34 declared-but-never-consumed tokens were
+  deleted: the entire `--gray-*`/`--white`/`--black` primitive set, `--accent`,
+  `--rule`, `--radius`, `--shadow-hover`, `--transition-slow`, `--space-8`, five
+  unused type-metric tokens, and from `map-tokens.css` the seven unreferenced
+  `--brand-*` hues and the whole `--seq-1..5` sequential ramp. "Kept as system API"
+  had become cover for dead weight; the ramp that matters is still solved inside
+  the generator and recorded in `scripts/tokens.audit.json`. Nothing is undefined
+  afterwards — verified by scanning every `var()` in the CSS, templates and JS.
+- **`--gray-200`/`--gray-300` colliding is void** — neither token exists now.
+- **The thin contrast margin is fixed, and was worse than recorded.** The 4.63:1
+  and 4.54:1 figures were measured against `--bg` only. The same text also renders
+  on `--accent-soft`, where it measured **4.32:1 and 4.24:1** — failing AA on every
+  hover row. Worst case across all surfaces is now 4.58:1 light / 4.55:1 dark, and
+  the floor is enforced by `npm run tokens:check` rather than by a note in a doc.
+
+**Rule this produced:** a token that nothing references is not an API, it is a
+trap — someone eventually uses it, and in this codebase the one primitive anybody
+did use (`--gray-100`) was broken in dark mode the whole time.
 
 ---
 

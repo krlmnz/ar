@@ -12,23 +12,16 @@
 
 :root {
   /* ── Brand hues ─────────────────────────────────────────────────────── */
-  --brand-sky:        #A5CCDE;  /* sky wash            */
-  --brand-sky-deep:   #2796D5;  /* altitude blue       */
   --brand-teal:       #1A97A9;  /* cerulean teal       */
   --brand-cobalt:     #2B498D;  /* mountain shadow     */
-  --brand-jade:       #33978B;  /* jade river          */
   --brand-green:      #34935C;  /* amazon canopy       */
-  --brand-lime:       #BACD2F;  /* lime lichen         */
   --brand-moss:       #747A4C;  /* dried moss          */
   --brand-amber:      #A77943;  /* adobe brick         */
-  --brand-gold:       #EFB42A;  /* inca gold           */
   --brand-terra:      #D7561D;  /* canyon terracotta   */
   --brand-rust:       #CD351D;  /* altitude rust       */
   --brand-fuchsia:    #D556AA;  /* textile fuchsia     */
   --brand-orchid:     #8E558D;  /* dried orchid        */
   --brand-violet:     #5C508D;  /* altitude violet     */
-  --brand-cream:      #FCF9E8;  /* salt flat cream     */
-  --brand-sand:       #F1E3BE;  /* quinoa gold         */
 
   /* ── Categorical ramp — for typed markers and legends ───────────────────
      Ordered for maximum hue separation between neighbours, so adjacent pins
@@ -44,11 +37,6 @@
   --viz-8: var(--brand-orchid);
 
   /* ── Sequential ramp — one hue, light→dark, for density or magnitude ──── */
-  --seq-1: #DCEAF3;
-  --seq-2: #A9CFE4;
-  --seq-3: #6BABD0;
-  --seq-4: #2796D5;
-  --seq-5: #1B5E96;
 
   /* ── Route line — drawn over the basemap, needs its own casing ───────── */
   --route-line:   var(--brand-terra);

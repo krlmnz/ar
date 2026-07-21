@@ -194,7 +194,6 @@ body {
   --space-2: 24px;
   --space-3: 30px;
   --space-4: 39px;
-  --radius: 12px;
   --radius-sm: 6px;
   --radius-full: 9999px;
   /* Directory chrome — page content, so it follows the site theme */
@@ -1170,7 +1169,7 @@ a:focus-visible {
 
 .map-container {
   aspect-ratio: 16/9;
-  background: var(--gray-100);
+  background: var(--accent-soft);
   border: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -1223,7 +1222,7 @@ a:focus-visible {
 
 .placeholder-img {
   aspect-ratio: 3/2;
-  background: var(--gray-100);
+  background: var(--accent-soft);
   display: flex;
   align-items: center;
   justify-content: center;
