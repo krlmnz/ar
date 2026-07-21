@@ -42,8 +42,7 @@ status: published
 updated: 2026-03-28
 author_note: true
 ---
-
-One of the best wine bars in Santiago, with an enormous by-the-glass selection that could double as a crash course in Chilean wine. If you want to explore different regions and grapes without committing to full bottles, start here.
+Helllooo! 
 
 ## What to expect
 
