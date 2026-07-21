@@ -231,7 +231,16 @@
   /* ---- route line ----------------------------------------------------- */
 
   if (cfg.mode === "route") {
-    map.on("load", function () {
+    // Adding a GeoJSON source + layers needs the STYLE, not the tiles. The
+    // "load" event waits for both, and on a slow first paint it may not fire at
+    // all even once tiles are in — which silently left the route undrawn on the
+    // deployed build while working locally. Gate on isStyleLoaded() instead.
+    var routeDrawn = false;
+
+    function drawRoute() {
+      if (routeDrawn || !map.isStyleLoaded()) return;
+      routeDrawn = true;
+
       var line = (cfg.route && cfg.route.length)
         ? cfg.route
         : cfg.features.map(function (f) { return [f.lng, f.lat]; });
@@ -269,7 +278,11 @@
           "line-dasharray": [1.5, 1.5]
         }
       });
-    });
+    }
+
+    drawRoute();
+    map.on("styledata", drawRoute);
+    map.on("idle", drawRoute);
   }
 
   /* ---- scrollytelling -------------------------------------------------- */
