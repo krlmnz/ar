@@ -231,24 +231,34 @@
   /* ---- route line ----------------------------------------------------- */
 
   if (cfg.mode === "route") {
-    // Adding a GeoJSON source + layers needs the STYLE, not the tiles. The
-    // "load" event waits for both, and on a slow first paint it may not fire at
-    // all even once tiles are in — which silently left the route undrawn on the
-    // deployed build while working locally. Gate on isStyleLoaded() instead.
+    // Drawing the route proved fiddly to gate correctly:
+    //   - "load" waits for tiles as well as the style and, on the deployed
+    //     build, never fired even after areTilesLoaded() was true.
+    //   - isStyleLoaded() flickers false while any source is pending, so it
+    //     rejects perfectly valid moments to add a layer.
+    // What actually matters is whether the style JSON is parsed, so gate on
+    // getStyle() and let a failed attempt retry on the next event.
     var routeDrawn = false;
 
     function drawRoute() {
-      if (routeDrawn || !map.isStyleLoaded()) return;
-      routeDrawn = true;
+      if (routeDrawn) return;
+      var style;
+      try { style = map.getStyle(); } catch (e) { return; }
+      if (!style) return;
+      if (map.getSource("route")) { routeDrawn = true; return; }
 
       var line = (cfg.route && cfg.route.length)
         ? cfg.route
         : cfg.features.map(function (f) { return [f.lng, f.lat]; });
 
-      map.addSource("route", {
-        type: "geojson",
-        data: { type: "Feature", geometry: { type: "LineString", coordinates: line } }
-      });
+      try {
+        map.addSource("route", {
+          type: "geojson",
+          data: { type: "Feature", geometry: { type: "LineString", coordinates: line } }
+        });
+      } catch (e) {
+        return; // style not ready for sources yet — the next event retries
+      }
 
       var css = getComputedStyle(document.documentElement);
       // Casing first, then the line — a bare line disappears over dark basemap
@@ -278,10 +288,14 @@
           "line-dasharray": [1.5, 1.5]
         }
       });
+
+      routeDrawn = true;
     }
 
     drawRoute();
+    map.on("style.load", drawRoute);
     map.on("styledata", drawRoute);
+    map.on("sourcedata", drawRoute);
     map.on("idle", drawRoute);
   }
 
