@@ -1,0 +1,10 @@
+{# Usage: {% set item = place %}{% include "partials/place-entry.njk" %} #}
+<a href="/places/{{ item.data.slug }}/" class="place-entry">
+  <div class="place-entry__overline">{{ item.data.type | replace("-", " ") }}</div>
+  <div class="place-entry__name">{{ item.data.title }}</div>
+  <div class="place-entry__description">{{ item.data.subtitle }}</div>
+  <div class="place-entry__meta">
+    {% if item.data.cost_level %}<span>{{ item.data.cost_level }}</span>{% endif %}
+    {% if item.data.duration %}<span>{{ item.data.duration | replace("-", " ") }}</span>{% endif %}
+  </div>
+</a>

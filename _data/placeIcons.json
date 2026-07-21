@@ -1,0 +1,14 @@
+{
+  "winery": "wine",
+  "restaurant": "fork-knife",
+  "bar": "martini",
+  "museum": "bank",
+  "cultural-center": "mask-happy",
+  "hotel": "bed",
+  "hot-springs": "bathtub",
+  "volcano": "mountains",
+  "national-park": "tree",
+  "town": "buildings",
+  "market": "storefront",
+  "_default": "map-pin"
+}

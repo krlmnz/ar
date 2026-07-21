@@ -1,0 +1,38 @@
+---
+layout: layouts/base.njk
+permalink: /guides/
+title: Guides
+seo:
+  title: "Guides — Andean Road"
+  description: "Multi-day itineraries for Chile: a Santiago weekend, the Neruda trail, wine country day trips, and adventure in Pucón."
+---
+
+<div class="hero">
+  <div class="hero-overline">Itineraries</div>
+  <h1 class="hero-title">Guides</h1>
+  <p class="hero-lede">Trips that put the best of Chile in order — what to do, in what sequence, and how long to give it.</p>
+</div>
+
+<hr class="rule rule--heavy">
+
+<section class="section">
+  {% for guide in collections.guides %}
+  <a href="/guides/{{ guide.data.slug }}/" class="guide-entry">
+    <div class="guide-entry__overline">{{ guide.data.duration }}</div>
+    <div class="guide-entry__title">{{ guide.data.title }}</div>
+    <div class="guide-entry__description">{{ guide.data.description }}</div>
+  </a>
+  {% endfor %}
+</section>
+
+<hr class="rule rule--section">
+
+<section class="section">
+  <div class="section-label">Or go à la carte</div>
+  <div class="section-title">Browse every place</div>
+  <div class="section-description">All {{ collections.places | length }} places on the site, grouped by region.</div>
+
+  <div class="practical-list">
+    <a href="/places/" class="practical-link">All places</a>
+  </div>
+</section>

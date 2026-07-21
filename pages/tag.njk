@@ -1,0 +1,47 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: collections.byTag
+  size: 1
+  alias: tagSlug
+  resolve: keys
+permalink: "/tags/{{ tagSlug }}/"
+eleventyComputed:
+  title: "{{ (tagInfo[tagSlug].label if tagInfo[tagSlug] else tagSlug) | safe }}"
+  seo:
+    title: "{{ (tagInfo[tagSlug].label if tagInfo[tagSlug] else tagSlug) | safe }} in Chile — Andean Road"
+    description: "{{ (tagInfo[tagSlug].description if tagInfo[tagSlug] else 'Places in Chile tagged ' + tagSlug + '.') | safe }}"
+---
+
+{% set tag = tagInfo[tagSlug] %}
+
+<div class="hero">
+  <div class="hero-overline">Tag</div>
+  <h1 class="hero-title">{{ tag.label if tag else tagSlug | replace("-", " ") }}</h1>
+  {% if tag %}<p class="hero-lede">{{ tag.description }}</p>{% endif %}
+</div>
+
+<hr class="rule rule--heavy">
+
+<section class="section">
+  {% for item in collections.byTag[tagSlug] %}
+    {% include "partials/place-entry.njk" %}
+  {% endfor %}
+</section>
+
+{% if tag and tag.related %}
+<hr class="rule rule--section">
+
+<section class="section">
+  <div class="section-label">Related</div>
+  <div class="section-title">See also</div>
+
+  <div class="practical-list">
+    {% for r in tag.related %}
+      {% if collections.byTag[r] %}
+      <a href="/tags/{{ r }}/" class="practical-link">{{ tagInfo[r].label if tagInfo[r] else r }}</a>
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}

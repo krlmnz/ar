@@ -1,0 +1,32 @@
+{# The map surface itself: canvas + controls + optional legend.
+   Set `mapId`, and optionally `legend` (list of {label, cat}). #}
+<div class="mapshell">
+  <div id="{{ mapId or 'map' }}" class="mapshell__canvas" role="application"
+       aria-label="{{ mapLabel or 'Map' }}"></div>
+
+  <div class="mapctl">
+    <button type="button" class="mapctl__btn" data-map-zoom="in" aria-label="Zoom in" title="Zoom in">
+      {% icon "plus", size=16 %}
+    </button>
+    <button type="button" class="mapctl__btn" data-map-zoom="out" aria-label="Zoom out" title="Zoom out">
+      {% icon "minus", size=16 %}
+    </button>
+    <button type="button" class="mapctl__btn" data-map-reset aria-label="Reset view" title="Reset view">
+      {% icon "arrows-in", size=16 %}
+    </button>
+  </div>
+
+  {% if legend and legend.length %}
+  <div class="maplegend">
+    <div class="maplegend__title">{{ legendTitle or "Legend" }}</div>
+    <ul class="maplegend__list">
+      {% for item in legend %}
+      <li class="maplegend__item">
+        <span class="maplegend__swatch" data-cat="{{ item.cat }}"></span>
+        <span>{{ item.label }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</div>

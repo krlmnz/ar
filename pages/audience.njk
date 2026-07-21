@@ -1,0 +1,45 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: audiences
+  size: 1
+  alias: audienceSlug
+  resolve: keys
+permalink: "/for/{{ audienceSlug }}/"
+eleventyComputed:
+  title: "{{ audiences[audienceSlug].label | safe }}"
+  seo:
+    title: "{{ audiences[audienceSlug].label | safe }} — Andean Road"
+    description: "{{ audiences[audienceSlug].tagline | safe }}"
+---
+
+{% set audience = audiences[audienceSlug] %}
+
+<div class="hero">
+  <div class="hero-overline">{{ audience.tagline }}</div>
+  <h1 class="hero-title">{{ audience.label }}</h1>
+  <p class="hero-lede">{{ audience.description }}</p>
+</div>
+
+<hr class="rule rule--heavy">
+
+<section class="section">
+  {% for item in collections.byAudience[audienceSlug] %}
+    {% include "partials/place-entry.njk" %}
+  {% endfor %}
+</section>
+
+<hr class="rule rule--section">
+
+<section class="section">
+  <div class="section-label">Travelling differently?</div>
+  <div class="section-title">Other trip styles</div>
+
+  <div class="practical-list">
+    {% for slug, a in audiences %}
+      {% if slug != audienceSlug %}
+      <a href="/for/{{ slug }}/" class="practical-link">{{ a.label }}</a>
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>

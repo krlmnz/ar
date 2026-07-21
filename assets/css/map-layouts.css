@@ -1,0 +1,486 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   map-layouts.css — the six map page types
+   ──────────────────────────────────────────────────────────────────────────
+   Depends on map-tokens.css. Map chrome (markers, popups, controls, legend)
+   is keyed to the BASEMAP and does not flip with the page theme; panels and
+   cards beside the map are page furniture and do.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.bleed { width: 100%; }
+
+/* No Mapbox token at build time: collapse the map columns so the layouts fall
+   back to a plain single-column list instead of framing an empty box. */
+.no-map .mapsplit, .no-map .hood { grid-template-columns: 1fr; height: auto; }
+.no-map .mapstack__map, .no-map .route__map,
+.no-map .area__map, .no-map .story__map { display: none; }
+.no-map .story__steps { margin-top: 0; }
+
+/* Referenced by the 100vh split layouts. Must match the real header height or
+   the map runs past the viewport. */
+:root { --header-h: 67px; }
+@media (max-width: 560px) { :root { --header-h: 104px; } }
+
+/* ── Map surface ──────────────────────────────────────────────────────── */
+
+.mapshell { position: relative; width: 100%; height: 100%; }
+
+.mapshell__canvas { width: 100%; height: 100%; }
+
+.mapctl {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  background: var(--map-surface);
+  border: 1px solid var(--map-border);
+  box-shadow: var(--map-shadow);
+}
+
+.mapctl__btn {
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: transparent; cursor: pointer;
+  color: var(--map-text-2);
+  transition: color var(--transition), background var(--transition);
+}
+.mapctl__btn + .mapctl__btn { border-top: 1px solid var(--map-border); }
+.mapctl__btn:hover { color: var(--map-text); background: var(--map-surface-2); }
+
+/* Legend — bottom left, out of the way of the controls */
+.maplegend {
+  position: absolute;
+  left: var(--space-2);
+  bottom: var(--space-4);
+  z-index: 2;
+  max-width: 15rem;
+  padding: var(--space-2);
+  background: var(--map-surface);
+  border: 1px solid var(--map-border);
+  box-shadow: var(--map-shadow);
+}
+.maplegend__title {
+  font-family: var(--font-ui); font-size: var(--text-overline);
+  font-weight: var(--text-overline-weight); text-transform: var(--text-overline-tt);
+  letter-spacing: var(--text-overline-ls); color: var(--map-text-2);
+  margin-bottom: var(--space-1);
+}
+.maplegend__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.maplegend__item {
+  display: flex; align-items: center; gap: var(--space-1);
+  font-family: var(--font-ui); font-size: var(--text-caption); color: var(--map-text);
+}
+.maplegend__swatch {
+  width: 10px; height: 10px; flex: none;
+  background: var(--cat, var(--viz-1));
+  border-radius: var(--radius-full, 9999px);
+}
+
+/* ── Category colour lookup ────────────────────────────────────────────────
+   One place to map a key to a hue. Anything unmatched falls back to --viz-1,
+   so a new region or type is never invisible — just uncoloured. */
+[data-cat="santiago"],        [data-cat="restaurant"] { --cat: var(--viz-1); }
+[data-cat="casablanca-valley"], [data-cat="winery"]   { --cat: var(--viz-2); }
+[data-cat="central-coast"],   [data-cat="museum"]     { --cat: var(--viz-3); }
+[data-cat="central-mountains"], [data-cat="hot-springs"] { --cat: var(--viz-4); }
+[data-cat="lake-district"],   [data-cat="national-park"] { --cat: var(--viz-5); }
+[data-cat="pomaire"],         [data-cat="market"]     { --cat: var(--viz-6); }
+[data-cat="bar"]        { --cat: var(--viz-7); }
+[data-cat="hotel"]      { --cat: var(--viz-8); }
+[data-cat="volcano"]    { --cat: var(--brand-rust); }
+[data-cat="town"]       { --cat: var(--brand-amber); }
+[data-cat="cultural-center"] { --cat: var(--brand-violet); }
+
+/* ── Markers ──────────────────────────────────────────────────────────── */
+
+/* mapbox-gl writes an inline `transform` on the marker element to position it,
+   which beats any transform declared here. So the disc is an inner element and
+   the scale happens on that. */
+.mk {
+  display: flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; padding: 0;
+  background: var(--map-surface);
+  color: var(--cat, var(--viz-1));
+  border: 1.5px solid currentColor;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: var(--map-shadow);
+  transition: box-shadow .18s, background .18s, color .18s, width .18s, height .18s;
+}
+.mk:hover { box-shadow: var(--map-shadow-pop); z-index: 2; width: 34px; height: 34px; }
+.mk:focus-visible { outline: 2px solid var(--map-text); outline-offset: 2px; }
+.mk__icon { display: flex; }
+.mk--dot { width: 14px; height: 14px; background: var(--cat, var(--viz-1)); }
+
+.mk--active {
+  background: var(--cat, var(--viz-1));
+  color: var(--map-surface);
+  width: 38px; height: 38px;
+  box-shadow: var(--map-shadow-pop);
+  z-index: 3;
+}
+
+/* ── Popup ────────────────────────────────────────────────────────────── */
+
+.mappopup .mapboxgl-popup-content {
+  padding: var(--space-2);
+  background: var(--map-surface);
+  border: 1px solid var(--map-border);
+  box-shadow: var(--map-shadow-pop);
+  border-radius: 0;
+  max-width: 15rem;
+}
+.mappopup .mapboxgl-popup-tip {
+  border-top-color: var(--map-surface) !important;
+  border-bottom-color: var(--map-surface) !important;
+}
+.map-popup__overline {
+  display: block; font-family: var(--font-ui); font-size: var(--text-overline);
+  font-weight: var(--text-overline-weight); text-transform: var(--text-overline-tt);
+  letter-spacing: var(--text-overline-ls); color: var(--map-text-2); margin-bottom: 2px;
+}
+.map-popup__title {
+  display: block; font-family: var(--font-display); font-size: var(--text-h3);
+  font-weight: var(--text-h3-weight); letter-spacing: var(--text-h3-ls);
+  color: var(--map-text); text-decoration: none;
+}
+.map-popup__title:hover { text-decoration: underline; text-underline-offset: 3px; }
+.map-popup__sub {
+  display: block; margin-top: var(--space-0);
+  font-family: var(--font-body); font-size: var(--text-body-sm);
+  color: var(--map-text-2); line-height: 1.45;
+}
+
+/* ── Shared panel + card furniture ────────────────────────────────────── */
+
+.mappanel__head { padding: var(--space-3); border-bottom: 1px solid var(--panel-border); }
+.mappanel__overline {
+  font-family: var(--font-ui); font-size: var(--text-overline);
+  font-weight: var(--text-overline-weight); text-transform: var(--text-overline-tt);
+  letter-spacing: var(--text-overline-ls); color: var(--text-3);
+}
+.mappanel__title {
+  font-family: var(--font-display); font-size: var(--text-h1);
+  font-weight: var(--text-h1-weight); letter-spacing: var(--text-h1-ls);
+  line-height: var(--text-h1-lh); margin-top: var(--space-0);
+}
+.mappanel__sub {
+  font-family: var(--font-body); font-size: var(--text-body-sm);
+  color: var(--text-2); margin-top: var(--space-1); max-width: 44ch;
+}
+.mappanel__meta {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--space-2); margin-top: var(--space-2);
+  font-family: var(--font-ui); font-size: var(--text-overline);
+  font-weight: var(--text-overline-weight); text-transform: var(--text-overline-tt);
+  letter-spacing: var(--text-overline-ls); color: var(--text-3);
+}
+.linkbtn {
+  border: none; background: none; padding: 0; cursor: pointer;
+  font: inherit; color: var(--text-3); text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.linkbtn:hover { color: var(--text); }
+
+.mapcards { list-style: none; margin: 0; padding: 0; }
+.mapcards--stack { display: flex; flex-direction: column; }
+.mapcards--grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: var(--space-2); margin: var(--space-3) 0 var(--space-5);
+}
+
+.mapcard {
+  display: flex; flex-direction: column; height: 100%;
+  background: var(--panel-surface);
+  border: 1px solid var(--panel-border);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.mapcards--stack .mapcard { border-width: 0 0 1px 0; }
+.mapcard.is-active { border-color: var(--cat, var(--text)); box-shadow: inset 3px 0 0 var(--cat, var(--text)); }
+
+.mapcard__hit {
+  display: flex; gap: var(--space-2); flex: 1 1 auto;
+  width: 100%; padding: var(--space-2);
+  border: none; background: none; text-align: left; font: inherit;
+  color: inherit; cursor: pointer;
+}
+.mapcard__hit:focus-visible { outline: 2px solid var(--text); outline-offset: -2px; }
+.mapcard__icon {
+  display: flex; align-items: center; justify-content: center; flex: none;
+  width: 32px; height: 32px; border-radius: 9999px;
+  border: 1px solid var(--cat, var(--viz-1));
+  color: var(--cat, var(--viz-1));
+}
+.mapcard.is-active .mapcard__icon { background: var(--cat, var(--viz-1)); color: var(--map-surface); }
+.mapcard__body { display: block; min-width: 0; }
+.mapcard__overline {
+  display: block; font-family: var(--font-ui); font-size: var(--text-overline);
+  font-weight: var(--text-overline-weight); text-transform: var(--text-overline-tt);
+  letter-spacing: var(--text-overline-ls); color: var(--text-3);
+}
+.mapcard__title {
+  display: block; font-family: var(--font-display); font-size: var(--text-h3);
+  font-weight: 700; letter-spacing: -0.01em; color: var(--panel-text);
+}
+.mapcard__sub {
+  display: block; font-family: var(--font-body); font-size: var(--text-body-sm);
+  color: var(--panel-text-2); margin-top: 2px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.mapcard__link {
+  display: block; padding: var(--space-1) var(--space-2);
+  border-top: 1px solid var(--panel-border);
+  font-family: var(--font-ui); font-size: var(--text-caption); font-weight: 600;
+  color: var(--text-3); text-decoration: none;
+}
+.mapcard__link:hover { color: var(--text); background: var(--accent-soft); }
+
+/* ── 1. Split: map right, cards left, both full height ────────────────── */
+
+.mapsplit {
+  display: grid;
+  grid-template-columns: minmax(20rem, 26rem) 1fr;
+  height: calc(100vh - var(--header-h, 5rem));
+  min-height: 32rem;
+  border-top: 1px solid var(--border);
+}
+.mapsplit__panel {
+  display: flex; flex-direction: column; min-width: 0;
+  border-right: 1px solid var(--border);
+  overflow-y: auto; overscroll-behavior: contain;
+  contain: paint; /* keeps the scroller's overflow off the document */
+}
+.mapsplit__map { min-width: 0; }
+
+/* ── 2. Stack: full-width map, cards underneath ───────────────────────── */
+
+.mapstack__map { border-bottom: 1px solid var(--border); }
+.mapstack__map--tall { height: min(70vh, 40rem); }
+.mapstack__map--short { height: min(50vh, 28rem); }
+.mapstack__head { padding: var(--space-5) 0 var(--space-2); }
+.mapstack__title {
+  font-family: var(--font-display); font-size: var(--text-h1);
+  font-weight: var(--text-h1-weight); letter-spacing: var(--text-h1-ls);
+  line-height: var(--text-h1-lh);
+}
+.mapstack__sub {
+  font-family: var(--font-body); font-size: clamp(17px, 1vw + 12px, 20px);
+  color: var(--text-2); margin-top: var(--space-2); max-width: var(--content-width);
+}
+.mapafter { margin: var(--space-5) auto; }
+
+/* ── 3. Story: sticky map, steps scroll past ──────────────────────────── */
+
+.story__opener { padding: var(--space-6) 0 var(--space-5); }
+.story__title {
+  font-family: var(--font-display); font-size: var(--text-display);
+  font-weight: var(--text-display-weight); letter-spacing: var(--text-display-ls);
+  line-height: var(--text-display-lh); max-width: 18ch;
+}
+.story__standfirst {
+  font-family: var(--font-body); font-size: clamp(18px, 1.2vw + 12px, 24px);
+  line-height: 1.5; color: var(--text-2); margin-top: var(--space-3);
+  max-width: var(--content-width);
+}
+.story__cue {
+  margin-top: var(--space-4); font-family: var(--font-ui);
+  font-size: var(--text-overline); font-weight: var(--text-overline-weight);
+  text-transform: var(--text-overline-tt); letter-spacing: var(--text-overline-ls);
+  color: var(--text-3);
+}
+
+.story__stage { position: relative; }
+.story__map {
+  position: sticky; top: 0; height: 100vh; z-index: 0;
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+.story__steps {
+  position: relative; z-index: 1;
+  margin-top: -100vh;               /* steps ride over the sticky map */
+  padding: 0 var(--space-4);
+  pointer-events: none;             /* the map stays draggable between cards */
+}
+.storystep {
+  min-height: 92vh;
+  display: flex; align-items: center;
+  max-width: 30rem;
+}
+.storystep:last-child { min-height: 70vh; }
+.storystep__card {
+  pointer-events: auto;
+  padding: var(--space-3);
+  background: var(--panel-surface);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--map-shadow);
+  transition: opacity .4s ease, transform .4s ease;
+}
+/* Dimming only once the observer is live — without JS all cards stay readable */
+.js-story .storystep__card { opacity: 0.72; transform: translateY(6px); }
+.storystep.is-active .storystep__card { opacity: 1; transform: none; }
+.storystep__num {
+  font-family: var(--font-ui); font-size: var(--text-overline);
+  font-weight: 700; letter-spacing: var(--text-overline-ls);
+  color: var(--brand-terra);
+}
+.storystep__title {
+  font-family: var(--font-display); font-size: var(--text-h2);
+  font-weight: var(--text-h2-weight); letter-spacing: var(--text-h2-ls);
+  line-height: var(--text-h2-lh); margin-top: var(--space-0);
+  color: var(--panel-text);
+}
+.storystep__body {
+  font-family: var(--font-body); font-size: var(--text-body);
+  line-height: var(--text-body-lh); color: var(--panel-text-2);
+  margin-top: var(--space-1);
+}
+.storystep__link {
+  display: inline-block; margin-top: var(--space-2);
+  font-family: var(--font-ui); font-size: var(--text-caption); font-weight: 600;
+}
+.story__outro { padding: var(--space-6) 0; }
+
+/* ── 4. Route ─────────────────────────────────────────────────────────── */
+
+.route__map { position: relative; height: min(65vh, 38rem); border-bottom: 1px solid var(--border); }
+.route__badge {
+  position: absolute; left: var(--space-2); top: var(--space-2); z-index: 2;
+  padding: var(--space-2);
+  background: var(--map-surface); border: 1px solid var(--map-border);
+  box-shadow: var(--map-shadow); max-width: 18rem;
+}
+.route__badge-title {
+  display: block; font-family: var(--font-display); font-size: var(--text-h3);
+  font-weight: 700; letter-spacing: -0.01em; color: var(--map-text);
+}
+.route__badge-meta {
+  display: flex; flex-wrap: wrap; gap: var(--space-1); margin-top: 2px;
+  font-family: var(--font-ui); font-size: var(--text-caption); color: var(--map-text-2);
+}
+.route__badge-meta span + span::before { content: "·"; margin-right: var(--space-1); }
+.route__head { padding: var(--space-5) 0 var(--space-2); }
+
+.route__list { list-style: none; margin: var(--space-4) 0 var(--space-6); padding: 0; counter-reset: stop; max-width: var(--content-width); }
+.routestop { border-bottom: 1px solid var(--border); }
+.routestop:first-child { border-top: 1px solid var(--border); }
+.routestop.is-active { box-shadow: inset 3px 0 0 var(--route-line); }
+.routestop__hit {
+  display: flex; gap: var(--space-3); width: 100%; padding: var(--space-3) var(--space-2);
+  border: none; background: none; text-align: left; font: inherit; color: inherit; cursor: pointer;
+}
+.routestop__hit:focus-visible { outline: 2px solid var(--text); outline-offset: -2px; }
+.routestop__num {
+  flex: none; width: 26px; height: 26px; border-radius: 9999px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--route-ink); color: #fff;
+  font-family: var(--font-ui); font-size: var(--text-caption); font-weight: 700;
+}
+.routestop__body { display: block; min-width: 0; }
+.routestop__day {
+  display: block; font-family: var(--font-ui); font-size: var(--text-overline);
+  font-weight: var(--text-overline-weight); text-transform: var(--text-overline-tt);
+  letter-spacing: var(--text-overline-ls); color: var(--text-3);
+}
+.routestop__title {
+  display: block; font-family: var(--font-display); font-size: var(--text-h3);
+  font-weight: 700; letter-spacing: -0.01em;
+}
+.routestop__note {
+  display: block; font-family: var(--font-body); font-size: var(--text-body-sm);
+  color: var(--text-2); margin-top: 2px;
+}
+
+/* ── 5. Neighborhood: map left, grouped list right ────────────────────── */
+
+.hood {
+  display: grid; grid-template-columns: 1fr minmax(20rem, 24rem);
+  height: calc(100vh - var(--header-h, 5rem)); min-height: 32rem;
+  border-top: 1px solid var(--border);
+}
+.hood__map { min-width: 0; }
+.hood__panel {
+  border-left: 1px solid var(--border);
+  overflow-y: auto; overscroll-behavior: contain; contain: paint; min-width: 0;
+}
+.hood__intro { padding: var(--space-3); border-top: 1px solid var(--border); }
+.hood__intro p { font-size: var(--text-body-sm); }
+.hood__group { border-top: 1px solid var(--border); }
+.hood__grouphead {
+  display: flex; align-items: center; gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-ui); font-size: var(--text-overline);
+  font-weight: var(--text-overline-weight); text-transform: var(--text-overline-tt);
+  letter-spacing: var(--text-overline-ls); color: var(--text-2);
+}
+.hood__count { margin-left: auto; color: var(--text-3); }
+.hood__list { list-style: none; margin: 0; padding: 0; }
+.hoodrow { display: flex; align-items: stretch; border-top: 1px solid var(--border-subtle); }
+.hoodrow.is-active { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--cat, var(--text)); }
+.hoodrow__hit {
+  flex: 1 1 auto; min-width: 0; text-align: left; font: inherit; color: inherit;
+  border: none; background: none; cursor: pointer; padding: var(--space-2) var(--space-3);
+}
+.hoodrow__hit:focus-visible { outline: 2px solid var(--text); outline-offset: -2px; }
+.hoodrow__title { display: block; font-family: var(--font-display); font-weight: 700; font-size: var(--text-body); }
+.hoodrow__sub {
+  display: block; font-family: var(--font-body); font-size: var(--text-body-sm);
+  color: var(--text-2); margin-top: 2px;
+  display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
+}
+.hoodrow__link {
+  flex: none; display: flex; align-items: center; padding: 0 var(--space-2);
+  color: var(--text-3); border-left: 1px solid var(--border-subtle);
+}
+.hoodrow__link:hover { color: var(--text); background: var(--accent-soft); }
+
+/* ── 6. Area guide ────────────────────────────────────────────────────── */
+
+.area__map { height: min(58vh, 34rem); border-bottom: 1px solid var(--border); position: relative; }
+.area__head { padding: var(--space-5) 0 var(--space-2); }
+.areaband { padding: var(--space-4) 0; border-top: 1px solid var(--border); }
+.areaband__head { display: flex; align-items: baseline; gap: var(--space-1); flex-wrap: wrap; }
+.areaband__title {
+  font-family: var(--font-display); font-size: var(--text-h2);
+  font-weight: var(--text-h2-weight); letter-spacing: var(--text-h2-ls);
+}
+.areaband__blurb {
+  flex: 1 1 20rem; font-family: var(--font-body); font-size: var(--text-body-sm);
+  color: var(--text-2);
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .mapsplit, .hood { grid-template-columns: 1fr; height: auto; }
+  .mapsplit__map, .hood__map { height: 55vh; min-height: 20rem; order: -1; }
+  .mapsplit__panel, .hood__panel {
+    border-right: none; border-left: none; overflow: visible; max-height: none; contain: none;
+  }
+  .mapstack__map--tall, .route__map, .area__map { height: 55vh; min-height: 18rem; }
+
+  /* The story map halves so a card and the map are both readable at once */
+  .story__map { height: 55vh; top: 0; }
+  .story__steps { margin-top: -55vh; padding: 0 var(--space-2); }
+  .storystep { min-height: 80vh; max-width: none; }
+  .storystep__card { opacity: 1; transform: none; }
+  .maplegend { max-width: 11rem; bottom: var(--space-2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mk, .mapcard, .storystep__card { transition: none; }
+}
+
+/* Route markers carry the stop number, matching the numbered itinerary */
+.mk--seq {
+  background: var(--route-line);
+  color: #fff;
+  border-color: var(--route-casing);
+  border-width: 2px;
+}
+.mk__num {
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  line-height: 1;
+}
+.mk--seq.mk--active { background: var(--map-text); border-color: #fff; }

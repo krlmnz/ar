@@ -6,6 +6,8 @@
 */
 
 @import "tokens.css";
+@import "map-tokens.css";
+@import "map-layouts.css";
 
 /* ======================== */
 /* Reset */
@@ -94,12 +96,392 @@ body {
 /* Navigation */
 /* ======================== */
 
+.site-header__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.site-title {
+  text-decoration: none;
+  color: var(--text);
+}
+
+.site-header__end {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0; /* allows the nav to shrink instead of overflowing the page */
+}
+
 .site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-3);
   font-family: var(--font-ui);
   font-size: var(--text-caption);
   font-weight: 500;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.site-nav a {
+  color: var(--text-3);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.site-nav a:hover { color: var(--text); }
+
+/* Four nav items + the toggle stop fitting one line on small phones */
+@media (max-width: 560px) {
+  .site-header__row { flex-wrap: wrap; row-gap: var(--space-1); }
+  .site-header__end { gap: var(--space-2); }
+  .site-nav { gap: var(--space-2); }
+}
+
+/* ======================== */
+/* Icons (Phosphor, inlined via the {% icon %} shortcode) */
+/* ======================== */
+
+.icon {
+  display: inline-block;
+  flex: none;
+  vertical-align: -0.125em; /* optically centre against adjacent text */
+  color: inherit;           /* paths use currentColor */
+}
+
+/* ======================== */
+/* Theme toggle */
+/* ======================== */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-0);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-3);
+  transition: color var(--transition);
+}
+
+.theme-toggle:hover {
+  color: var(--text);
+}
+
+/* Show the icon for the mode you'd switch TO. Both are in the DOM, so the
+   correct one is painted immediately — no flash, no JS re-render. */
+.theme-toggle .icon--sun { display: none; }
+
+[data-theme="dark"] .theme-toggle .icon--moon { display: none; }
+[data-theme="dark"] .theme-toggle .icon--sun { display: inline-block; }
+
+/* ======================== */
+/* Directory + Map                                                          */
+/* ======================== */
+/* Scoped token block. The Loom design-system scale is deliberately confined */
+/* to this component: its --space-* values (12/24/30/39/63/96) and 12px      */
+/* --radius collide with the site's existing 4px-base scale and 0px radius,  */
+/* which all 60+ other pages are built on. Scoping adopts the preferred      */
+/* tokens here without restyling the whole site. See notes in DESIGN-SYSTEM. */
+
+.dirmap {
+  --space-1: 12px;
+  --space-2: 24px;
+  --space-3: 30px;
+  --space-4: 39px;
+  --radius: 12px;
+  --radius-sm: 6px;
+  --radius-full: 9999px;
+  /* Directory chrome — page content, so it follows the site theme */
+  --dm-border: #E2E0DC;
+  --dm-surface: #FFFFFF;
+  --dm-surface-2: #F5F4F2;
+  --dm-text: #111416;
+  --dm-text-2: #6B7280;
+  --dm-accent: #2592C2;
+
+  /* Map chrome — markers, popups, controls. Deliberately NOT theme-reactive:
+     these sit ON the basemap, so legibility is relative to the map, not the
+     page. The Mapbox style is light-only; revisit when a dark style exists. */
+  --dm-map-surface: #FFFFFF;
+  --dm-map-surface-2: #F5F4F2;
+  --dm-map-border: #E2E0DC;
+  --dm-map-text: #111416;
+  --dm-map-text-2: #6B7280;
+
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.07);
+  --shadow-pop: 0 8px 32px rgba(0,0,0,.14), 0 2px 8px rgba(0,0,0,.08);
+
+  display: grid;
+  grid-template-columns: minmax(320px, 380px) 1fr;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 var(--space-4);
+  align-items: start;
+}
+
+[data-theme="dark"] .dirmap {
+  --dm-border: #434547;
+  --dm-surface: #1C1F22;
+  --dm-surface-2: #24282B;
+  --dm-text: #FFFFFF;
+  --dm-text-2: #9CA3AF;
+  --shadow: 0 1px 3px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.28);
+  --shadow-pop: 0 8px 32px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.3);
+}
+
+/* Mapbox failed to load — drop the empty map box, keep the directory usable */
+.dirmap--nomap { grid-template-columns: 1fr; }
+.dirmap--nomap .dirmap__map,
+.dirmap--nomap .dirmap__reset { display: none; }
+
+/* ---- Directory ---- */
+
+.dirmap__list {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--dm-border);
+  border-radius: var(--radius-sm);
+  background: var(--dm-surface);
+  overflow: hidden;
+  max-height: min(72vh, 760px);
+}
+
+.dirmap__list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-bottom: 1px solid var(--dm-border);
+  background: var(--dm-surface);
+}
+
+.dirmap__count {
+  font-family: var(--font-ui);
+  font-size: var(--text-overline);
+  font-weight: var(--text-overline-weight);
+  text-transform: var(--text-overline-tt);
+  letter-spacing: var(--text-overline-ls);
+  color: var(--dm-text-2);
+}
+
+.dirmap__reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--dm-border);
+  border-radius: var(--radius-sm);
+  background: var(--dm-surface);
+  color: var(--dm-text-2);
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.dirmap__reset:hover {
+  color: var(--dm-text);
+  border-color: var(--dm-text);
+}
+
+.dirmap__cards {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Required. Without paint containment this scroller's content inflates
+     documentElement.scrollWidth, letting the whole PAGE scroll sideways into
+     ~5,600px of blank space on mobile. overflow:auto alone does not prevent it,
+     and overflow:hidden on any ancestor does not either. Card padding keeps the
+     box-shadows inside the containment box. */
+  contain: paint;
+}
+
+.dirmap__cards::-webkit-scrollbar { width: 6px; }
+.dirmap__cards::-webkit-scrollbar-thumb {
+  background: var(--dm-border);
+  border-radius: var(--radius-full);
+}
+
+/* ---- Map ---- */
+
+.dirmap__map {
+  position: sticky; /* also the containing block for .dirmap__controls */
+  top: var(--space-2);
+  border: 1px solid var(--dm-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--dm-surface);
+}
+
+.dirmap__canvas {
+  width: 100%;
+  height: min(72vh, 760px);
+}
+
+.dirmap__controls {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--dm-map-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--dm-map-surface);
+  box-shadow: var(--shadow);
+}
+
+.dirmap__control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  color: var(--dm-map-text-2);
+  cursor: pointer;
+  transition: color var(--transition), background var(--transition);
+}
+
+.dirmap__control + .dirmap__control { border-top: 1px solid var(--dm-map-border); }
+.dirmap__control:hover { color: var(--dm-map-text); background: var(--dm-map-surface-2); }
+
+/* ---- Markers: black Phosphor glyph, 24px, in a circle ---- */
+
+.map-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--dm-map-border);
+  border-radius: var(--radius-full);
+  background: var(--dm-map-surface);
+  color: var(--dm-map-text);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform .18s cubic-bezier(.16,1,.3,1), box-shadow .18s, background .18s, color .18s;
+}
+
+.map-marker:hover { transform: scale(1.1); box-shadow: var(--shadow-pop); }
+.map-marker:focus-visible { outline: 2px solid var(--dm-accent); outline-offset: 2px; }
+
+.map-marker--active {
+  background: var(--dm-map-text);
+  color: var(--dm-map-surface);
+  border-color: var(--dm-map-text);
+  transform: scale(1.16);
+  box-shadow: var(--shadow-pop);
+}
+
+.map-marker__icon { display: flex; }
+
+/* ---- Popups ---- */
+
+.map-popup .mapboxgl-popup-content {
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--dm-map-surface);
+  border: 1px solid var(--dm-map-border);
+  box-shadow: var(--shadow-pop);
+}
+
+.map-popup .mapboxgl-popup-tip {
+  border-top-color: var(--dm-map-surface) !important;
+  border-bottom-color: var(--dm-map-surface) !important;
+}
+
+.map-popup__overline {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: var(--text-overline);
+  font-weight: var(--text-overline-weight);
+  text-transform: var(--text-overline-tt);
+  letter-spacing: var(--text-overline-ls);
+  color: var(--dm-map-text-2);
+  margin-bottom: 2px;
+}
+
+.map-popup__title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: var(--text-h3-weight);
+  letter-spacing: var(--text-h3-ls);
+  color: var(--dm-map-text);
+  text-decoration: none;
+}
+
+.map-popup__title:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---- Responsive: map on top, directory as a horizontal snap rail ---- */
+
+@media (max-width: 900px) {
+  .dirmap {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+
+  /* Map first on small screens — it's the orienting element.
+     Stays `relative` (not `static`) so the absolute controls keep their
+     containing block and don't escape to the top of the page. */
+  .dirmap__map { order: -1; position: relative; top: auto; }
+  .dirmap__canvas { height: 52vh; min-height: 320px; }
+
+  .dirmap__list {
+    max-height: none;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    overflow: visible;
+  }
+
+  .dirmap__list-head {
+    border: none;
+    padding: var(--space-1) 0;
+    background: transparent;
+  }
+
+  .dirmap__cards {
+    flex-direction: row;
+    /* vertical padding gives the card shadows room inside the paint containment */
+    padding: 8px 2px var(--space-1);
+    gap: var(--space-1);
+    overflow-x: auto;
+    overflow-y: visible;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .dirmap__cards::-webkit-scrollbar { display: none; }
+
+  .dirmap__cards > li {
+    flex: 0 0 min(82vw, 320px);
+    scroll-snap-align: center;
+  }
+
+  .place-entry--card { height: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-marker, .place-entry--card { transition: none; }
 }
 
 /* ======================== */
@@ -357,6 +739,115 @@ a:focus-visible {
   margin-right: var(--space-2);
 }
 
+/* ---- Card variant — used in the directory, alongside the map ---- */
+
+.place-entry--card {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border-bottom: none;
+  border-radius: var(--radius-sm);
+  background: var(--dm-surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: box-shadow .18s, transform .18s cubic-bezier(.16,1,.3,1);
+}
+
+/* The editorial list-item hover (negative margins) makes no sense in a card */
+.place-entry--card:hover {
+  background: var(--dm-surface);
+  margin: 0;
+  padding: 0;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-pop);
+}
+
+.place-entry--card.place-entry--active {
+  box-shadow: 0 0 0 2px var(--dm-text), var(--shadow);
+}
+
+/* Whole-card button jumps the map; the footer link opens the place. */
+.place-entry__jump {
+  display: flex;
+  flex: 1 1 auto; /* absorbs slack so the footer link pins to the bottom */
+  align-items: flex-start;
+  gap: var(--space-1);
+  width: 100%;
+  padding: var(--space-1);
+  border: none;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.place-entry__jump:focus-visible {
+  outline: 2px solid var(--dm-accent);
+  outline-offset: -2px;
+}
+
+/* Type icon: black, 24px, in a circle */
+.place-entry__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--dm-border);
+  background: var(--dm-surface);
+  color: var(--dm-text);
+}
+
+.place-entry--active .place-entry__icon {
+  background: var(--dm-text);
+  border-color: var(--dm-text);
+  color: var(--dm-surface);
+}
+
+.place-entry__body { display: block; min-width: 0; }
+
+/* Children are spans inside the card, so they need explicit block flow */
+.place-entry--card .place-entry__overline,
+.place-entry--card .place-entry__name,
+.place-entry--card .place-entry__description { display: block; }
+
+.place-entry--card .place-entry__name { color: var(--dm-text); }
+
+/* The global --text-3 only has ~3.4:1 on the card surface; --dm-text-2 clears AA */
+.place-entry--card .place-entry__overline { color: var(--dm-text-2); }
+.place-entry--card .place-entry__description {
+  color: var(--dm-text-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.place-entry--card .place-entry__meta {
+  display: flex;
+  gap: var(--space-1);
+  margin-top: 6px;
+  color: var(--dm-text-2);
+}
+
+.place-entry--card .place-entry__meta span + span::before { margin-right: var(--space-1); }
+
+.place-entry__link {
+  display: block;
+  padding: 10px var(--space-1);
+  border-top: 1px solid var(--dm-border);
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--dm-text-2);
+  text-decoration: none;
+}
+
+.place-entry__link:hover { color: var(--dm-text); background: var(--dm-surface-2); }
+
 /* ======================== */
 /* Place Grid — when cards ARE needed */
 /* ======================== */
@@ -510,13 +1001,13 @@ a:focus-visible {
 /* Place Page Header */
 /* ======================== */
 
-.place-header {
+.page-header {
   padding: var(--space-5) 0 var(--space-4);
   border-bottom: 2px solid var(--text);
   margin-bottom: var(--space-4);
 }
 
-.place-header__type {
+.page-header__type {
   font-family: var(--font-ui);
   font-size: var(--text-overline);
   font-weight: var(--text-overline-weight);
@@ -525,7 +1016,7 @@ a:focus-visible {
   color: var(--text-3);
 }
 
-.place-header__title {
+.page-header__title {
   font-family: var(--font-display);
   font-size: var(--text-h1);
   font-weight: var(--text-h1-weight);
@@ -534,7 +1025,7 @@ a:focus-visible {
   margin-top: var(--space-1);
 }
 
-.place-header__subtitle {
+.page-header__subtitle {
   font-family: var(--font-body);
   font-size: clamp(18px, 1vw + 12px, 21px);
   line-height: 1.45;
@@ -543,7 +1034,7 @@ a:focus-visible {
   max-width: 50ch;
 }
 
-.place-header__meta {
+.page-header__meta {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
@@ -553,7 +1044,7 @@ a:focus-visible {
   margin-top: var(--space-3);
 }
 
-.place-header__meta span + span::before {
+.page-header__meta span + span::before {
   content: "·";
   margin-right: var(--space-2);
 }
@@ -693,25 +1184,6 @@ a:focus-visible {
 /* ======================== */
 /* View toggle (future map/list) */
 /* ======================== */
-
-.view-toggle {
-  display: inline-flex;
-  font-family: var(--font-ui);
-  font-size: var(--text-caption);
-  font-weight: 600;
-  border: 1px solid var(--border);
-}
-
-.view-toggle__option {
-  padding: var(--space-0) var(--space-2);
-  cursor: pointer;
-  transition: all var(--transition);
-}
-
-.view-toggle__option--active {
-  background: var(--text);
-  color: var(--bg);
-}
 
 /* ======================== */
 /* Practical page list (utilitarian) */
@@ -1012,4 +1484,469 @@ a:focus-visible {
     content: " (" attr(href) ")";
     font-size: 0.8em;
   }
+}
+
+/* ======================== */
+/* Page templates                                                            */
+/* ======================== */
+/* Shared building blocks for the layouts in _includes/layouts/. Deliberately */
+/* thin: structure and rhythm only, so markdown content carries the page.     */
+
+/* Section heading inside an article — replaces the inline-styled <h3> that
+   was duplicated across the guide, place and practical layouts. */
+.subhead {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: var(--text-h3-weight);
+  letter-spacing: var(--text-h3-ls);
+  margin-bottom: var(--space-2);
+}
+
+.section-block {
+  max-width: var(--content-width);
+  margin-top: var(--space-6);
+}
+
+/* Numbered steps — itineraries, day-by-day, how-tos */
+.steps {
+  list-style: none;
+  max-width: var(--content-width);
+  margin: var(--space-3) 0 var(--space-4);
+  counter-reset: step;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 3ch 1fr;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border);
+  counter-increment: step;
+}
+
+.step:first-child { border-top: 1px solid var(--border); }
+
+.step::before {
+  content: counter(step, decimal-leading-zero);
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  color: var(--text-3);
+  padding-top: 0.35em;
+}
+
+.step__title {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.step__overline {
+  font-family: var(--font-ui);
+  font-size: var(--text-overline);
+  font-weight: var(--text-overline-weight);
+  text-transform: var(--text-overline-tt);
+  letter-spacing: var(--text-overline-ls);
+  color: var(--text-3);
+  margin-bottom: var(--space-0);
+}
+
+.step__body {
+  font-family: var(--font-body);
+  font-size: var(--text-body-sm);
+  color: var(--text-2);
+  margin-top: var(--space-0);
+}
+
+/* Figures — captioned media, single or in a grid */
+.figure { margin: var(--space-4) 0; }
+
+.figure figcaption,
+.figure__caption {
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  color: var(--text-3);
+  margin-top: var(--space-1);
+  max-width: var(--content-width);
+}
+
+.figure-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+}
+
+.figure-grid .figure { margin: 0; }
+
+/* Callout — a boxed aside. .tip already covers the "pro tip" case. */
+.callout {
+  max-width: var(--content-width);
+  margin: var(--space-4) 0;
+  padding: var(--space-3);
+  border-left: 2px solid var(--text);
+  background: var(--accent-soft);
+}
+
+.callout__label {
+  font-family: var(--font-ui);
+  font-size: var(--text-overline);
+  font-weight: var(--text-overline-weight);
+  text-transform: var(--text-overline-tt);
+  letter-spacing: var(--text-overline-ls);
+  color: var(--text-3);
+  margin-bottom: var(--space-0);
+}
+
+/* Small annotation under a block (pronunciation, source note) */
+.note-line {
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  color: var(--text-3);
+  margin-top: var(--space-2);
+}
+
+/* Wrapping row of tags or buttons */
+.tag-row,
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.btn-row { gap: var(--space-2); }
+
+a.tag { text-decoration: none; }
+
+/* ======================== */
+/* Template variants                                                         */
+/* ======================== */
+/* Each page type earns a distinct shape. The skeleton and tokens are shared; */
+/* only the treatment below the masthead changes.                            */
+
+/* ---- Article: a reading page. Wider leading, a lead-in first paragraph. --- */
+
+.tpl--article .prose > p:first-of-type {
+  font-size: clamp(17px, 0.6vw + 15px, 20px);
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.tpl--article .prose p { margin-bottom: var(--space-3); }
+
+/* ---- Itinerary: a connected timeline. ---- */
+
+.itin-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  padding-bottom: var(--space-1);
+  font-family: var(--font-ui);
+  font-size: var(--text-overline);
+  font-weight: var(--text-overline-weight);
+  text-transform: var(--text-overline-tt);
+  letter-spacing: var(--text-overline-ls);
+  color: var(--text-3);
+  border-bottom: 2px solid var(--text);
+  max-width: var(--content-width);
+}
+
+.itin-summary span + span::before {
+  content: "·";
+  margin-right: var(--space-2);
+}
+
+/* One continuous rule runs down the number column; the numbers punch through it.
+   Drawn on the list, not per step, so it doesn't break at every border. */
+.steps--timeline { position: relative; }
+
+.steps--timeline::before {
+  content: "";
+  position: absolute;
+  left: 1.5ch;
+  top: var(--space-4);
+  bottom: var(--space-4);
+  border-left: 1px solid var(--border);
+}
+
+/* align-self:start is load-bearing: as a grid item the counter would otherwise
+   stretch to the row's full height, and its background would mask the rail. */
+.steps--timeline .step::before {
+  position: relative;
+  z-index: 1;
+  align-self: start;
+  background: var(--bg);
+  padding: var(--space-0) 0;
+}
+
+/* ---- FAQ: a native accordion. ---- */
+
+.faq-list {
+  max-width: var(--content-width);
+  margin: var(--space-4) 0;
+  border-top: 1px solid var(--border);
+}
+
+.faq-item { border-bottom: 1px solid var(--border); }
+
+.faq-item__q {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  list-style: none; /* Firefox */
+}
+
+.faq-item__q::-webkit-details-marker { display: none; } /* Safari */
+
+.faq-item__q::after {
+  content: "+";
+  flex: none;
+  font-family: var(--font-ui);
+  font-size: var(--text-h3);
+  font-weight: 400;
+  color: var(--text-3);
+  line-height: 1;
+}
+
+.faq-item[open] .faq-item__q::after { content: "−"; }
+
+.faq-item__q:hover { color: var(--text-2); }
+
+.faq-item__q:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: -2px;
+}
+
+.faq-item__a {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--text-body-lh);
+  color: var(--text-2);
+  padding-bottom: var(--space-3);
+  max-width: 62ch;
+}
+
+/* ---- Reference: a two-column table, zebra-free, rule-driven. ---- */
+
+.reference-list--table .reference-item {
+  display: grid;
+  grid-template-columns: minmax(12ch, 1fr) 2fr;
+  gap: var(--space-3);
+  align-items: baseline;
+  padding: var(--space-2) 0;
+}
+
+.reference-list--table .reference-item__label {
+  min-width: 0;
+  white-space: normal;
+  color: var(--text-2);
+  font-weight: 600;
+}
+
+/* The em-dash suffix is redundant once the columns are aligned */
+.reference-list--table .reference-item__label::after { content: none; }
+
+/* The note was built for the old single-line flex row; in the grid it stacks
+   under the value and must wrap instead of running off the page. */
+.reference-list--table .reference-item__annotation {
+  white-space: normal;
+  margin-left: 0;
+  margin-top: var(--space-0);
+}
+
+@media (max-width: 560px) {
+  .reference-list--table .reference-item {
+    grid-template-columns: 1fr;
+    gap: var(--space-0);
+  }
+}
+
+/* ---- Gallery: an opening frame, then a tiled grid. ---- */
+
+.figure-grid--feature { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+
+.figure--feature { grid-column: 1 / -1; }
+
+.figure--feature .placeholder-img { aspect-ratio: 21 / 9; }
+
+/* ---- Simple: a centred, deliberately narrow column. ---- */
+
+.tpl--simple .page-header,
+.tpl--simple .prose {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 62ch;
+}
+
+.tpl--simple .page-header { text-align: center; }
+
+.tpl--simple .page-header__subtitle,
+.tpl--simple .page-header__meta { margin-left: auto; margin-right: auto; }
+
+.tpl--simple .page-header__meta { justify-content: center; }
+
+/* ---- Manual: long reference content with a persistent contents rail. ---- */
+
+.manual { margin-top: var(--space-4); }
+
+.manual--with-toc {
+  display: grid;
+  grid-template-columns: minmax(0, var(--content-width)) minmax(200px, 240px);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.manual__body { min-width: 0; }
+
+.manual__aside {
+  position: sticky;
+  top: var(--space-3);
+  max-height: calc(100vh - var(--space-6));
+  overflow-y: auto;
+}
+
+.toc { border-top: 2px solid var(--text); padding-top: var(--space-1); }
+
+.toc__heading {
+  font-family: var(--font-ui);
+  font-size: var(--text-overline);
+  font-weight: var(--text-overline-weight);
+  text-transform: var(--text-overline-tt);
+  letter-spacing: var(--text-overline-ls);
+  color: var(--text-3);
+  cursor: pointer;
+  list-style: none;
+  padding-bottom: var(--space-1);
+}
+
+.toc__heading::-webkit-details-marker { display: none; }
+
+.toc__list { list-style: none; margin: 0; padding: 0; }
+
+.toc__item { line-height: 1.35; }
+
+.toc__item a {
+  display: block;
+  padding: var(--space-0) 0;
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  color: var(--text-2);
+  text-decoration: none;
+  border-left: 1px solid transparent;
+}
+
+.toc__item a:hover {
+  color: var(--text);
+  border-left-color: var(--text);
+  padding-left: var(--space-1);
+}
+
+.toc__item--h3 a { padding-left: var(--space-2); color: var(--text-3); }
+.toc__item--h3 a:hover { padding-left: calc(var(--space-2) + var(--space-1)); }
+
+/* Anchor beside each heading, revealed on hover — long pages get linkable parts */
+.heading-anchor {
+  margin-left: var(--space-1);
+  color: var(--text-3);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+h2:hover > .heading-anchor,
+h3:hover > .heading-anchor,
+h4:hover > .heading-anchor,
+.heading-anchor:focus-visible { opacity: 1; }
+
+/* Anchor jumps shouldn't land the heading flush against the viewport edge */
+.tpl--manual :is(h2, h3, h4)[id] { scroll-margin-top: var(--space-3); }
+
+/* Section pagination */
+.manual-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+  max-width: var(--content-width);
+}
+
+.manual-nav__link { text-decoration: none; display: block; }
+
+.manual-nav__link--next { text-align: right; }
+
+.manual-nav__dir {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: var(--text-overline);
+  font-weight: var(--text-overline-weight);
+  text-transform: var(--text-overline-tt);
+  letter-spacing: var(--text-overline-ls);
+  color: var(--text-3);
+}
+
+.manual-nav__label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-top: var(--space-0);
+}
+
+.manual-nav__link:hover .manual-nav__label { color: var(--text-2); }
+
+@media (max-width: 900px) {
+  .manual--with-toc { grid-template-columns: 1fr; gap: var(--space-3); }
+
+  /* Contents move above the text and collapse, so they don't push it down */
+  .manual__aside { position: static; order: -1; max-height: none; }
+  .toc:not([open]) .toc__heading { padding-bottom: var(--space-1); }
+  .toc__heading::after { content: " ▾"; }
+}
+
+@media (max-width: 560px) {
+  .manual-nav { grid-template-columns: 1fr; }
+  .manual-nav__link--next { text-align: left; }
+}
+
+/* ---- Code — no styles existed, so blocks overflowed their column. ---- */
+
+.prose pre {
+  overflow-x: auto;               /* long lines scroll, they don't break layout */
+  padding: var(--space-2);
+  margin-bottom: var(--space-3);
+  background: var(--accent-soft);
+  border: 1px solid var(--border);
+  font-size: var(--text-body-sm);
+  line-height: 1.6;
+  max-width: 100%;
+}
+
+.prose code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.92em;
+}
+
+/* Inline code only — not the contents of a block */
+.prose :not(pre) > code {
+  padding: 0.15em 0.4em;
+  background: var(--accent-soft);
+  border: 1px solid var(--border-subtle);
+}
+
+.prose pre code {
+  padding: 0;
+  background: none;
+  border: none;
 }
