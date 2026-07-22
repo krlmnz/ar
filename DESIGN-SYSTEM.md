@@ -1597,6 +1597,39 @@ did use (`--gray-100`) was broken in dark mode the whole time.
 
 ---
 
+**2026-07-22 — Places becomes a map section; two template maps become real content**
+
+- **Two engine additions, both small.** `pins` mode now honours an explicit
+  `center`/`zoom` — it was in `andean-map.js`'s documented contract from the
+  start and never read, and without it a one-marker map fits bounds to a
+  degenerate box that mapbox-gl resolves to maxZoom. And `[data-map-filter]`
+  chips hide markers and cards together, then re-fit the camera to what
+  survives.
+- **Every place page carries a contextual map** — the place as a dark `anchor`
+  pin with its computed neighbours around it, sharing one feature set with the
+  Nearby cards, which gained the `data-feature`/`data-goto` contract the engine
+  already bound to. No new sync code.
+- **`/map/` is the directory, not a utility page.** Region filter chips, an
+  editorial body, and `/map/#<slug>` deep links so a place page can point at its
+  own pin. Selecting writes the hash back via `replaceState`.
+- **Region pages became area maps** on the `lat`/`lng`/`zoom` that
+  `_data/regions.json` had carried unread since it was written.
+- **`/templates/map-route/`**: opener moved above the map (new optional
+  `standfirst`); the badge overlay deleted, since it repeated the title and trip
+  totals within one screen. `.route__head` and `.route__badge*` removed.
+- **`/templates/map-story/`** is now the Andean Road System in seven chapters,
+  ending at the Maipo river — the road's real southern limit, in the valley this
+  guide covers. Chapters can carry one sourced figure (`stat`). Every number
+  checked against UNESCO rather than inherited from the draft, which contained a
+  reversed comparison to the Earth's circumference.
+- **Two verification traps worth remembering.** `npm start` does not reload
+  `.eleventy.js`, so a new filter leaves the dev server broken while it serves
+  the last good build — the browser looks fine and is lying. And scrollytelling
+  cannot be checked on a fixed delay: IO is async and `flyTo` runs 1600 ms, so a
+  probe lands in the gap and reports the previous chapter's camera.
+
+---
+
 ## Summary
 
 The Andean Road design system is **type-first, editorial, and restrained**. It reflects the voice of a bilingual friend sharing personal recommendations, not a travel database. Every design choice — from monochrome color to sharp geometry to the choice of fonts — serves clarity and the reading experience.
