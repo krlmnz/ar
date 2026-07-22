@@ -296,6 +296,15 @@
       else map.flyTo({ center: cam.center, zoom: cam.zoom, duration: 900 });
     }
 
+    // Pages that render their own detail surface set `popup: false` and listen
+    // for andean:select instead. A popup AND a panel would say the same thing
+    // twice, with the popup covering the map the panel is describing.
+    if (cfg.popup === false) {
+      document.dispatchEvent(new CustomEvent("andean:select", { detail: { id: id, feature: f } }));
+      announce("Showing " + f.title + " on the map.");
+      return;
+    }
+
     // Built as DOM, never as an HTML string — titles are author-supplied.
     var body = document.createElement("div");
     if (f.type) {
@@ -323,6 +332,7 @@
   function clearSelection() {
     active = null;
     popup.remove();
+    document.dispatchEvent(new CustomEvent("andean:clear"));
     Object.keys(markers).forEach(function (k) {
       markers[k].getElement().classList.remove("mk--active");
     });

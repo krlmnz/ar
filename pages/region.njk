@@ -37,28 +37,23 @@ eleventyComputed:
 {# The area map. _data/regions.json has carried a lat/lng/zoom per region since
    it was written and nothing ever read it — this is the camera it was for.
    Coloured by place type, because within one region the useful distinction is
-   what a place IS, not where it is. #}
+   what a place IS, not where it is.
+
+   `popup: false` — this map answers with a panel, not a bubble. #}
 {% if feats.length and region.lat and region.lng %}
 {% set mapConfig = { token: mapbox.token, style: mapbox.style, mapId: "map",
                      mode: "pins", center: [region.lng, region.lat],
-                     zoom: region.zoom or 11, features: feats } %}
-<div class="section-block">
-  <div class="placemap placemap--region">
-    {% set mapLabel = region.label %}
-    {% include "partials/map-shell.njk" %}
-  </div>
-  <p class="placemap__note">
-    {{ feats | length }} {{ "place" if feats.length == 1 else "places" }} in {{ region.label }} ·
-    <a href="/map/">See every region on the full map →</a>
-  </p>
-</div>
-{% endif %}
-
+                     zoom: region.zoom or 11, popup: false, features: feats } %}
+{% include "partials/region-map.njk" %}
+{% else %}
+{# No coordinates, no token, or no places — the editorial list is the fallback,
+   and it is also what every reader gets with JS disabled below. #}
 <section class="section">
   {% for item in here %}
     {% include "partials/place-entry.njk" %}
   {% endfor %}
 </section>
+{% endif %}
 
 <hr class="rule rule--section">
 
@@ -75,4 +70,7 @@ eleventyComputed:
   </div>
 </section>
 
-{% if mapConfig %}{% include "partials/map-embed.njk" %}{% endif %}
+{% if mapConfig %}
+{% include "partials/map-embed.njk" %}
+<script src="/assets/js/region-map.js" defer></script>
+{% endif %}
