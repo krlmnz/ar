@@ -1,0 +1,105 @@
+---
+layout: layouts/base.njk
+permalink: /learn/
+section: learn
+title: Learn
+seo:
+  title: "Learn — Andean Road"
+  description: "Two ways in: step-by-step how-tos for making a map in the Atelier, and short topics on why maps are designed the way they are."
+description: "Two ways in: step-by-step how-tos for making a map in the Atelier, and short topics on why maps are designed the way they are."
+---
+
+{% set crumbs = [{ label: "Learn" }] %}
+{% include "partials/breadcrumbs.njk" %}
+
+<div class="hero">
+  <div class="hero-overline">Make and understand</div>
+  <h1 class="hero-title">Learn</h1>
+  <p class="hero-lede">Two ways in. If you have a map to make, start on the left — each how-to is one task, done in minutes. If you want to know why maps look the way they do, start on the right.</p>
+</div>
+
+<hr class="rule rule--heavy">
+
+{# The two-door fork. Rendered as stacked entries rather than a side-by-side
+   pair: there is no 2-up component in the system today and inventing one is a
+   DESIGN-SYSTEM decision, not a page decision. The doors are in-page anchors —
+   /learn/editor/ and /learn/cartography/ are article URLs, not sub-hubs, and
+   inventing hub URLs would create shipped-URL obligations nobody asked for. #}
+<section class="section">
+  <a href="#make" class="guide-entry">
+    <div class="guide-entry__overline">Door one</div>
+    <div class="guide-entry__title">Make a map</div>
+    <div class="guide-entry__description">Short, specific how-tos for the Atelier: choosing colors, applying patterns, styling borders, adding places, sharing what you made. Follow one and you have a finished map at the end.</div>
+  </a>
+  <a href="#understand" class="guide-entry">
+    <div class="guide-entry__overline">Door two</div>
+    <div class="guide-entry__title">Understand maps</div>
+    <div class="guide-entry__description">Why a palette holds together or falls apart, what a map is allowed to leave out, when a pattern beats a pin. Ideas you can use anywhere, not just here.</div>
+  </a>
+</section>
+
+{# Each track's section only exists when it has something in it. An emitted-
+   but-empty section is not neutral here: `.section + .section` draws a top
+   border, so a heading with nothing under it reads as a broken page. #}
+{% if collections.learnEditor.length %}
+<hr class="rule rule--section">
+
+<section class="section" id="make">
+  <div class="section-label">Make a map</div>
+  <h2 class="section-title">How-tos</h2>
+  <div class="section-description">One task each. Start anywhere — they do not assume you did the others.</div>
+
+  {% for item in collections.learnEditor %}
+  <a href="{{ item.url }}" class="guide-entry">
+    <div class="guide-entry__overline">{{ item.data.time }}</div>
+    <div class="guide-entry__title">{{ item.data.title }}</div>
+    <div class="guide-entry__description">{{ item.data.description }}</div>
+  </a>
+  {% endfor %}
+</section>
+{% endif %}
+
+{% if collections.learnCartography.length %}
+<hr class="rule rule--section">
+
+<section class="section" id="understand">
+  <div class="section-label">Understand maps</div>
+  <h2 class="section-title">Topics</h2>
+  <div class="section-description">Short pieces on why maps are designed the way they are.</div>
+
+  {% for item in collections.learnCartography %}
+  <a href="{{ item.url }}" class="guide-entry">
+    <div class="guide-entry__title">{{ item.data.title }}</div>
+    <div class="guide-entry__description">{{ item.data.description }}</div>
+  </a>
+  {% endfor %}
+</section>
+{% endif %}
+
+{% if collections.learnNotes.length %}
+<hr class="rule rule--section">
+
+<section class="section">
+  <div class="section-label">Build notes</div>
+  <h2 class="section-title">How the tools here got made</h2>
+
+  {% for item in collections.learnNotes %}
+  <a href="{{ item.url }}" class="guide-entry">
+    <div class="guide-entry__title">{{ item.data.title }}</div>
+    <div class="guide-entry__description">{{ item.data.description }}</div>
+  </a>
+  {% endfor %}
+</section>
+{% endif %}
+
+<hr class="rule rule--section">
+
+<section class="section">
+  <div class="section-label">Or skip ahead</div>
+  <div class="section-title">Open the editor</div>
+  <div class="section-description">Reading about map design is slower than making one badly and fixing it. The Atelier is free and needs no account.</div>
+
+  <div class="btn-row" style="margin-top: var(--space-3)">
+    <a href="/atelier/" class="btn btn--filled">Start with the Atelier</a>
+  </div>
+</section>
