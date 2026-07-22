@@ -35,8 +35,17 @@ is commented. It never overwrites.
 | `neighborhood` | `content/<slug>.md` | One walkable area |
 | `area` | `content/<slug>.md` | Several regions compared |
 | `browse` | `content/<slug>.md` | Map + list finder |
+| `how-to` | `content/learn/editor/<slug>.md` | One task in the Atelier, done in minutes |
+| `topic` | `content/learn/cartography/<slug>.md` | One idea in map design, explained |
+| `build-story` | `content/learn/notes/<slug>.md` | How a tool here got made |
+| `landing` | `pages/<slug>.njk` | A conversion page — set its own permalink |
 
 Starters live in `_starters/` — edit those to change what every new file gets.
+
+The three Learn kinds are shorter than the rest because their folder does the
+work: `content/learn/<track>/` sets the layout, the permalink, the breadcrumbs,
+and the `section`/`track` pair. Move a file between tracks and its URL, trail
+and hub placement all follow — you never edit those fields by hand.
 
 ## Places are the spine
 

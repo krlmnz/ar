@@ -246,6 +246,22 @@ module.exports = function(eleventyConfig) {
     .getFilteredByGlob('content/templates/*.md')
     .sort((a, b) => (a.data.order || 99) - (b.data.order || 99)));
 
+  // Learn — one collection per track, so the hub can render a track without
+  // filtering in the template. `track` comes from each folder's data file.
+  // Sorted by an explicit `order` because how-tos are a sequence (colors →
+  // patterns → borders → places → share → publish), not an alphabet; anything
+  // without one falls to the end in title order.
+  const learnTrack = (track) => (collection) => collection
+    .getFilteredByGlob('content/learn/*/*.md')
+    .filter(published)
+    .filter(item => item.data.track === track)
+    .sort((a, b) => (a.data.order || 99) - (b.data.order || 99)
+      || (a.data.title || '').localeCompare(b.data.title || ''));
+
+  eleventyConfig.addCollection('learnEditor', learnTrack('editor'));
+  eleventyConfig.addCollection('learnCartography', learnTrack('cartography'));
+  eleventyConfig.addCollection('learnNotes', learnTrack('notes'));
+
   // Places grouped by a front-matter key that may hold several values.
   const groupPlacesBy = (keysOf) => (collection) => {
     const grouped = {};
