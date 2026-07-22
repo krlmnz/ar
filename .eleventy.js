@@ -349,6 +349,10 @@ module.exports = function(eleventyConfig) {
 
   // Internal docs and scaffolding never reach _site — _starters/ especially,
   // which used to publish every blank starter as a real page.
+  // CLAUDE.md quotes the {% icon %} shortcode, so Eleventy renders it and
+  // fails the build unless it's ignored.
+  eleventyConfig.ignores.add('CLAUDE.md');
+  eleventyConfig.ignores.add('_plans/**');
   eleventyConfig.ignores.add('DESIGN-SYSTEM.md');
   eleventyConfig.ignores.add('README.md');
   eleventyConfig.ignores.add('WRITING.md');

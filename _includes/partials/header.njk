@@ -3,12 +3,14 @@
     <a href="/" class="site-title">Andean Road</a>
     <div class="site-header__end">
       <nav class="site-nav" aria-label="Primary">
-        <a href="/guides/">Guides</a>
+        <a href="/atelier/">Create</a>
+        <a href="/learn/">Learn</a>
+        <a href="/tools/">Tools</a>
         <a href="/places/">Places</a>
-        <a href="/map/">Map</a>
-        <a href="/practical/">Practical</a>
-        <a href="/templates/">Templates</a>
       </nav>
+      {# The one primary CTA. Sits outside .site-nav so it survives the
+         nav collapse on phones — the editor is the product. #}
+      <a href="/atelier/editor/" class="nav-cta">Open the editor&nbsp;→</a>
       {# Borrows .theme-toggle so both header buttons share one style;
          search.js opens the dialog via the data attribute — inert without JS. #}
       <button type="button" class="theme-toggle" data-search-open title="Search" aria-label="Search (press /)">

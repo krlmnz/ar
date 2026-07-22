@@ -135,11 +135,40 @@ body {
 
 .site-nav a:hover { color: var(--text); }
 
-/* Four nav items + the toggle stop fitting one line on small phones */
+/* Primary CTA — the only filled control in the header, so it reads as the
+   product entrance rather than a sixth link. */
+.nav-cta {
+  flex: none;
+  padding: var(--space-1) var(--space-2);
+  border: 2px solid var(--text);
+  background: var(--text);
+  color: var(--bg);
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--transition), color var(--transition);
+}
+
+.nav-cta:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Four nav items + a button + two toggles stop fitting one line on phones.
+   The links wrap to their own row; the CTA stays up top with the toggles. */
 @media (max-width: 560px) {
   .site-header__row { flex-wrap: wrap; row-gap: var(--space-1); }
-  .site-header__end { gap: var(--space-2); }
-  .site-nav { gap: var(--space-2); }
+  .site-header__end { flex-wrap: wrap; justify-content: flex-end; gap: var(--space-2); }
+  .site-nav {
+    order: 1;
+    flex-basis: 100%;
+    justify-content: flex-start;
+    gap: var(--space-2);
+  }
 }
 
 /* ======================== */
