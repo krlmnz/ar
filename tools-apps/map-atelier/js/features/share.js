@@ -32,14 +32,14 @@ export function openShare() {
   bus.emit('ui:dismiss-transient');
   const url = buildShareURL(S);
   $('share-link').value = url;
-  $('share-title-line').textContent = `“${S.title || 'Our map'}” is ready to share`;
+  $('share-title-line').textContent = `“${S.title || 'Your map'}” is ready to share`;
   const pal = currentPalette();
   const patternCount = Object.values(S.patterns).filter(Boolean).length;
   $('share-stats').innerHTML = `
     <span class="share-stat"><span class="dot" style="background:${S.accent}"></span>${S.places.length} place${S.places.length !== 1 ? 's' : ''}</span>
     <span class="share-stat"><span class="dot" style="background:${S.colors.water}"></span>${esc(pal.name)} palette</span>
     <span class="share-stat">${patternCount} pattern${patternCount !== 1 ? 's' : ''}</span>`;
-  const waText = encodeURIComponent(`${S.title || 'Our map'} — our story, on a map 🤍 ${url}`);
+  const waText = encodeURIComponent(`${S.title || 'Your map'} — a map worth looking at ${url}`);
   $('share-wa').href = `https://wa.me/?text=${waText}`;
   shareOpener = document.activeElement;
   $('share-overlay').classList.add('open');
@@ -72,7 +72,7 @@ export function init() {
   });
   $('share-copy').addEventListener('click', () => {
     navigator.clipboard.writeText($('share-link').value)
-      .then(() => toast('Link copied — send it to everyone 🤍'))
+      .then(() => toast('Link copied — send it to anyone'))
       .catch(() => {
         $('share-link').select();
         document.execCommand('copy');

@@ -26,7 +26,7 @@ function beginProject(doc) {
 export function startExample() {
   beginProject(exampleState());
   persist();
-  toast('Example loaded — Camila & Tomás’s story 💍');
+  toast('Example loaded — Santiago to the sea');
 }
 
 export function startBlank() {

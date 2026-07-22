@@ -22,7 +22,7 @@ export function encodeShare(state) {
 export function decodeShare(hash) {
   const payload = JSON.parse(b64d(hash));
   const st = defaultState();
-  st.title = payload.t || 'Our map';
+  st.title = payload.t || 'Untitled map';
   st.desc = payload.d || '';
   st.paletteName = payload.pal || st.paletteName;
   st.accent = payload.a || st.accent;

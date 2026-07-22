@@ -43,7 +43,7 @@ export const STAGE_HTML = `
     </div>
     <div class="pp-block">
       <div class="field-label">Your story here</div>
-      <textarea class="text-input" id="pp-note" rows="6" placeholder="Our first date. He ordered in his terrible gringo Spanish and the waiter loved him…"></textarea>
+      <textarea class="text-input" id="pp-note" rows="6" placeholder="Why this place is on the map — what happened here, what to order, what to skip…"></textarea>
     </div>
     <!-- Icon and background are one decision — what the pin looks like — so
          they share a group rather than reading as two unrelated blocks. -->
@@ -192,16 +192,16 @@ export const STAGE_HTML = `
 
   <!-- guest hero -->
   <div id="guest-hero">
-    <div class="gh-eyebrow">✦ Nuestro mapa</div>
+    <div class="gh-eyebrow">✦ A map worth looking at</div>
     <div class="gh-title" id="gh-title"></div>
     <div class="gh-desc" id="gh-desc"></div>
     <div class="gh-meta"><span id="gh-meta-places"></span><span>·</span><span id="gh-meta-pal"></span></div>
-    <button class="btn gh-list-toggle" id="gh-list-toggle">Explore our places</button>
+    <button class="btn gh-list-toggle" id="gh-list-toggle">Explore the places</button>
     <div id="guest-list"></div>
   </div>
   <a id="guest-badge" href="${EDITOR_PAGE}?new=1" title="Make your own story map">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5C12 20.5 4 15.3 4 9.9 4 7.2 6.1 5.2 8.6 5.2c1.4 0 2.7.7 3.4 1.8.7-1.1 2-1.8 3.4-1.8 2.5 0 4.6 2 4.6 4.7 0 5.4-8 10.6-8 10.6Z"/></svg>
-  Made with Hue &amp; Vow — create your own</a>
+  Made with the Map Atelier — create your own</a>
 </div>`;
 
 // The palette modal is editor-only chrome, but design.js binds to it
@@ -226,8 +226,8 @@ export const SHARE_MODAL_HTML = `
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
     <div class="share-kicker">✦ Your map is live</div>
-    <div class="share-title" id="share-title-line">Share it with everyone you love</div>
-    <p class="share-sub">Anyone with this link sees your map exactly as you designed it — colors, patterns, pins and stories. Drop it on your wedding website.</p>
+    <div class="share-title" id="share-title-line">Send it to anyone</div>
+    <p class="share-sub">Anyone with this link sees your map exactly as you designed it — colors, patterns, pins and notes. No app, no sign-in.</p>
     <div class="share-stats" id="share-stats"></div>
     <div class="share-link-row">
       <input id="share-link" readonly>

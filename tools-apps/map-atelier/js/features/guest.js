@@ -17,7 +17,7 @@ export function renderGuestHero() {
   $('gh-meta-pal').textContent = `${S.paletteName} · Pantone`;
   // the explore list is open on load — no need to click "Explore" first
   $('guest-list').classList.add('open');
-  $('gh-list-toggle').textContent = 'Hide our places';
+  $('gh-list-toggle').textContent = 'Hide the places';
   $('guest-list').innerHTML = S.places.map(p => `
     <div class="place-row" data-gid="${p.id}">
       <div class="place-row-icon ${p.color === 'none' ? 'no-bg' : ''}" style="background:${pinColor(p)}">${iconSVG(p.icon, 15, 2)}</div>
@@ -32,7 +32,7 @@ export function renderGuestHero() {
 export function init() {
   $('gh-list-toggle').addEventListener('click', () => {
     const open = $('guest-list').classList.toggle('open');
-    $('gh-list-toggle').textContent = open ? 'Hide our places' : 'Explore our places';
+    $('gh-list-toggle').textContent = open ? 'Hide the places' : 'Explore the places';
   });
   $('guest-list').addEventListener('click', e => {
     const row = e.target.closest('[data-gid]');

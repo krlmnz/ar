@@ -183,7 +183,7 @@ async function geoSearch(q) {
 async function onMapClick(e) {
   if (session.mode !== 'editor' || !session.addMode) return;
   const { lng, lat } = e.lngLat;
-  const place = addPlace({ name: 'A special place', lng, lat, icon: 'heart' });
+  const place = addPlace({ name: 'New place', lng, lat, icon: 'heart' });
   setAddMode(false);
   // reverse geocode a nicer name
   try {

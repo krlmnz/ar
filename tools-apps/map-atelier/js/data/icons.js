@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// ICONS — the couple's marks (pin glyphs). Add a new icon here and
+// ICONS — the pin glyphs. Add a new icon here and
 // it appears everywhere: pickers, pins, lists, popups.
 // ═══════════════════════════════════════════════════════════════
 export const ICONS = {

@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════
 // UI ICONS — chrome glyphs (as opposed to data/icons.js, which
-// holds the couple's pin marks). Drawn from the Andean icon set:
+// holds the pin marks). Drawn from the Andean icon set:
 // solid single-path shapes on a 24-grid, recolored to currentColor
 // so a button's own color drives the fill.
 // ═══════════════════════════════════════════════════════════════

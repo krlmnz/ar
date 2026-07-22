@@ -11,7 +11,7 @@ import { bus } from '../core/bus.js';
 
 export const markers = {}; // placeId -> mapboxgl.Marker
 
-// 'none' = the couple removed the pin background; the glyph stands alone
+// 'none' = the pin background was removed; the glyph stands alone
 export function hasPinBg(place) { return place.color !== 'none'; }
 export function pinColor(place) { return place.color === 'none' ? 'transparent' : (place.color || S.accent); }
 
