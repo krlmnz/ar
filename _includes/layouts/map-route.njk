@@ -5,34 +5,41 @@ mapPage: true
 ---
 {# MAP-ROUTE — a planned road trip. Draws a line through the stops in order,
    with a day-by-day itinerary beneath and trip totals up top.
-   Front matter: title, overline, subtitle, distance, days,
-                 stops[]: {place | title/lng/lat, day, note} #}
+   Front matter: title, overline, subtitle, standfirst, distance, days,
+                 stops[]: {place | title/lng/lat, day, note}
+
+   The opener sits ABOVE the map: a route map is an argument about a sequence,
+   and the reader needs to know which trip they are looking at before the line
+   means anything. `standfirst` carries the longer description; `subtitle` is
+   the one-liner that doubles as the SEO description, so it is the fallback
+   rather than the primary. #}
 
 {% set feats = stops | stepFeatures(collections.places, 'route') %}
 {% set mapConfig = { token: mapbox.token, style: mapbox.style, mapId: "map",
                      mode: "route", fit: 80, features: feats } %}
 
 <section class="route">
+  <header class="route__opener wrap">
+    {% if overline %}<div class="mappanel__overline">{{ overline }}</div>{% endif %}
+    <h1 class="mapstack__title">{{ title }}</h1>
+    {% if standfirst %}<p class="mapstack__sub">{{ standfirst }}</p>
+    {% elif subtitle %}<p class="mapstack__sub">{{ subtitle }}</p>{% endif %}
+    <div class="route__facts">
+      {% if distance %}<span>{{ distance }}</span>{% endif %}
+      {% if days %}<span>{{ days }}</span>{% endif %}
+      <span>{{ feats | length }} stops</span>
+    </div>
+  </header>
+
   <div class="route__map">
     {% set mapLabel = title %}
     {% include "partials/map-shell.njk" %}
-    <div class="route__badge">
-      <span class="route__badge-title">{{ title }}</span>
-      <span class="route__badge-meta">
-        {% if distance %}<span>{{ distance }}</span>{% endif %}
-        {% if days %}<span>{{ days }}</span>{% endif %}
-        <span>{{ feats | length }} stops</span>
-      </span>
-    </div>
+    {# The badge overlay is gone. It carried the title and trip totals back when
+       the headline sat below the map; with the opener above, it repeated both
+       within one screen and covered the first stop doing it. #}
   </div>
 
   <div class="wrap">
-    <header class="route__head">
-      {% if overline %}<div class="mappanel__overline">{{ overline }}</div>{% endif %}
-      <h1 class="mapstack__title">{{ title }}</h1>
-      {% if subtitle %}<p class="mapstack__sub">{{ subtitle }}</p>{% endif %}
-    </header>
-
     {% if content %}<div class="prose content-column">{{ content | safe }}</div>{% endif %}
 
     <ol class="route__list" role="list">

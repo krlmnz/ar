@@ -2,11 +2,18 @@
 layout: layouts/map-route.njk
 order: 10
 title: Santiago to the Lake District
-overline: Road trip
+overline: Road trip · The Andean Road
 subtitle: Nine hundred kilometres south, with the stops that make the drive worth it.
+standfirst: >-
+  Five days, one rented car, and the long spine of central Chile. This is the
+  drive I recommend when someone has a week and wants to see how much the
+  country changes as you go south — wine valley to coast to cordillera to
+  volcano. Every stop is a place with a page on this site, in the order you
+  would actually drive them.
 summary: Route line through ordered stops, day-by-day list, trip totals on the map.
 distance: 920 km
 days: 5 days
+updated: 2026-07-22
 stops:
   - place: ambrosia-bistro
     day: Day 01 · Santiago

@@ -34,6 +34,16 @@ mapPage: true
           <div class="storystep__num">{{ loop.index }}</div>
           <h2 class="storystep__title">{{ s.title }}</h2>
           <p class="storystep__body">{{ s.body }}</p>
+          {# A chapter can carry one figure — the number the paragraph is about,
+             pulled out so the eye gets it before the sentence does. Sourced,
+             because a story about real infrastructure should show its working. #}
+          {% if s.stat %}
+          <div class="storystep__stat">
+            <span class="storystep__stat-value">{{ s.stat.value }}</span>
+            <span class="storystep__stat-label">{{ s.stat.label }}</span>
+            {% if s.stat.source %}<span class="storystep__stat-source">{{ s.stat.source }}</span>{% endif %}
+          </div>
+          {% endif %}
           {% if s.place %}
             {% set p = collections.places | findBySlug(s.place) %}
             {% if p %}<a class="storystep__link" href="/places/{{ p.data.slug }}/">{{ p.data.title }} →</a>{% endif %}
