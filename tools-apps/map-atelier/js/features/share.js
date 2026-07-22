@@ -16,6 +16,14 @@ import { toast } from './toast.js';
 
 let shareOpener = null;
 
+// map_share — fired when a share link actually leaves the app, by whichever
+// route. `method` distinguishes them; the event counts once per user action.
+// window.arEvent is the site's helper (/assets/js/analytics.js) and is a no-op
+// when analytics is off, so the guard is only for the app opened standalone.
+function shared(method) {
+  if (typeof window.arEvent === 'function') window.arEvent('map_share', { method });
+}
+
 // The topbar only exists on the editor; guarding here keeps the modal
 // usable on every page that mounts it.
 function setInert(on) {
@@ -72,16 +80,21 @@ export function init() {
   });
   $('share-copy').addEventListener('click', () => {
     navigator.clipboard.writeText($('share-link').value)
-      .then(() => toast('Link copied — send it to anyone'))
+      .then(() => { toast('Link copied — send it to anyone'); shared('copy'); })
       .catch(() => {
         $('share-link').select();
         document.execCommand('copy');
         toast('Link copied');
+        // The fallback path is a success too. Counting only the promise would
+        // silently under-report every browser without clipboard permission.
+        shared('copy-fallback');
       });
   });
   $('share-open').addEventListener('click', () => {
     window.open($('share-link').value, '_blank');
+    shared('open');
   });
+  $('share-wa') && $('share-wa').addEventListener('click', () => shared('whatsapp'));
 
   bus.on('share:open', openShare);
   bus.on('preview:open', openPreview);

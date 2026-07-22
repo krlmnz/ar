@@ -99,6 +99,15 @@
   </aside>
 </div>
 
+<!-- Analytics event helper. A no-op when analytics is off, so this is safe
+     unconditionally. Absolute path, unlike every other asset here: this one
+     belongs to the site, not to the app, and the app is always served from
+     the site root at /atelier/editor/. -->
+<script src="/assets/js/analytics.js"></script>
+<script>
+  // editor_open — the funnel's first real step.
+  if (typeof arEvent === 'function') arEvent('editor_open');
+</script>
 <script type="module" src="js/pages/editor.js"></script>
 </body>
 </html>

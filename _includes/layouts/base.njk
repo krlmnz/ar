@@ -33,6 +33,9 @@
   <link rel="alternate" type="application/atom+xml" title="{{ site.title }}" href="/feed.xml">
 
   {% include "partials/analytics.njk" %}
+  {# Event helper — a no-op when analytics is off. Loaded here rather than at
+     the foot of the body so page-load events can fire from the page itself. #}
+  <script src="/assets/js/analytics.js"></script>
 
   {# Theme — must run before first paint to avoid a flash of light theme #}
   <script>
@@ -80,5 +83,24 @@
     }
   </script>
   <script src="/assets/js/search.js" defer></script>
+
+  {# Site-level analytics events. arEvent is a no-op when analytics is off, so
+     these need no feature check. Every tool page runs on this layout, so
+     tool_open fires from one place rather than five. #}
+  <script>
+    (function () {
+      if (typeof arEvent !== 'function') return;
+      {% if page.url and "/tools/" in page.url and page.url != "/tools/" %}
+      arEvent('tool_open', { page: '{{ page.url }}' });
+      {% endif %}
+      // Dormant until an email form exists — the capture block on the landing
+      // layout is deliberately inert, and the provider is Sprint 4 (task 4.3).
+      // Delegated so it starts working the moment a real form is added.
+      document.addEventListener('submit', function (e) {
+        var form = e.target.closest('[data-email-signup]');
+        if (form) arEvent('email_signup');
+      });
+    })();
+  </script>
 </body>
 </html>
