@@ -1562,6 +1562,41 @@ did use (`--gray-100`) was broken in dark mode the whole time.
 
 ---
 
+**2026-07-22 — the pivot spine: the Atelier leads, Learn and Tools get front doors**
+
+- **The nav now says "map editor."** Header is Create · Learn · Tools · Places
+  plus one filled CTA to the editor, reusing `.btn--filled` rather than a new
+  component; Templates demoted to the footer. The nav-collapse breakpoint moved
+  560px → 860px, where the wordmark actually starts wrapping.
+- **`landing.njk` added** — the conversion shape (hero → demo → capabilities →
+  examples → forgiveness → repeated CTA), every block optional and front-matter
+  driven, page body as the demo slot. `/atelier/` is its first consumer;
+  segment landings reuse it unchanged.
+- **The editor moved to `/atelier/editor/`** and lost the wedding voice: three
+  retitled pages, a neutral first-run example, and a neutral attribution badge
+  on every published map. Untouched by design — the `hv:` localStorage keys,
+  the guest/preview filenames every published share link resolves against, the
+  share payload schema, and the persisted `rings`/`church` icon ids.
+- **Two build bugs fixed that predate the pivot.** Passthrough copy does *not*
+  stop Eleventy template-processing an app's HTML: every build was emitting
+  asset-less duplicate pages at `/tools-apps/…` and advertising all four in the
+  sitemap (`ignores.add('tools-apps/**')`). And the Atelier's gitignored
+  `config.js` — imported by ten modules — was simply absent on Netlify, so the
+  editor rendered an empty shell on every deploy; it is now generated at build
+  time from the token `_data/mapbox.js` already resolves.
+- **Learn and Tools got structure:** `content/learn/{editor,cartography,notes}/`
+  with directory data owning permalink, layout, breadcrumbs and the
+  `section`/`track` pair; four new starters and `new.js` kinds; per-track
+  collections; hubs at `/learn/` and `/tools/` whose sections render only when
+  they have content. `section`/`track` are wayfinding structure, deliberately
+  *not* added to `taxonomy.yml`.
+- **Four tool pages went indexable** with SoftwareApplication JSON-LD and a
+  next step below the fold; Color Scales needed a visible lede first, since its
+  entire explanation lived inside a modal. Spatial Autocorrelation and
+  Destination Weddings stay `noindex` pending placement decisions.
+
+---
+
 ## Summary
 
 The Andean Road design system is **type-first, editorial, and restrained**. It reflects the voice of a bilingual friend sharing personal recommendations, not a travel database. Every design choice — from monochrome color to sharp geometry to the choice of fonts — serves clarity and the reading experience.
