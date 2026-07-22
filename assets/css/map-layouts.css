@@ -596,65 +596,43 @@
 .mk--seq.mk--active { background: var(--map-text); border-color: var(--map-surface); }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   Region explorer — two panels over one map (/regions/<slug>/)
+   Region directory (/regions/<slug>/)
    ──────────────────────────────────────────────────────────────────────────
-   Structure borrowed from the Atelier's published guest view; the surface is
-   this site's. Sharp corners, semantic tokens, no translucency — a panel that
-   sits ON the map still has to read as Andean Road, not as an embedded app.
-
-   Panels are page furniture, so they follow --panel-* (the PAGE theme), while
-   the markers and controls under them follow the basemap. That split is the
-   whole reason map-tokens.css has two families.
+   The same .mapsplit grid and .mapcard rows as /map/, so the site's full
+   directory and one region of it read as one system. Two differences: this
+   sits under a page header rather than under the nav, so it is a band with a
+   height of its own instead of a viewport takeover; and it carries a detail
+   panel, because a region page lets you read a place without leaving the map.
    ══════════════════════════════════════════════════════════════════════════ */
 
-.regionmap { margin-top: var(--space-4); }
-
-.regionmap__stage {
-  position: relative;
-  height: min(78vh, 44rem);
-  border: 1px solid var(--border);
+.mapsplit--region {
+  /* Not 100vh: a page header sits above it and Keep exploring below, and both
+     have to be reachable without the map eating the screen first. */
+  height: min(76vh, 44rem);
+  border-bottom: 1px solid var(--border);
 }
 
-.regionmap__note {
-  margin-top: var(--space-1);
-  font-size: var(--text-caption);
-  color: var(--text-3);
-}
+/* The detail panel is positioned against the map half. */
+.mapsplit--region .mapsplit__map { position: relative; }
 
-/* ── Panels ───────────────────────────────────────────────────────────── */
+/* ── Detail panel ─────────────────────────────────────────────────────── */
 
-.regionpanel {
+.regionpanel--detail {
   position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
   z-index: 30;
+  width: min(28rem, 100%);
   background: var(--panel-surface);
-  /* Explicit, because a <button> inside inherits nothing and falls back to the
-     UA's `buttontext` — black on a dark panel. */
   color: var(--panel-text);
-  border: 1px solid var(--panel-border);
+  border-left: 1px solid var(--panel-border);
   box-shadow: var(--map-shadow-pop);
   overflow-y: auto;
   overscroll-behavior: contain;
 }
 
 .regionpanel__inner { padding: var(--space-3); }
-
-.regionpanel--overview {
-  top: var(--space-2);
-  left: var(--space-2);
-  width: 22rem;
-  max-width: calc(100% - var(--space-4));
-  max-height: calc(100% - var(--space-4));
-}
-
-/* The detail panel is the reading surface, so it gets more room and sits on
-   the opposite side — the map stays visible between the two. */
-.regionpanel--detail {
-  top: var(--space-2);
-  right: var(--space-2);
-  bottom: var(--space-2);
-  width: 26rem;
-  max-width: calc(100% - var(--space-4));
-}
 
 .regionpanel__eyebrow {
   font-family: var(--font-ui);
@@ -682,11 +660,6 @@
   color: var(--panel-text-2);
 }
 
-.regionpanel__toggle { width: 100%; justify-content: center; margin-top: var(--space-2); }
-
-.regionpanel__list { margin-top: var(--space-2); }
-.regionpanel__list.is-collapsed { display: none; }
-
 .regionpanel__close {
   position: sticky;
   top: 0;
@@ -707,57 +680,6 @@
 .regionpanel__close:hover { color: var(--panel-text); border-color: var(--panel-text); }
 .regionpanel__close:focus-visible { outline: 2px solid var(--panel-text); outline-offset: 2px; }
 
-/* ── Place rows ───────────────────────────────────────────────────────── */
-
-.placerow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  width: 100%;
-  padding: var(--space-1);
-  margin-bottom: 6px;
-  border: 1px solid var(--panel-border);
-  background: transparent;
-  color: var(--panel-text);
-  text-align: left;
-  cursor: pointer;
-  transition: border-color var(--transition), background var(--transition);
-}
-.placerow:hover { border-color: var(--panel-text); }
-.placerow:focus-visible { outline: 2px solid var(--panel-text); outline-offset: 2px; }
-.placerow[aria-pressed="true"] { border-color: var(--panel-text); background: var(--accent-soft); }
-
-.placerow__icon {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 30px;
-  height: 30px;
-  border-radius: 9999px;
-  background: var(--cat, var(--viz-1));
-  color: var(--panel-surface);
-}
-
-.placerow__info { min-width: 0; }
-
-.placerow__name {
-  display: block;
-  font-family: var(--font-ui);
-  font-weight: 600;
-  font-size: var(--text-body-sm);
-  color: var(--panel-text);
-}
-
-/* One line each. A row is a way in, not the write-up. */
-.placerow__note {
-  display: block;
-  font-size: var(--text-caption);
-  color: var(--panel-text-2);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* ── Detail content ───────────────────────────────────────────────────── */
 
 .placedetail__standfirst {
@@ -775,48 +697,38 @@
 .placedetail__body { margin-top: var(--space-2); }
 .placedetail__body h2 { font-size: var(--text-h3); margin-top: var(--space-3); }
 .placedetail__body p { font-size: var(--text-body-sm); }
-/* The anchor links belong to a full page with its own headings, not here. */
+/* These anchor a full page's headings; in a panel they link nowhere useful. */
 .placedetail__body .heading-anchor { display: none; }
 
 .placedetail__actions { margin-top: var(--space-3); }
 
-/* Without JS every place is simply a readable section under the map, and the
-   close button has nothing to close. */
-.regionmap:not(.js-regionmap) .regionpanel--detail {
+/* ── No JS ────────────────────────────────────────────────────────────── */
+/* Every place is a readable section under the map, and nothing is hidden that
+   JS has to reveal. .js-regionmap is what turns the stack into a panel. */
+.mapsplit--region:not(.js-regionmap) { height: auto; display: block; }
+.mapsplit--region:not(.js-regionmap) .mapsplit__map { height: min(60vh, 34rem); }
+.mapsplit--region:not(.js-regionmap) .regionpanel--detail {
   position: static;
   width: auto;
-  max-width: none;
-  border: none;
+  border-left: none;
   box-shadow: none;
 }
-.regionmap:not(.js-regionmap) .regionpanel__close { display: none; }
+.mapsplit--region:not(.js-regionmap) .regionpanel__close { display: none; }
 
 /* ── Narrow screens ───────────────────────────────────────────────────── */
-/* Two floating panels cannot share a phone. The overview docks to the bottom
-   as a sheet, and the detail takes the whole stage when it opens. */
+/* .mapsplit already collapses to one column below 900px (see the base rule);
+   here the detail simply takes the whole map half when it opens. */
 @media (max-width: 900px) {
-  .regionmap__stage { height: min(85vh, 40rem); }
+  .mapsplit--region { height: auto; }
 
-  .regionpanel--overview {
-    top: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: auto;
-    max-width: none;
-    max-height: 55%;
-    border-left: none;
-    border-right: none;
-    border-bottom: none;
-  }
-
+  /* The base .mapsplit rule gives the map half 55vh on narrow screens. A full
+     write-up cannot live in a 55vh box, so the detail leaves the flow entirely
+     and becomes a sheet over the page. */
   .regionpanel--detail {
+    position: fixed;
     inset: 0;
+    z-index: 200;
     width: auto;
-    max-width: none;
-    border: none;
+    border-left: none;
   }
-
-  /* With the detail open the overview would sit under it doing nothing. */
-  .regionmap.is-detail .regionpanel--overview { display: none; }
 }

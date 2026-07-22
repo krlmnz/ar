@@ -1,56 +1,37 @@
-{# REGION MAP — the area explorer.
-   Two panels over one map, borrowed in structure from the Atelier's published
-   guest view and rebuilt on the site's tokens (sharp corners, semantic colours).
+{# REGION MAP — the area directory.
+   Same shape and components as /map/ (.mapsplit grid, .mapcard rows), so the
+   two read as one system: the full directory, and one region of it. What this
+   adds is the detail panel — /map/ sends you to a place page, a region page
+   lets you read the place without leaving the map.
 
-   Left: the region — what it is, and every place in it as a row.
-   Right: one place — the full write-up, opened by clicking a row or a pin,
-          closed to get back to the whole region.
+   Requires `here` (the region's collection items), `region`, and `feats`.
+   The caller sets mapConfig; map-embed is included by the caller too. #}
 
-   Requires `here` (the region's collection items) and `region` in scope.
-   The map itself is configured by the caller and rendered by map-shell. #}
+<section class="mapsplit mapsplit--region" data-regionmap>
+  <div class="mapsplit__panel">
+    <header class="mappanel__head">
+      <div class="mappanel__overline">{{ region.description }}</div>
+      <h2 class="mappanel__title">{{ region.label }}</h2>
+      <div class="mappanel__meta">
+        <span>{{ here | length }} {{ "place" if here.length == 1 else "places" }}</span>
+        <button type="button" class="linkbtn" data-map-reset>Reset map</button>
+      </div>
+    </header>
 
-<div class="regionmap" data-regionmap>
-  <div class="regionmap__stage">
+    <ul class="mapcards mapcards--stack">
+      {% for f in feats %}
+      {% include "partials/mapcard.njk" %}
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="mapsplit__map">
     {% set mapLabel = region.label %}
     {% include "partials/map-shell.njk" %}
 
-    {# ── Overview ─────────────────────────────────────────────────────── #}
-    <div class="regionpanel regionpanel--overview" data-region-overview>
-      <div class="regionpanel__inner">
-        <div class="regionpanel__eyebrow">{{ region.description }}</div>
-        <h2 class="regionpanel__title">{{ region.label }}</h2>
-        <p class="regionpanel__meta">
-          {{ here | length }} {{ "place" if here.length == 1 else "places" }}
-        </p>
-
-        <button type="button" class="btn regionpanel__toggle" data-region-toggle
-                aria-expanded="true" aria-controls="region-list">Hide the places</button>
-
-        <div class="regionpanel__list" id="region-list">
-          {% for item in here %}
-          {# data-goto is the engine's contract: clicking this flies the map and
-             fires andean:select, which is what opens the detail panel. #}
-          <button type="button" class="placerow" data-goto="{{ item.data.slug }}"
-                  data-feature="{{ item.data.slug }}" aria-pressed="false"
-                  aria-label="Show {{ item.data.title }} on the map">
-            <span class="placerow__icon" data-cat="{{ item.data.type }}">
-              {% set iconName = placeIcons[item.data.type] or placeIcons._default %}
-              {% icon iconName, size=15 %}
-            </span>
-            <span class="placerow__info">
-              <span class="placerow__name">{{ item.data.title }}</span>
-              <span class="placerow__note">{{ item.data.subtitle }}</span>
-            </span>
-          </button>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-
-    {# ── Detail ───────────────────────────────────────────────────────────
-       One section per place, all rendered at build time and hidden until
-       asked for. Fetching them would be a network round trip and a parser for
-       content this site already has — there are at most eight per region. #}
+    {# Detail — one section per place, rendered at build time and hidden until
+       asked for. Slides over the map from the right; closing it returns to the
+       whole region. With JS off these are simply readable sections. #}
     <div class="regionpanel regionpanel--detail" data-region-detail hidden>
       <button type="button" class="regionpanel__close" data-region-close
               aria-label="Close and show the whole region">
@@ -99,8 +80,4 @@
       {% endfor %}
     </div>
   </div>
-
-  <p class="regionmap__note">
-    <a href="/map/">See every region on the full Andean Road map →</a>
-  </p>
-</div>
+</section>

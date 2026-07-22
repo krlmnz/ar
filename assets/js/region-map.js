@@ -1,14 +1,17 @@
 /* ══════════════════════════════════════════════════════════════════════════
-   region-map.js — the two-panel area explorer on /regions/<slug>/.
+   region-map.js — the detail panel on /regions/<slug>/.
 
-   The map engine (andean-map.js) owns the map, the markers and the flying.
-   This owns the two panels beside it: the region overview, and the detail for
-   whichever place is selected. They talk through the engine's andean:select /
-   andean:clear events, so this file never touches mapbox-gl.
+   The map engine (andean-map.js) owns the map, the markers, the cards and the
+   flying — the region directory uses the same .mapsplit/.mapcard machinery as
+   /map/, so all of that is already wired. This file adds the one thing a
+   region page has that /map/ does not: a panel that shows a place's whole
+   write-up without leaving the map.
 
-   Everything it shows is already in the HTML — every place's write-up is
-   rendered at build time and hidden. No fetching, and it degrades to a plain
-   list of readable sections with JS off.
+   It talks to the engine only through the andean:select / andean:clear events
+   that `popup: false` turns on, and never touches mapbox-gl.
+
+   Every write-up is already in the HTML, rendered at build time and hidden.
+   Nothing is fetched, and with JS off the page is a readable stack of sections.
    ══════════════════════════════════════════════════════════════════════════ */
 (function () {
   "use strict";
@@ -16,22 +19,20 @@
   var root = document.querySelector("[data-regionmap]");
   if (!root) return;
 
-  var overview = root.querySelector("[data-region-overview]");
   var detail = root.querySelector("[data-region-detail]");
-  var closeBtn = root.querySelector("[data-region-close]");
-  var toggle = root.querySelector("[data-region-toggle]");
-  var list = root.querySelector(".regionpanel__list");
-  var details = root.querySelectorAll("[data-detail]");
-
   if (!detail) return;
 
-  // With JS running, the detail sections stop being a plain stack of articles
-  // and become one panel showing one place at a time.
+  var closeBtn = root.querySelector("[data-region-close]");
+  var details = root.querySelectorAll("[data-detail]");
+
+  // Until this class lands, the detail sections are a plain stack under the
+  // map. The CSS keys the panel behaviour off it, so no-JS gets prose.
   root.classList.add("js-regionmap");
 
   var lastFocus = null;
+  var narrow = function () { return window.matchMedia("(max-width: 900px)").matches; };
 
-  function show(slug) {
+  function open(slug) {
     var found = false;
     details.forEach(function (d) {
       var hit = d.getAttribute("data-detail") === slug;
@@ -44,52 +45,43 @@
     detail.scrollTop = 0;
     root.classList.add("is-detail");
 
-    // Only steal focus on small screens, where the panel covers the map and a
-    // reader who tapped a pin would otherwise be left scrolled somewhere else.
-    if (window.matchMedia("(max-width: 900px)").matches) {
+    // On narrow screens the panel covers the page, so it has to take focus or
+    // a keyboard reader is left behind it with no way to the close button.
+    if (narrow()) {
       lastFocus = document.activeElement;
-      closeBtn.focus();
+      if (closeBtn) closeBtn.focus();
     }
   }
 
-  function hide() {
+  // Just the DOM half — used by both the close button and andean:clear, so
+  // neither can bounce off the other.
+  function collapse() {
     detail.hidden = true;
     root.classList.remove("is-detail");
     details.forEach(function (d) { d.hidden = true; });
-    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  function close() {
+    var wasOpen = !detail.hidden;
+    collapse();
+    if (wasOpen && lastFocus && lastFocus.focus) lastFocus.focus();
     lastFocus = null;
-    // Clear the map's selection too, so the pin stops looking active while its
-    // panel is gone. reset() is the engine's own clear-and-refit.
+    // Closing means "show me the whole region again", which is exactly what
+    // the engine's reset does — clear the selection and re-fit the bounds.
     if (window.AndeanMap && window.AndeanMap.reset) window.AndeanMap.reset();
   }
 
   document.addEventListener("andean:select", function (e) {
-    if (e.detail && e.detail.id) show(e.detail.id);
+    if (e.detail && e.detail.id) open(e.detail.id);
   });
 
-  // andean:clear fires from resetView() as well, which hide() calls — guarding
-  // on the class keeps that from bouncing back and forth.
-  document.addEventListener("andean:clear", function () {
-    if (root.classList.contains("is-detail")) {
-      detail.hidden = true;
-      root.classList.remove("is-detail");
-      details.forEach(function (d) { d.hidden = true; });
-    }
-  });
+  // Fires when the reader clicks bare map, and from reset() — which close()
+  // calls. collapse() is idempotent, so the second pass is a no-op.
+  document.addEventListener("andean:clear", collapse);
 
-  closeBtn && closeBtn.addEventListener("click", hide);
+  if (closeBtn) closeBtn.addEventListener("click", close);
 
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && !detail.hidden) hide();
+    if (e.key === "Escape" && !detail.hidden) close();
   });
-
-  // The place list collapses so the map can be seen behind the panel. Starts
-  // open, because a list nobody notices is a list nobody uses.
-  if (toggle && list) {
-    toggle.addEventListener("click", function () {
-      var open = list.classList.toggle("is-collapsed") === false;
-      toggle.setAttribute("aria-expanded", open ? "true" : "false");
-      toggle.textContent = open ? "Hide the places" : "Show the places";
-    });
-  }
 })();

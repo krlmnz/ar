@@ -1,5 +1,8 @@
 ---
 layout: layouts/base.njk
+# The map runs edge to edge, so <main> must not wrap. Every text block below
+# carries its own .wrap: nav, header, map, keep exploring.
+fullBleed: true
 mapPage: true
 pagination:
   # Without this, only the first generated page joins collections.all — the
@@ -26,13 +29,13 @@ eleventyComputed:
 {% endfor %}
 {% set feats = here | toFeatures("type") %}
 
-<div class="hero">
-  <div class="hero-overline">Region</div>
-  <h1 class="hero-title">{{ region.label }}</h1>
-  <p class="hero-lede">{{ region.description }}.</p>
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-overline">Region</div>
+    <h1 class="hero-title">{{ region.label }}</h1>
+    <p class="hero-lede">{{ region.description }}.</p>
+  </div>
 </div>
-
-<hr class="rule rule--heavy">
 
 {# The area map. _data/regions.json has carried a lat/lng/zoom per region since
    it was written and nothing ever read it — this is the camera it was for.
@@ -48,27 +51,31 @@ eleventyComputed:
 {% else %}
 {# No coordinates, no token, or no places — the editorial list is the fallback,
    and it is also what every reader gets with JS disabled below. #}
-<section class="section">
-  {% for item in here %}
-    {% include "partials/place-entry.njk" %}
-  {% endfor %}
-</section>
+<div class="wrap">
+  <section class="section">
+    {% for item in here %}
+      {% include "partials/place-entry.njk" %}
+    {% endfor %}
+  </section>
+</div>
 {% endif %}
 
-<hr class="rule rule--section">
+<div class="wrap">
+  <section class="section">
+    <div class="section-label">Keep exploring</div>
+    <div class="section-title">Other regions</div>
 
-<section class="section">
-  <div class="section-label">Keep exploring</div>
-  <div class="section-title">Other regions</div>
-
-  <div class="practical-list">
-    {% for slug, r in regions %}
-      {% if slug != regionSlug %}
-      <a href="/regions/{{ slug }}/" class="practical-link">{{ r.label }}</a>
-      {% endif %}
-    {% endfor %}
-  </div>
-</section>
+    <div class="practical-list">
+      {% for slug, r in regions %}
+        {% if slug != regionSlug %}
+        <a href="/regions/{{ slug }}/" class="practical-link">{{ r.label }}</a>
+        {% endif %}
+      {% endfor %}
+      {# Back up a level: this region is one part of the whole directory. #}
+      <a href="/map/" class="practical-link">Every region on one map</a>
+    </div>
+  </section>
+</div>
 
 {% if mapConfig %}
 {% include "partials/map-embed.njk" %}
