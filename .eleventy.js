@@ -327,14 +327,14 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy('robots.txt');
 
   // Map Atelier — a self-contained Mapbox app (own ES modules, own tokens,
-  // own localStorage store), hosted as-is under /tools/. It isn't a
-  // Nunjucks page: passthrough copy is what keeps its .html files from
-  // being run through njk, which would break on the app's own template
-  // literals. editor.html is copied twice so /tools/map-atelier/ (no
-  // filename) resolves to the editor, same as opening editor.html directly —
-  // every in-app link is relative, so both URLs stay interchangeable.
-  eleventyConfig.addPassthroughCopy({ 'tools-apps/map-atelier': 'tools/map-atelier' });
-  eleventyConfig.addPassthroughCopy({ 'tools-apps/map-atelier/editor.html': 'tools/map-atelier/index.html' });
+  // own localStorage store), served at /atelier/editor/ as the product's
+  // front door. The whole directory must land flat in one place: js/config.js
+  // exports bare filenames ('editor.html', 'preview.html', 'guest.html') that
+  // six modules resolve against location.href, so splitting the app across
+  // paths breaks share links and page-to-page navigation. editor.html is
+  // copied twice so /atelier/editor/ (no filename) resolves to the editor.
+  eleventyConfig.addPassthroughCopy({ 'tools-apps/map-atelier': 'atelier/editor' });
+  eleventyConfig.addPassthroughCopy({ 'tools-apps/map-atelier/editor.html': 'atelier/editor/index.html' });
 
   // SVG Map Editor — a self-contained single-file recolor/layer studio for
   // one embedded SVG (the Inca road system map). Same reasoning as Map
@@ -352,6 +352,13 @@ module.exports = function(eleventyConfig) {
   // CLAUDE.md quotes the {% icon %} shortcode, so Eleventy renders it and
   // fails the build unless it's ignored.
   eleventyConfig.ignores.add('CLAUDE.md');
+  // Passthrough copy does NOT stop Eleventy treating these .html files as
+  // templates — with input:'.' it did both, shipping asset-less duplicates at
+  // /tools-apps/map-atelier/editor/ and listing them in the sitemap. It also
+  // meant any brace pair the apps' own copy happens to contain would be
+  // evaluated as Nunjucks. Ignoring the source directory leaves passthrough
+  // as the only path to _site.
+  eleventyConfig.ignores.add('tools-apps/**');
   eleventyConfig.ignores.add('_plans/**');
   eleventyConfig.ignores.add('DESIGN-SYSTEM.md');
   eleventyConfig.ignores.add('README.md');

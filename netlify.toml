@@ -44,3 +44,18 @@ from = "/places/:slug"
 to = "/places/:slug/"
 status = 301
 force = true
+
+# The Map Atelier moved from /tools/map-atelier/ to /atelier/editor/ (brief 1.4).
+# Two rules, because Netlify's /path/* splat does not match the slashless
+# /tools/map-atelier. The splat form preserves the filename, which matters:
+# published share links point at guest.html#v=<payload>, and redirecting those
+# to the landing page would strip a reader's map into a marketing page.
+[[redirects]]
+from = "/tools/map-atelier"
+to = "/atelier/editor/"
+status = 301
+
+[[redirects]]
+from = "/tools/map-atelier/*"
+to = "/atelier/editor/:splat"
+status = 301
