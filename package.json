@@ -1,14 +1,15 @@
 {
   "name": "andean-road",
   "version": "1.0.0",
-  "description": "A personal travel guide to Chile \u2014 by your bilingual best friend",
+  "description": "A personal travel guide to Chile — by your bilingual best friend",
   "scripts": {
-    "start": "npx @11ty/eleventy --serve",
-    "build": "npx @11ty/eleventy",
+    "start": "node scripts/build-app-config.js && npx @11ty/eleventy --serve",
+    "build": "node scripts/build-app-config.js && npx @11ty/eleventy",
     "debug": "DEBUG=Eleventy* npx @11ty/eleventy",
     "new": "node scripts/new.js",
     "tokens": "node scripts/build-tokens.js",
-    "tokens:check": "node scripts/build-tokens.js --check"
+    "tokens:check": "node scripts/build-tokens.js --check",
+    "app:config": "node scripts/build-app-config.js"
   },
   "dependencies": {
     "@11ty/eleventy": "^2.0.1",
