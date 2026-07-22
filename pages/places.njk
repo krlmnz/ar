@@ -8,9 +8,14 @@ seo:
 ---
 
 <div class="hero">
-  <div class="hero-overline">The full list</div>
+  <div class="hero-overline">The directory</div>
   <h1 class="hero-title">Places</h1>
-  <p class="hero-lede">Every place on this site, grouped by region. {{ collections.places | length }} in total — each one somewhere I've actually been.</p>
+  <p class="hero-lede">Every place on this site, {{ collections.places | length }} in total — each one somewhere I've actually been. Read it as a list below, or open the map and read it as geography.</p>
+
+  {# The map is the other half of this section, not a footnote to it. #}
+  <div class="btn-row" style="margin-top: var(--space-4)">
+    <a href="/map/" class="btn btn--filled">Open the map</a>
+  </div>
 </div>
 
 <hr class="rule rule--heavy">

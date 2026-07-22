@@ -137,6 +137,13 @@
   if (cfg.mode === "story") {
     opts.center = [cfg.features[0].lng, cfg.features[0].lat];
     opts.zoom = cfg.features[0].zoom || cfg.zoom || 12;
+  } else if (cfg.center) {
+    // An explicit camera. A place page wants "here, at this zoom" — fitting
+    // bounds to one marker gives a degenerate box that mapbox-gl resolves to
+    // maxZoom, i.e. a page-filling close-up of a single rooftop. `center` was
+    // in this file's documented contract from the start and never read.
+    opts.center = cfg.center;
+    opts.zoom = cfg.zoom || 13;
   } else {
     opts.bounds = bounds;
     opts.fitBoundsOptions = { padding: cfg.fit || 64 };
@@ -275,6 +282,13 @@
     document.querySelectorAll("[data-goto]").forEach(function (b) {
       b.setAttribute("aria-pressed", b.getAttribute("data-goto") === id ? "true" : "false");
     });
+
+    // Make the selection shareable. replaceState, not a hash assignment: the
+    // reader is browsing a map, and every pin they poke should not become a
+    // back-button step out of the page.
+    if (cfg.mode === "pins" && window.history && history.replaceState) {
+      history.replaceState(null, "", "#" + encodeURIComponent(id));
+    }
 
     if (o.fly !== false) {
       var cam = { center: [f.lng, f.lat], zoom: Math.max(map.getZoom(), f.zoom || 13) };
@@ -504,6 +518,70 @@
       // Without JS or IO the steps are still readable prose; nothing is hidden
       // by CSS that JS has to reveal.
     }
+  }
+
+  /* ---- filtering ------------------------------------------------------- */
+
+  // Chips declare what they filter on: data-map-filter="region" plus
+  // data-filter-value="santiago" (empty value = show everything). Hiding is
+  // done on the marker element and the matching card, then the camera re-fits
+  // to what survives — a filter that leaves the view over an empty stretch of
+  // ocean reads as a broken map rather than an empty result.
+  var chips = document.querySelectorAll("[data-map-filter]");
+  if (chips.length) {
+    var applyFilter = function (key, value) {
+      var visible = new mapboxgl.LngLatBounds();
+      var count = 0;
+
+      cfg.features.forEach(function (f) {
+        var hit = !value || String(f[key] || "") === value;
+        var mk = markers[f.id];
+        if (mk) mk.getElement().style.display = hit ? "" : "none";
+        var card = document.querySelector('[data-feature="' + f.id + '"]');
+        if (card) card.hidden = !hit;
+        if (hit) { visible.extend([f.lng, f.lat]); count++; }
+      });
+
+      chips.forEach(function (c) {
+        var on = c.getAttribute("data-map-filter") === key &&
+                 (c.getAttribute("data-filter-value") || "") === value;
+        c.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+
+      var tally = document.getElementById("map-count");
+      if (tally) tally.textContent = count + (count === 1 ? " place" : " places");
+
+      if (count) {
+        clearSelection();
+        map.fitBounds(visible, { padding: cfg.fit || 64, maxZoom: 14, duration: reduceMotion ? 0 : 700 });
+      }
+      announce(count ? count + " places shown." : "No places match.");
+    };
+
+    chips.forEach(function (c) {
+      c.addEventListener("click", function () {
+        applyFilter(c.getAttribute("data-map-filter"), c.getAttribute("data-filter-value") || "");
+      });
+    });
+  }
+
+  /* ---- deep link ------------------------------------------------------- */
+
+  // /map/#<slug> opens with that place selected, so a place page can say
+  // "see it on the area map" and land the reader on the right pin instead of
+  // a country-wide view they have to hunt through. Selecting also writes the
+  // hash back, which makes any selection a shareable URL.
+  if (cfg.mode === "pins") {
+    var fromHash = function () {
+      var id = decodeURIComponent((location.hash || "").slice(1));
+      if (id && cfg.features.some(function (f) { return f.id === id; })) {
+        select(id, { scrollCard: true });
+        var f = cfg.features.filter(function (x) { return x.id === id; })[0];
+        map.flyTo({ center: [f.lng, f.lat], zoom: 14, duration: reduceMotion ? 0 : 900 });
+      }
+    };
+    map.on("load", fromHash);
+    window.addEventListener("hashchange", fromHash);
   }
 
   window.AndeanMap = { map: map, select: select, reset: resetView };

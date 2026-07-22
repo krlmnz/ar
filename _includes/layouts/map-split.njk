@@ -21,9 +21,30 @@ mapPage: true
       <h1 class="mappanel__title">{{ title }}</h1>
       {% if subtitle %}<p class="mappanel__sub">{{ subtitle }}</p>{% endif %}
       <div class="mappanel__meta">
-        <span>{{ feats | length }} places</span>
+        <span id="map-count">{{ feats | length }} places</span>
         <button type="button" class="linkbtn" data-map-reset>Reset map</button>
       </div>
+
+      {# Region filter. Opt-in via `filters: true`, so the template pages that
+         demo this layout stay a plain map. Built from the regions actually
+         present in the feature set, never from the full regions table — a chip
+         that filters to nothing is worse than no chip. #}
+      {% if filters %}
+      {% set seen = [] %}
+      {% for f in feats %}
+        {% if f.region and f.region not in seen %}{% set seen = (seen.push(f.region), seen) %}{% endif %}
+      {% endfor %}
+      {% if seen.length > 1 %}
+      <div class="mapfilter" role="group" aria-label="Filter places by region">
+        <button type="button" class="chip" data-map-filter="region" data-filter-value="" aria-pressed="true">All</button>
+        {% for r in seen %}
+        <button type="button" class="chip" data-map-filter="region" data-filter-value="{{ r }}" aria-pressed="false">
+          {{ regions[r].label if regions[r] else r | replace("-", " ") }}
+        </button>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% endif %}
     </header>
 
     <ul class="mapcards mapcards--stack">

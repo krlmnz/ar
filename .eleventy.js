@@ -97,6 +97,8 @@ module.exports = function(eleventyConfig) {
         id: i.data.slug,
         title: i.data.title,
         type: i.data.type || '',
+        // Carried so the map can filter on it without a second data source.
+        region: i.data.region || '',
         category: category === 'type' ? (i.data.type || '') : category,
         subtitle: i.data.subtitle || '',
         url: `/places/${i.data.slug}/`,
@@ -108,6 +110,11 @@ module.exports = function(eleventyConfig) {
       if (zoom) f.zoom = zoom;
       return f;
     }));
+
+  // `nearby` returns {item, distance, km} wrappers; `toFeatures` wants the
+  // collection items. This unwraps them so a place page can put itself and its
+  // neighbours on one map without either filter learning about the other.
+  eleventyConfig.addFilter('pluck', (list, key) => (list || []).map(o => o && o[key]).filter(Boolean));
 
   // Resolve story steps / route stops to map features. A step may reference a
   // place by slug, carry its own lng/lat, or both — explicit coordinates win.

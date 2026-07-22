@@ -12,7 +12,8 @@
    back to a plain single-column list instead of framing an empty box. */
 .no-map .mapsplit, .no-map .hood { grid-template-columns: 1fr; height: auto; }
 .no-map .mapstack__map, .no-map .route__map,
-.no-map .area__map, .no-map .story__map { display: none; }
+.no-map .area__map, .no-map .story__map,
+.no-map .placemap, .no-map .placemap__note { display: none; }
 .no-map .story__steps { margin-top: 0; }
 
 /* Referenced by the 100vh split layouts. Must match the real header height or
@@ -105,6 +106,11 @@
 [data-cat="volcano"]         { --cat: var(--brand-rust); }
 [data-cat="town"]            { --cat: var(--brand-amber); }
 [data-cat="cultural-center"] { --cat: var(--brand-violet); }
+
+/* "You are here" on a place page. Deliberately outside both scales above: the
+   subject of the page is not one category among its neighbours, it is the
+   fixed point they are measured from. */
+[data-cat="anchor"] { --cat: var(--text); }
 
 /* ── Markers ──────────────────────────────────────────────────────────── */
 
@@ -278,6 +284,60 @@
 .mapstack__map { border-bottom: 1px solid var(--border); }
 .mapstack__map--tall { height: min(70vh, 40rem); }
 .mapstack__map--short { height: min(50vh, 28rem); }
+
+/* ── Filter chips ─────────────────────────────────────────────────────── */
+/* Panel furniture, so it follows the PAGE theme (--panel-*), not the basemap. */
+.mapfilter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+.chip {
+  padding: 2px var(--space-1);
+  border: 1px solid var(--panel-border);
+  background: transparent;
+  color: var(--panel-text-2);
+  font-family: var(--font-ui);
+  font-size: var(--text-overline);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition), background var(--transition);
+}
+
+.chip:hover { color: var(--panel-text); border-color: var(--panel-text); }
+
+.chip[aria-pressed="true"] {
+  background: var(--panel-text);
+  border-color: var(--panel-text);
+  color: var(--panel-surface);
+}
+
+.chip:focus-visible { outline: 2px solid var(--panel-text); outline-offset: 2px; }
+
+/* ── Place page: the contextual map ───────────────────────────────────── */
+/* Sits in the editorial column rather than running full bleed — on a place
+   page the map is one section among many, not the subject. .mapshell is
+   height:100%, so this box has to say how tall it is. */
+.placemap {
+  height: min(46vh, 24rem);
+  max-width: var(--content-width);
+  margin-top: var(--space-2);
+  border: 1px solid var(--border);
+}
+
+.placemap__note {
+  max-width: var(--content-width);
+  margin-top: var(--space-1);
+  font-size: var(--text-caption);
+  color: var(--text-3);
+}
+
+/* The jump buttons repeat the Nearby cards for keyboard and screen-reader
+   users; on a pointer device the cards themselves are the obvious target. */
+.placemap__jumps { margin-top: var(--space-2); }
 .mapstack__head { padding: var(--space-5) 0 var(--space-2); }
 .mapstack__title {
   font-family: var(--font-display); font-size: var(--text-h1);

@@ -131,19 +131,59 @@ layout: layouts/base.njk
   {% for n in collections.places | nearby(slug, 3) %}
     {% if n.distance <= 200 %}{% set near = (near.push(n), near) %}{% endif %}
   {% endfor %}
+
+  {# Where you are, and what is around you. The map and the Nearby list are one
+     block on purpose: the same neighbour set feeds both, and the cards below
+     carry the data-feature / data-goto contract the engine binds to, so
+     clicking a card moves the map and clicking a pin highlights its card.
+     This place is its own first feature with an `anchor` category, so it reads
+     differently from its neighbours. Coordinates come from the place files via
+     toFeatures — never copied onto the page. #}
+  {% set selfFeat = collections.places | bySlugs([slug]) | toFeatures("anchor") %}
+  {% set nearFeats = near | pluck("item") | toFeatures("type") %}
+  {% set feats = selfFeat.concat(nearFeats) %}
+  {% if feats.length and coordinates %}
+  {% set mapConfig = { token: mapbox.token, style: mapbox.style, mapId: "map",
+                       mode: "pins", center: [coordinates.lng, coordinates.lat],
+                       zoom: 14, features: feats } %}
+  <div class="section-block">
+    <hr class="rule">
+    <h2 class="subhead">On the map</h2>
+    <div class="placemap">
+      {% set mapLabel = title %}
+      {% include "partials/map-shell.njk" %}
+    </div>
+    <p class="placemap__note">
+      <a href="/map/#{{ slug }}">See {{ title }} on the area map →</a>
+    </p>
+  </div>
+  {% endif %}
+
   {% if near.length %}
   <div class="section-block">
     <hr class="rule">
     <h2 class="subhead">Nearby</h2>
     <div class="place-grid">
       {% for n in near %}
-      <a href="/places/{{ n.item.data.slug }}/" class="card">
+      {# data-feature/data-goto wire this card to its pin above. The button is
+         separate from the link so the card stays a link to the place page. #}
+      <a href="/places/{{ n.item.data.slug }}/" class="card" data-feature="{{ n.item.data.slug }}">
         <div class="card__overline">{{ n.km }} km away · {{ n.item.data.type | replace("-", " ") }}</div>
         <div class="card__title">{{ n.item.data.title }}</div>
         <div class="card__description">{{ n.item.data.subtitle }}</div>
       </a>
       {% endfor %}
     </div>
+    {% if feats.length %}
+    <div class="btn-row placemap__jumps">
+      {% for n in near %}
+      <button type="button" class="btn btn--ghost" data-goto="{{ n.item.data.slug }}"
+              aria-pressed="false" aria-label="Show {{ n.item.data.title }} on the map">
+        {{ n.item.data.title }}
+      </button>
+      {% endfor %}
+    </div>
+    {% endif %}
   </div>
   {% endif %}
 
@@ -187,3 +227,7 @@ layout: layouts/base.njk
   "url": "{{ site.url }}/places/{{ slug }}/"
 }
 </script>
+
+{# Ships the map config + sprites. Only emits a map when mapConfig is set,
+   so a place with no coordinates renders the page unchanged. #}
+{% if mapConfig %}{% include "partials/map-embed.njk" %}{% endif %}

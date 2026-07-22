@@ -1,4 +1,6 @@
 {
   "layout": "layouts/place.njk",
-  "permalink": "/places/{{ slug }}/index.html"
+  "permalink": "/places/{{ slug }}/index.html",
+  "_comment": "mapPage starts the Mapbox handshake during HTML parse — every place page now carries a contextual map.",
+  "mapPage": true
 }
