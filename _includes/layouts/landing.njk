@@ -1,0 +1,128 @@
+---
+layout: layouts/base.njk
+---
+{# LANDING — the conversion shape from _plans/02: story → proof → CTA, with
+   one primary CTA repeated at top and bottom. Every block below is optional;
+   a page that sets only `title` still renders a valid page. Blocks come from
+   front matter so segment landings (/for/<segment>/) can reuse this layout
+   without touching the template. #}
+
+{% if crumbs %}{% include "partials/breadcrumbs.njk" %}{% endif %}
+
+<article class="tpl tpl--landing">
+
+  {# 1 · Hero — what it makes, for whom, one sentence. #}
+  <div class="hero">
+    {% if overline %}<div class="hero-overline">{{ overline }}</div>{% endif %}
+    <h1 class="hero-title">{{ headline or title }}</h1>
+    {% if lede %}<p class="hero-lede">{{ lede }}</p>{% endif %}
+    {% if cta %}
+    <div class="btn-row landing__cta">
+      <a href="{{ cta.url }}" class="btn btn--filled">{{ cta.label }}</a>
+      {% if secondary_cta %}
+      <a href="{{ secondary_cta.url }}" class="btn">{{ secondary_cta.label }}</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <hr class="rule rule--heavy">
+
+  {# 2 · Show, don't tell. The page body IS the demo slot — a map embed, an
+     image, whatever proves the thing works. Nothing renders if it's empty. #}
+  {% if content | trim %}
+  <section class="section landing__demo">
+    {{ content | safe }}
+  </section>
+  {% endif %}
+
+  {# 3 · Three capabilities max, each linking to its how-to. #}
+  {% if capabilities and capabilities.length %}
+  <section class="section">
+    {% if capabilities_label %}<div class="section-label">{{ capabilities_label }}</div>{% endif %}
+    {% if capabilities_title %}<h2 class="section-title">{{ capabilities_title }}</h2>{% endif %}
+    {% for cap in capabilities %}
+    {# A capability without a how-to yet is still worth showing — it just
+       renders as a plain block instead of a link. #}
+    {% if cap.url %}
+    <a href="{{ cap.url }}" class="guide-entry">
+      {% if cap.overline %}<div class="guide-entry__overline">{{ cap.overline }}</div>{% endif %}
+      <div class="guide-entry__title">{{ cap.title }}</div>
+      {% if cap.description %}<div class="guide-entry__description">{{ cap.description }}</div>{% endif %}
+    </a>
+    {% else %}
+    <div class="guide-entry">
+      {% if cap.overline %}<div class="guide-entry__overline">{{ cap.overline }}</div>{% endif %}
+      <div class="guide-entry__title">{{ cap.title }}</div>
+      {% if cap.description %}<div class="guide-entry__description">{{ cap.description }}</div>{% endif %}
+    </div>
+    {% endif %}
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  {# 4 · Examples — seeded with your own maps until there are others'. #}
+  {% if examples and examples.length %}
+  <section class="section">
+    {% if examples_title %}<h2 class="section-title">{{ examples_title }}</h2>{% endif %}
+    <div class="practical-list">
+      {% for ex in examples %}
+      <a href="{{ ex.url }}" class="practical-link">{{ ex.label }}</a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {# 5 · Forgiveness — a way out for readers who aren't ready to start. #}
+  {% if forgiveness %}
+  <section class="section landing__forgiveness">
+    <hr class="rule">
+    <p class="landing__forgiveness-text">
+      {{ forgiveness.text }}
+      {% if forgiveness.url %}<a href="{{ forgiveness.url }}">{{ forgiveness.label }} →</a>{% endif %}
+    </p>
+  </section>
+  {% endif %}
+
+  {# 6 · Final CTA — the same primary action, repeated. #}
+  {% if cta and final_cta %}
+  <section class="section landing__close">
+    <hr class="rule rule--heavy">
+    {% if final_cta.title %}<h2 class="section-title">{{ final_cta.title }}</h2>{% endif %}
+    {% if final_cta.body %}<div class="section-description">{{ final_cta.body }}</div>{% endif %}
+    <div class="btn-row landing__cta">
+      <a href="{{ cta.url }}" class="btn btn--filled">{{ cta.label }}</a>
+    </div>
+
+    {# Email capture is a placeholder until a provider is chosen — it posts
+       nowhere, so it's marked up as inert rather than as a form that looks
+       live and silently drops the address. Wire the action, drop the
+       `disabled`, and fire the email_signup event (brief 1.7) together. #}
+    {% if email_capture %}
+    <div class="landing__signup" data-placeholder="email-capture">
+      <p class="landing__signup-label">{{ email_capture.label }}</p>
+      <p class="landing__signup-note">{{ email_capture.note or "Not wired up yet — coming soon." }}</p>
+    </div>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  {# SoftwareApplication schema — how AI search and rich results learn the
+     Atelier is a free browser tool, not an article about one. #}
+  {% if app %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": {{ app.name | dump | replace("</", "<\\/") | safe }},
+    "description": {{ (app.description or description or lede) | dump | replace("</", "<\\/") | safe }},
+    "url": "{{ site.url }}{{ app.url or page.url }}",
+    "applicationCategory": {{ (app.category or "DesignApplication") | dump | safe }},
+    "operatingSystem": "Any (web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Person", "name": {{ site.author | dump | replace("</", "<\\/") | safe }}, "url": "{{ site.url }}/about/" },
+    "publisher": { "@type": "Person", "name": {{ site.author | dump | replace("</", "<\\/") | safe }}, "url": "{{ site.url }}/about/" }
+  }
+  </script>
+  {% endif %}
+</article>
