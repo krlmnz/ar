@@ -207,6 +207,13 @@
   gap: var(--space-1);
 }
 
+/* The one sentence that explains the tool to someone arriving cold. */
+.sc-lede {
+  max-width: var(--content-width);
+  margin-top: var(--space-1);
+  color: var(--text-2);
+}
+
 /* ── Utility bar ───────────────────────────────────────────── */
 .sc-utility-bar {
   display: flex;

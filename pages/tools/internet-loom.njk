@@ -2,7 +2,7 @@
 layout: layouts/base.njk
 permalink: /tools/internet-loom/
 title: Internet Loom
-noindex: true
+description: "Draft a weave on a grid loom — lift warp and weft threads, start from classic structures like twill and huckaback, and export the draft as SVG or PNG."
 seo:
   title: "Internet Loom — Andean Road"
   description: "Draft a weave on a grid loom — lift warp and weft threads, start from classic structures like twill and huckaback, and export the draft as SVG or PNG."
@@ -87,3 +87,34 @@ seo:
 </div>
 
 <script src="/assets/js/internet-loom.js" defer></script>
+
+{# Every tool page owes the reader a next step below the fold (_plans/03). #}
+<hr class="rule rule--section">
+
+<section class="section">
+  <div class="section-label">Next</div>
+  <div class="section-title">Patterns on a map</div>
+  <div class="section-description">A weave draft is a pattern with structure behind it. The Atelier fills map regions with the same idea — hatches, dots and weaves instead of pins.</div>
+
+  <div class="btn-row" style="margin-top: var(--space-3)">
+    <a href="/atelier/" class="btn btn--filled">Open the Atelier</a>
+    <a href="/tools/" class="btn">All tools</a>
+  </div>
+</section>
+
+{# SoftwareApplication — how AI search and rich results learn this is a free
+   browser tool rather than an article about one. #}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Internet Loom",
+  "description": {{ description | dump | replace("</", "<\\/") | safe }},
+  "url": "{{ site.url }}{{ page.url }}",
+  "applicationCategory": "DesignApplication",
+  "operatingSystem": "Any (web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": {{ site.author | dump | safe }}, "url": "{{ site.url }}/about/" },
+  "publisher": { "@type": "Person", "name": {{ site.author | dump | safe }}, "url": "{{ site.url }}/about/" }
+}
+</script>

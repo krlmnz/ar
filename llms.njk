@@ -12,6 +12,31 @@ eleventyExcludeFromCollections: true
 
 Andean Road is a personal travel guide to Chile written by one author — Karol, born in Chile, raised in New York. It is written in English, and every place listed here has been visited by the author personally; nothing is aggregated or scraped. Guides are multi-day itineraries, places are individual spots worth the trip, and practical pages cover the unglamorous essentials.
 
+## The Atelier
+
+The Map Atelier is a free browser-based map editor — pin places, apply a palette
+and patterns, and share the finished map as a self-contained link. No account,
+no upload, nothing installed.
+
+- [The Atelier]({{ site.url }}/atelier/): what the editor makes and who it is for
+- [Open the editor]({{ site.url }}/atelier/editor/): the editor itself
+
+## Tools
+
+Small single-purpose tools, free and entirely client-side.
+
+- [Tools]({{ site.url }}/tools/): index of every public tool
+- [Color Scales]({{ site.url }}/tools/color-scales/): blend two brand colors into a legible 5–11 step data-visualization scale; exports CSS, Figma tokens, SVG, PNG
+- [Chromatlas]({{ site.url }}/tools/chromatlas/): Pantone's Colours of the Year as a browsable atlas, plus a harmony engine for any hue
+- [SVG Map Editor]({{ site.url }}/tools/svg-editor/): recolor an SVG map by fill and stroke group, toggle layers, export — the file never leaves the browser
+- [Internet Loom]({{ site.url }}/tools/internet-loom/): draft a weave on a grid loom from twill or huckaback; exports SVG or PNG
+
+## Learn
+{# Deliberately lists the hub only. The how-tos are still being written, and a
+   machine-readable file that promises URLs which do not exist is worse than one
+   that omits them. #}
+- [Learn]({{ site.url }}/learn/): how-tos for making a map, and topics on why maps are designed the way they are
+
 ## Guides
 {% for guide in collections.guides %}
 - [{{ guide.data.title | safe }}]({{ site.url }}/guides/{{ guide.data.slug }}/): {{ guide.data.description | safe }}

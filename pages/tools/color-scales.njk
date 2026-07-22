@@ -2,7 +2,7 @@
 layout: layouts/base.njk
 permalink: /tools/color-scales/
 title: Color Scales
-noindex: true
+description: "Blend two brand colors into a legible 5–11 step data-visualization scale, preview it in a chart and heatmap, and export as CSS, Figma tokens, SVG, or PNG."
 seo:
   title: "Color Scales — Andean Road"
   description: "Blend two brand colors into a data visualization scale, preview it in a chart and heatmap, and export as CSS, Figma tokens, SVG, or PNG."
@@ -52,7 +52,12 @@ seo:
   <div class="sc-lib-header">
     <div>
       <div class="section-label">Brand → Data visualization</div>
-      <h1 class="section-title">Scales</h1>
+      <h1 class="section-title">Color Scales</h1>
+      {# The page's only standalone sentence. Without it the visible copy opens
+         on the word "Scales" and everything explaining the tool sits inside the
+         About modal — invisible to a reader arriving cold, and to anything
+         quoting the page. #}
+      <p class="sc-lede">Give it two brand colors and it builds a 5–11 step scale that stays legible all the way across — then shows you the scale in a real chart and heatmap before you commit, and exports it as CSS, Figma tokens, SVG or PNG.</p>
     </div>
     <div class="sc-lib-actions">
       <button class="btn btn--ghost" id="scAboutBtn" title="About this tool">
@@ -154,3 +159,34 @@ seo:
 </div>
 
 <script src="/assets/js/color-scales.js" defer></script>
+
+{# Every tool page owes the reader a next step below the fold (_plans/03). #}
+<hr class="rule rule--section">
+
+<section class="section">
+  <div class="section-label">Next</div>
+  <div class="section-title">Put a scale on a map</div>
+  <div class="section-description">A scale that works in a chart usually works on a map too. The Atelier applies palettes to land, water and labels, and checks the contrast for you.</div>
+
+  <div class="btn-row" style="margin-top: var(--space-3)">
+    <a href="/atelier/" class="btn btn--filled">Open the Atelier</a>
+    <a href="/tools/" class="btn">All tools</a>
+  </div>
+</section>
+
+{# SoftwareApplication — how AI search and rich results learn this is a free
+   browser tool rather than an article about one. #}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Color Scales",
+  "description": {{ description | dump | replace("</", "<\\/") | safe }},
+  "url": "{{ site.url }}{{ page.url }}",
+  "applicationCategory": "DesignApplication",
+  "operatingSystem": "Any (web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": {{ site.author | dump | safe }}, "url": "{{ site.url }}/about/" },
+  "publisher": { "@type": "Person", "name": {{ site.author | dump | safe }}, "url": "{{ site.url }}/about/" }
+}
+</script>

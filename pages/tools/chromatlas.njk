@@ -2,7 +2,7 @@
 layout: layouts/base.njk
 permalink: /tools/chromatlas/
 title: Chromatlas
-noindex: true
+description: "A browsable atlas of Pantone’s Colours of the Year and seasonal reports, plus a harmony engine that turns any Pantone colour into complementary, triadic and analogous palettes."
 seo:
   title: "Chromatlas — Andean Road"
   description: "A working atlas of Pantone's colour choices — 27 Colours of the Year, the seasonal runway reports, hue families across the 2,310-colour library, and a live harmony engine that snaps every computed hue to the nearest real Pantone chip."
@@ -190,3 +190,34 @@ seo:
 </div>
 
 <script src="/assets/js/chromatlas.js" defer></script>
+
+{# Every tool page owes the reader a next step below the fold (_plans/03). #}
+<hr class="rule rule--section">
+
+<section class="section">
+  <div class="section-label">Next</div>
+  <div class="section-title">Take a palette somewhere</div>
+  <div class="section-description">Found a hue worth keeping? The Atelier turns a starting colour into a full map palette, and Color Scales turns two of them into a data scale.</div>
+
+  <div class="btn-row" style="margin-top: var(--space-3)">
+    <a href="/atelier/" class="btn btn--filled">Open the Atelier</a>
+    <a href="/tools/" class="btn">All tools</a>
+  </div>
+</section>
+
+{# SoftwareApplication — how AI search and rich results learn this is a free
+   browser tool rather than an article about one. #}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Chromatlas",
+  "description": {{ description | dump | replace("</", "<\\/") | safe }},
+  "url": "{{ site.url }}{{ page.url }}",
+  "applicationCategory": "DesignApplication",
+  "operatingSystem": "Any (web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": {{ site.author | dump | safe }}, "url": "{{ site.url }}/about/" },
+  "publisher": { "@type": "Person", "name": {{ site.author | dump | safe }}, "url": "{{ site.url }}/about/" }
+}
+</script>
