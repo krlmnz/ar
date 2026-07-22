@@ -2,7 +2,7 @@
 # DRAFT — the prose still carries template heading samples ("…h2", "H3").
 # Delete this line to publish; until then the page builds for preview but is
 # kept out of /guides/, the sitemap, the feed and llms.txt.
-published: false
+published: TRUE
 
 layout: layouts/manual.njk
 slug: cartographic-design
