@@ -1,0 +1,49 @@
+---
+layout: layouts/base.njk
+permalink: /tools/svg-editor/
+section: tools
+title: SVG Map Editor
+seo:
+  title: "SVG Map Editor — Andean Road"
+  description: "Recolor an SVG map in the browser: fill and stroke groups, per-layer visibility, undo, and export. Nothing is uploaded — the file never leaves your machine."
+description: "Recolor an SVG map in the browser: fill and stroke groups, per-layer visibility, undo, and export. Nothing is uploaded — the file never leaves your machine."
+---
+
+{% set crumbs = [{ label: "Tools", url: "/tools/" }, { label: "SVG Map Editor" }] %}
+{% include "partials/breadcrumbs.njk" %}
+
+<div class="hero">
+  <div class="hero-overline">In the browser, free</div>
+  <h1 class="hero-title">SVG Map Editor</h1>
+  <p class="hero-lede">Take an SVG map and put it in your own colors — recolor by fill and stroke group, hide the layers you do not need, undo anything, then export. The file is parsed in your browser and never uploaded anywhere.</p>
+</div>
+
+<div class="btn-row" style="margin-top: var(--space-4)">
+  <a href="/tools/svg-editor/app/" class="btn btn--filled">Open the editor</a>
+</div>
+
+<hr class="rule rule--heavy">
+
+<section class="section">
+  <div class="section-label">What you can do</div>
+  <h2 class="section-title">Three things, well</h2>
+
+  <div class="prose content-column">
+    <p><b>Recolor by group.</b> The editor reads the SVG's fill and stroke values and groups every shape that shares one, so changing a color changes every shape using it at once — not one path at a time.</p>
+    <p><b>Turn layers off.</b> Most maps carry more than you need. Per-layer visibility lets you strip a map back to the parts that matter before you restyle what is left.</p>
+    <p><b>Export what you made.</b> Out comes an SVG you can drop into a document, a slide, or a print file, at whatever size you want, because it is still vector.</p>
+  </div>
+</section>
+
+<hr class="rule rule--section">
+
+<section class="section">
+  <div class="section-label">Next</div>
+  <div class="section-title">Where this came from</div>
+  <div class="section-description">This was built to restyle one map — the Inca road network from Wikipedia — and grew from there. The build story is still to be written; it will live in the Learn hub's build notes.</div>
+
+  <div class="btn-row" style="margin-top: var(--space-3)">
+    <a href="/learn/" class="btn">Go to Learn</a>
+    <a href="/tools/" class="btn">All tools</a>
+  </div>
+</section>

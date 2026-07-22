@@ -355,7 +355,13 @@ module.exports = function(eleventyConfig) {
   // SVG Map Editor — a self-contained single-file recolor/layer studio for
   // one embedded SVG (the Inca road system map). Same reasoning as Map
   // Atelier: hosted as-is via passthrough copy rather than a njk page.
-  eleventyConfig.addPassthroughCopy({ 'tools-apps/svg-editor': 'tools/svg-editor' });
+  //
+  // It sits one level down, at /tools/svg-editor/app/, so that
+  // /tools/svg-editor/ can be a real entry page on the site's tokens — the app
+  // is 1.3 MB of markup with its own hardcoded colors and no way back to the
+  // site. Nothing moved from a reader's point of view: the URL they had still
+  // resolves, it just leads to the door rather than dropping them inside.
+  eleventyConfig.addPassthroughCopy({ 'tools-apps/svg-editor': 'tools/svg-editor/app' });
 
   // Chromatlas and Destination Weddings were briefly hosted here as-is. They
   // are now real pages in `pages/tools/` on the site tokens — a tool page is
