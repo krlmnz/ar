@@ -59,3 +59,12 @@ status = 301
 from = "/tools/map-atelier/*"
 to = "/atelier/editor/:splat"
 status = 301
+
+# The cartographic-design essay moved under the Learn hub (brief 2.3). It is
+# still published: false, but a draft is not a missing URL — Eleventy emits the
+# page either way, so the old path would have gone live the moment this branch
+# merged.
+[[redirects]]
+from = "/guides/cartographic-design"
+to = "/learn/cartography/cartographic-design/"
+status = 301
