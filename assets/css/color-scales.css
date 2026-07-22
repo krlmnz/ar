@@ -1,0 +1,702 @@
+/* ============================================================
+   Color Scales — /tools/color-scales/
+   ------------------------------------------------------------
+   Scoped under .scale-tool so nothing here escapes into the
+   site. Everything this page could borrow, it borrows: the
+   chrome comes from tools.css (.tool, .tool-panel,
+   .tool-panel__label) and the editorial type and controls from
+   main.css (.section-label, .section-title, .btn, .btn--filled,
+   .btn--ghost). No local colour token, no local space or type
+   scale, no radius, no shadow — the site's generated tokens
+   carry all of it, so this page follows dark mode for free.
+
+   What the previous version declared and this one does not:
+   a private --space-1..6 ramp, --radius/--radius-sm, --accent
+   (#2592C2 light / #4FB3E0 dark), --shadow/--shadow-pop, and a
+   private --text-xs..--text-2xl scale. --accent does not exist
+   on this site (deleted as dead in 651ee42), --radius-sm is 0
+   and --shadow is none, so every one of them was a private
+   design system running beside the real one.
+
+   THE COLOUR EXCEPTION (DESIGN-SYSTEM.md §4): generating colour
+   is this page's entire subject, so every user colour keeps its
+   real value — palette swatches, scale steps, the picker grid,
+   the colour dots, the chart and heatmap previews. All of those
+   are painted inline from the JS. Everything wrapped around
+   them — buttons, labels, the segmented step control, the lock,
+   the export row, the toast, the About panel, and every hover,
+   active and error state — is greyscale. Depth is a 1px border;
+   emphasis is weight or a --text fill, never a hue.
+============================================================ */
+
+.scale-tool {
+  font-family: var(--font-ui);
+  color: var(--text);
+}
+
+.scale-tool * { box-sizing: border-box; }
+
+/* ── Layout ────────────────────────────────────────────────── */
+.sc-page-layout {
+  display: grid;
+  grid-template-columns: 276px 1fr;
+  gap: var(--space-3);
+  padding: var(--space-3) 0 var(--space-6);
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .sc-page-layout { grid-template-columns: 1fr; }
+  .sc-sidebar { position: static !important; }
+}
+
+/* The palette follows the reader down a long list of scales, so
+   it sticks — but below the site header, which owns the top of
+   the viewport. */
+.sc-sidebar {
+  position: sticky;
+  top: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.sc-sidebar::-webkit-scrollbar { width: 4px; }
+.sc-sidebar::-webkit-scrollbar-thumb { background: var(--border); }
+
+.sc-palette-helper {
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  color: var(--text-2);
+  line-height: 1.55;
+  margin-bottom: var(--space-2);
+}
+
+/* ── Brand palette ─────────────────────────────────────────── */
+/* The swatch face is the user's colour; the frame around it is
+   the site's border, so a near-white brand colour still reads as
+   a swatch on --surface and a near-black one on --bg. */
+.sc-palette-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
+}
+
+.sc-pal-swatch {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  flex: none;
+  transition: border-color var(--transition);
+}
+
+.sc-pal-swatch:hover { border-color: var(--text); }
+
+/* The remove affordance is a genuine circle sitting on the
+   swatch corner — one of the two --radius-full exceptions. */
+.sc-pal-swatch .sc-x-btn {
+  display: none;
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-full);
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.sc-pal-swatch .sc-x-btn svg { width: 9px; height: 9px; }
+.sc-pal-swatch:hover .sc-x-btn,
+.sc-pal-swatch:focus-within .sc-x-btn { display: flex; }
+
+.sc-pal-empty {
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  color: var(--text-3);
+  font-style: italic;
+}
+
+/* ── Add-a-colour input ────────────────────────────────────── */
+.sc-color-add-input {
+  width: 100%;
+  padding: var(--space-1);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: var(--text-body-sm);
+  color: var(--text);
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.sc-color-add-input:focus { border-color: var(--text); }
+
+/* "That isn't a colour" used to flash red. Red is a hue the
+   reader may also be typing in, so the rejection is carried by
+   the border going to full ink instead. */
+.sc-color-add-input.sc-err { border-color: var(--text); border-width: 2px; }
+.sc-color-add-input::placeholder { color: var(--text-3); }
+
+/* ── Image drop bar ────────────────────────────────────────── */
+/* Dashed border is the one place a non-solid rule earns its
+   keep: it reads as "a target", not as a panel edge. */
+.sc-upload-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  margin-top: var(--space-1);
+  border: 1px dashed var(--border);
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+  overflow: hidden;
+}
+
+.sc-upload-bar:hover,
+.sc-upload-bar.sc-drag-over {
+  border-color: var(--text);
+  background: var(--accent-soft);
+}
+
+.sc-upload-bar input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.sc-upload-bar-icon { color: var(--text-3); flex-shrink: 0; }
+
+.sc-upload-bar-text {
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  color: var(--text-2);
+}
+
+.sc-upload-bar-text.sc-err-msg { color: var(--text); font-weight: 700; }
+
+/* ── Masthead row ──────────────────────────────────────────── */
+.sc-lib-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: var(--space-4);
+}
+
+.sc-lib-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* ── Utility bar ───────────────────────────────────────────── */
+.sc-utility-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--space-3);
+}
+
+.sc-util-group { display: flex; align-items: center; gap: var(--space-1); }
+
+.sc-util-sep {
+  width: 1px;
+  height: 22px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) { .sc-util-sep { display: none; } }
+
+.sc-util-label,
+.sc-card-step-label,
+.sc-ctrl-label {
+  font-family: var(--font-ui);
+  font-size: var(--text-overline);
+  font-weight: var(--text-overline-weight);
+  text-transform: var(--text-overline-tt);
+  letter-spacing: var(--text-overline-ls);
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+.sc-ctrl-arrow { font-size: var(--text-body-sm); color: var(--text-3); user-select: none; }
+
+/* ── Segmented step control ────────────────────────────────── */
+/* The selected step count used to be a white pill with a drop
+   shadow. Here the selection is an ink fill, the same signal
+   .btn--filled uses everywhere else on the site. */
+.sc-step-opts {
+  display: flex;
+  border: 1px solid var(--border);
+}
+
+.sc-step-opt {
+  padding: 3px var(--space-1);
+  border: none;
+  background: transparent;
+  color: var(--text-3);
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  line-height: 1.4;
+  transition: color var(--transition), background var(--transition);
+}
+
+.sc-step-opt + .sc-step-opt { border-left: 1px solid var(--border); }
+.sc-step-opt:hover { color: var(--text); }
+.sc-step-opt.sc-active { background: var(--text); color: var(--bg); }
+
+/* ── Lock ──────────────────────────────────────────────────── */
+/* Locked is the default and the loud state, so it takes the
+   fill; unlocked is an outline. */
+.sc-lock-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-3);
+  transition: color var(--transition), background var(--transition), border-color var(--transition);
+}
+
+.sc-lock-btn:hover { border-color: var(--text); color: var(--text); }
+.sc-lock-btn.sc-locked { background: var(--text); color: var(--bg); border-color: var(--text); }
+.sc-lock-icon-unlocked { display: none; }
+.sc-lock-btn:not(.sc-locked) .sc-lock-icon-locked { display: none; }
+.sc-lock-btn:not(.sc-locked) .sc-lock-icon-unlocked { display: block; }
+
+/* ── Export row ────────────────────────────────────────────── */
+/* Same shape as .btn but one notch quieter, because five of them
+   sit in a row and none of them is the page's primary action. */
+.sc-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-0);
+  padding: var(--space-0) var(--space-1);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-3);
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  cursor: pointer;
+  line-height: 1.4;
+  white-space: nowrap;
+  transition: color var(--transition), background var(--transition), border-color var(--transition);
+}
+
+.sc-export-btn:hover { border-color: var(--text); color: var(--text); }
+.sc-export-btn:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+/* Confirmation used to be a green border. A fill says "done"
+   without spending a hue the scales need. */
+.sc-export-btn.sc-copied { background: var(--text); border-color: var(--text); color: var(--bg); }
+
+/* ── Scale cards ───────────────────────────────────────────── */
+.sc-scales-list { display: flex; flex-direction: column; gap: var(--space-3); }
+
+.sc-scale-card { animation: scCardIn 200ms ease; }
+.sc-scale-card + .sc-scale-card { border-top: 1px solid var(--border); padding-top: var(--space-3); }
+
+@keyframes scCardIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+.sc-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.sc-card-top-left,
+.sc-card-top-right { display: flex; align-items: center; gap: var(--space-1); }
+
+/* The endpoint dots are the second sanctioned --radius-full: a
+   circle is what marks them as colour pickers rather than as
+   steps of the scale below. Their fill is the user's colour. */
+.sc-color-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color var(--transition);
+}
+
+.sc-color-dot:hover { border-color: var(--text); }
+.sc-color-dot:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+.sc-card-step-pills { display: none; }
+.sc-card-step-pills.sc-visible { display: flex; align-items: center; gap: var(--space-1); }
+
+.sc-remove-card-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition);
+  flex-shrink: 0;
+}
+
+.sc-remove-card-btn:hover { color: var(--text); }
+
+/* ── The scale itself ──────────────────────────────────────── */
+.sc-scale-row {
+  display: flex;
+  gap: 3px;
+  align-items: stretch;
+  margin-bottom: var(--space-2);
+}
+
+.sc-scale-step {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-0);
+}
+
+.sc-swatch {
+  width: 100%;
+  aspect-ratio: 1 / 1.08;
+  min-height: 44px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+/* The copy confirmation sits ON a user colour, so it cannot use
+   a token — it has to be legible over anything from #FFF to
+   #000. A black scrim with white type is the only pair that is.  */
+.sc-copy-flash {
+  display: none;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.sc-swatch.sc-flash .sc-copy-flash { display: flex; }
+
+.sc-swatch-hex {
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+@media (max-width: 760px) { .sc-swatch-hex { display: none; } }
+@media (max-width: 480px) {
+  .sc-swatch { min-height: 32px; }
+  .sc-scale-row { gap: 2px; }
+}
+
+/* ── Previews ──────────────────────────────────────────────── */
+/* Two figures per card. Both are data through and through, so
+   they keep every colour the scale gives them; only the frame
+   and the label are chrome. */
+.sc-preview-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 640px) { .sc-preview-section { grid-template-columns: 1fr; } }
+
+.sc-preview-pane { display: flex; flex-direction: column; gap: var(--space-0); }
+
+.sc-preview-pane-label {
+  font-family: var(--font-ui);
+  font-size: var(--text-overline);
+  font-weight: var(--text-overline-weight);
+  text-transform: var(--text-overline-tt);
+  letter-spacing: var(--text-overline-ls);
+  color: var(--text-3);
+}
+
+.sc-preview-svg {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--border);
+}
+
+/* ── Colour picker popover ─────────────────────────────────── */
+/* It floats, and there are no shadows on this site, so the
+   separation from the page has to come from the surface plus a
+   full-strength border. */
+.sc-color-pop {
+  position: fixed;
+  z-index: 999;
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--text);
+  padding: var(--space-2);
+  width: 196px;
+}
+
+.sc-color-pop.sc-is-open { display: block; }
+
+.sc-pop-specials { display: flex; gap: var(--space-0); margin-bottom: var(--space-1); }
+
+.sc-pop-spec-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: 1px solid var(--border);
+  padding: var(--space-0);
+  cursor: pointer;
+  transition: border-color var(--transition);
+}
+
+.sc-pop-spec-btn:hover { border-color: var(--text); }
+
+.sc-pop-spec-swatch { width: 100%; height: 22px; border: 1px solid var(--border); }
+
+.sc-pop-spec-label {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.sc-pop-divider { height: 1px; background: var(--border); margin: var(--space-1) 0; }
+
+.sc-pop-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-0); }
+
+.sc-pop-swatch {
+  aspect-ratio: 1;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: border-color var(--transition);
+}
+
+.sc-pop-swatch:hover { border-color: var(--text); }
+
+/* The current endpoint. An inset ink ring reads on top of any
+   swatch colour without covering it. */
+.sc-pop-swatch.sc-selected { border-color: var(--text); outline: 2px solid var(--text); outline-offset: -4px; }
+
+/* ── Empty state ───────────────────────────────────────────── */
+.sc-empty-state {
+  padding: var(--space-5) var(--space-3);
+  text-align: center;
+  color: var(--text-2);
+}
+
+.sc-empty-state h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: var(--text-h3-weight);
+  letter-spacing: var(--text-h3-ls);
+  color: var(--text);
+  margin-bottom: var(--space-0);
+}
+
+.sc-empty-state p { font-family: var(--font-ui); font-size: var(--text-body-sm); }
+
+/* ── Toast ─────────────────────────────────────────────────── */
+.sc-toast {
+  position: fixed;
+  bottom: var(--space-3);
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--text);
+  color: var(--bg);
+  padding: var(--space-1) var(--space-3);
+  font-family: var(--font-ui);
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  opacity: 0;
+  z-index: 2000;
+  pointer-events: none;
+  transition: transform 300ms cubic-bezier(.16, 1, .3, 1), opacity 300ms;
+  white-space: nowrap;
+}
+
+.sc-toast.sc-show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── Shuffle ───────────────────────────────────────────────── */
+@keyframes scSpin { to { transform: rotate(360deg); } }
+.sc-shuffle-icon.sc-spinning { animation: scSpin 450ms cubic-bezier(.5, 0, .5, 1); }
+
+/* ── About overlay ─────────────────────────────────────────── */
+.sc-about-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 250ms ease, visibility 250ms;
+}
+
+.sc-about-overlay.sc-is-open { opacity: 1; visibility: visible; }
+
+/* A scrim, not a colour: it dims whatever is behind it in either
+   theme, which no token can do. */
+.sc-about-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.sc-about-panel {
+  position: relative;
+  z-index: 1;
+  background: var(--surface);
+  border: 1px solid var(--text);
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  padding: var(--space-4) var(--space-3);
+}
+
+.sc-about-close {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  color: var(--text);
+  transition: border-color var(--transition), background var(--transition);
+  z-index: 2;
+}
+
+.sc-about-close:hover { border-color: var(--text); background: var(--accent-soft); }
+
+@media (max-width: 480px) {
+  .sc-about-panel { padding: var(--space-3) var(--space-2); }
+  .sc-about-close { top: var(--space-1); right: var(--space-1); }
+}
+
+.sc-about-desc {
+  font-family: var(--font-body);
+  font-size: var(--text-body-sm);
+  line-height: var(--text-body-sm-lh);
+  color: var(--text-2);
+  margin-bottom: var(--space-3);
+}
+
+.sc-about-features {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+@media (max-width: 420px) { .sc-about-features { grid-template-columns: 1fr; } }
+
+.sc-about-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border: 1px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  color: var(--text-2);
+  line-height: 1.5;
+}
+
+.sc-about-feature-icon { flex-shrink: 0; margin-top: 1px; color: var(--text-3); }
+
+.sc-about-divider { height: 1px; background: var(--border); margin: var(--space-3) 0; }
+
+.sc-feedback-area {
+  width: 100%;
+  min-height: 72px;
+  max-height: 160px;
+  resize: vertical;
+  padding: var(--space-1);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: var(--text-body-sm);
+  color: var(--text);
+  outline: none;
+  transition: border-color var(--transition);
+  margin-bottom: var(--space-1);
+}
+
+.sc-feedback-area:focus { border-color: var(--text); }
+.sc-feedback-area::placeholder { color: var(--text-3); }
+
+.sc-feedback-actions { display: flex; align-items: center; gap: var(--space-1); }
+
+.sc-feedback-status {
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  color: var(--text-3);
+  margin-left: auto;
+}
+
+.sc-feedback-status.sc-sent { color: var(--text); font-weight: 600; }
+
+#scImgCanvas, #scExportCanvas { display: none; }

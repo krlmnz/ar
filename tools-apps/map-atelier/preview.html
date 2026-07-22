@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preview — Hue &amp; Vow</title>
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Rethink+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/editor/shell.css">
+<link rel="stylesheet" href="css/editor/places.css">
+<link rel="stylesheet" href="css/editor/colors.css">
+<link rel="stylesheet" href="css/editor/patterns.css">
+<link rel="stylesheet" href="css/editor/legend.css">
+<link rel="stylesheet" href="css/editor/overlays.css">
+<link rel="stylesheet" href="css/editor/guest.css">
+</head>
+<!-- `preview` is the guest face wearing an escape hatch: same CSS
+     rules hide the editor chrome, but the map is still your draft
+     read straight out of the projects store, not a share payload. -->
+<body class="preview">
+
+<!-- the map surface is injected by js/views/stage.js -->
+<div id="stage"></div>
+
+<button class="btn primary" id="preview-exit" aria-label="Back to editing">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>
+  Back to editing
+</button>
+
+<script type="module" src="js/pages/preview.js"></script>
+</body>
+</html>

@@ -326,6 +326,27 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy('assets/js');
   eleventyConfig.addPassthroughCopy('robots.txt');
 
+  // Map Atelier — a self-contained Mapbox app (own ES modules, own tokens,
+  // own localStorage store), hosted as-is under /tools/. It isn't a
+  // Nunjucks page: passthrough copy is what keeps its .html files from
+  // being run through njk, which would break on the app's own template
+  // literals. editor.html is copied twice so /tools/map-atelier/ (no
+  // filename) resolves to the editor, same as opening editor.html directly —
+  // every in-app link is relative, so both URLs stay interchangeable.
+  eleventyConfig.addPassthroughCopy({ 'tools-apps/map-atelier': 'tools/map-atelier' });
+  eleventyConfig.addPassthroughCopy({ 'tools-apps/map-atelier/editor.html': 'tools/map-atelier/index.html' });
+
+  // SVG Map Editor — a self-contained single-file recolor/layer studio for
+  // one embedded SVG (the Inca road system map). Same reasoning as Map
+  // Atelier: hosted as-is via passthrough copy rather than a njk page.
+  eleventyConfig.addPassthroughCopy({ 'tools-apps/svg-editor': 'tools/svg-editor' });
+
+  // Chromatlas and Destination Weddings were briefly hosted here as-is. They
+  // are now real pages in `pages/tools/` on the site tokens — a tool page is
+  // a template in this system, not a guest inside it. Passthrough is for
+  // apps that genuinely cannot be one (their own module graph, their own
+  // stores), which is Map Atelier and the SVG editor, not a styled document.
+
   // Internal docs and scaffolding never reach _site — _starters/ especially,
   // which used to publish every blank starter as a real page.
   eleventyConfig.ignores.add('DESIGN-SYSTEM.md');

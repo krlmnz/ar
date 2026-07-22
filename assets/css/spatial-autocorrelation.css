@@ -1,0 +1,124 @@
+/* ============================================================
+   Spatial Autocorrelation — /tools/spatial-autocorrelation/
+   ------------------------------------------------------------
+   Thin by design. The page's editorial chrome comes from
+   main.css (.hero-*, .section-*, .prose, .callout, .btn) and
+   its interactive furniture from tools.css (.tool-panel,
+   .tool-plate, .tool-controls, .tool-stats, .tool-legend,
+   .tool-code, .tool-table, .tool-swatches). What's left here is
+   only what those two don't cover: the simulator's canvas-plus-
+   controls split, the three-regime figure row, the ΔE swatch
+   pairs, and the two-column glossary.
+
+   Everything is scoped under .sa. No colour tokens are declared:
+   the only colour on the page is inside the figures themselves —
+   the ColorBrewer RdBu ramp, the five LISA classes, the 3×3
+   bivariate grid — and those live in the JS, where the maths
+   that produces them lives. They are identical in both themes
+   because they are data, not chrome (DESIGN-SYSTEM.md §4).
+============================================================ */
+
+/* The LISA legend swatches are the one place a data colour has
+   to appear in CSS rather than on a canvas, so the five class
+   colours are declared once here and referenced by the legend. */
+.sa {
+  --lisa-hh: #d7191c;
+  --lisa-ll: #2c7bb6;
+  --lisa-hl: #fdae61;
+  --lisa-lh: #abd9e9;
+  --lisa-ns: #eeeeee;
+}
+
+/* ── Simulator: figure beside its controls ─────────────────── */
+.sa-sim {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: var(--space-4);
+  align-items: start;
+  margin-top: var(--space-4);
+}
+
+/* ── Three regimes: figure, name, value, note ──────────────── */
+.sa-regimes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.sa-regime__name {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: var(--text-h3-weight);
+  letter-spacing: var(--text-h3-ls);
+  margin-top: var(--space-2);
+}
+
+.sa-regime__value {
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: var(--space-1);
+}
+
+.sa-regime__note {
+  font-family: var(--font-body);
+  font-size: var(--text-body-sm);
+  color: var(--text-2);
+}
+
+/* ── ΔE demo: a swatch pair against its reading ────────────── */
+.sa-delta {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  margin: var(--space-2) 0;
+}
+
+.sa-delta__pair { display: flex; flex: none; border: 1px solid var(--border); }
+.sa-delta__pair div { width: 56px; height: 40px; }
+
+.sa-delta__num {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.sa-delta__label {
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  color: var(--text-3);
+}
+
+/* ── Glossary: a two-column definition list ────────────────── */
+.sa-glossary {
+  columns: 2;
+  column-gap: var(--space-5);
+  margin-top: var(--space-3);
+  max-width: none;
+}
+
+.sa-glossary dt {
+  font-family: var(--font-ui);
+  font-size: var(--text-body-sm);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sa-glossary dd {
+  font-family: var(--font-body);
+  font-size: var(--text-body-sm);
+  color: var(--text-2);
+  margin: 0 0 var(--space-2);
+  break-inside: avoid;
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .sa-sim,
+  .sa-regimes { grid-template-columns: 1fr; gap: var(--space-4); }
+  .sa-glossary { columns: 1; }
+}

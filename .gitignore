@@ -20,5 +20,12 @@ Thumbs.db
 # Credentials — see _data/mapbox.js
 _data/mapbox.local.json
 
+# Map Atelier hardcodes its own Mapbox token rather than reading the
+# build's. Same rule as above: copy config.example.js to config.js and
+# fill in the token locally. Netlify needs the real file, so either
+# commit it deliberately once the token is URL-restricted, or generate
+# it at build time from MAPBOX_TOKEN.
+tools-apps/map-atelier/js/config.js
+
 # Local Netlify folder
 .netlify

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hue &amp; Vow — Map Atelier</title>
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Rethink+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/editor/shell.css">
+<link rel="stylesheet" href="css/editor/places.css">
+<link rel="stylesheet" href="css/editor/colors.css">
+<link rel="stylesheet" href="css/editor/patterns.css">
+<link rel="stylesheet" href="css/editor/legend.css">
+<link rel="stylesheet" href="css/editor/overlays.css">
+<link rel="stylesheet" href="css/editor/guest.css">
+</head>
+<body class="editor">
+
+<!-- ════════════ HEADER ════════════ -->
+<header id="topbar">
+  <span class="save-dot" id="save-dot">Saved</span>
+  <div class="header-spacer"></div>
+  <button class="btn ghost" id="btn-new" title="Start a new map">New</button>
+  <button class="btn" id="btn-preview">Preview</button>
+  <button class="btn primary" id="btn-share">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 20 19v-7"/><path d="M12 15V3.5M7.5 8 12 3.5 16.5 8"/></svg>
+    Publish &amp; share
+  </button>
+</header>
+
+<!-- ════════════ STAGE ════════════
+     tool strip · rail · map. The map surface itself is injected by
+     js/views/stage.js so the editor, preview and guest pages share
+     exactly one copy of that markup. -->
+<div id="stage">
+
+  <!-- ── tool strip: which half of the map you're working on ── -->
+  <nav id="tool-nav" aria-label="Editor sections">
+    <button class="tool-btn" data-pane="story"  aria-pressed="false" title="Your story"><span class="tool-tip">Story</span></button>
+    <button class="tool-btn" data-pane="places" aria-pressed="false" title="Places"><span class="tool-tip">Places</span></button>
+    <button class="tool-btn" data-pane="map"    aria-pressed="false" title="Map layers"><span class="tool-tip">Map</span></button>
+  </nav>
+
+  <aside id="rail" aria-label="Editor panel">
+    <div class="rail-body">
+
+      <!-- ── STORY ── -->
+      <div class="rail-pane" id="pane-story">
+        <div class="rail-section">
+          <div class="rail-section-title">Your story</div>
+          <div style="margin-bottom: var(--s2)">
+            <div class="field-label">Map title</div>
+            <input class="text-input" id="story-title" placeholder="Camila &amp; Tomás">
+          </div>
+          <div>
+            <div class="field-label">Description <span class="hint">shown to your guests</span></div>
+            <textarea class="text-input" id="story-desc" rows="4" placeholder="Tell your guests the story behind this map — where you met, where you fell in love, where you'll say 'sí, acepto'…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PLACES ── -->
+      <div class="rail-pane" id="pane-places">
+        <div class="rail-section">
+          <div class="rail-section-title">
+            <span>Places <span id="place-count" style="letter-spacing:0"></span></span>
+            <button class="section-add" id="btn-add-place" title="Drop a pin by clicking the map" aria-label="Drop a pin by clicking the map" aria-pressed="false">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+          <div class="add-search-wrap">
+            <svg class="add-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input class="text-input" id="geo-input" placeholder="Search an address or area…" autocomplete="off">
+          </div>
+          <div class="add-results" id="add-results"></div>
+          <div class="add-hint" id="add-hint">Search above, or <b>click the map</b> to drop a pin where the memory happened.</div>
+          <div id="places-list"></div>
+        </div>
+      </div>
+
+      <!-- ── MAP: the layer stack. Everything that *paints* a layer moved
+              to #layer-panel, which opens on the map when a row is picked. ── -->
+      <div class="rail-pane" id="pane-map">
+        <div class="rail-section-title">
+          <span>Map layer</span>
+          <span class="mlp-name" id="mlp-name">—</span>
+        </div>
+
+        <div class="layer-stack" id="layer-stack" role="list" aria-label="Map layers"></div>
+        <p class="layer-stack-hint">Drag to restack · click a layer to style it</p>
+      </div>
+
+
+    </div>
+  </aside>
+</div>
+
+<script type="module" src="js/pages/editor.js"></script>
+</body>
+</html>

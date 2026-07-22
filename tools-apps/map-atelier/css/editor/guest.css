@@ -1,0 +1,54 @@
+/* ============================================================
+   GUEST MODE + PREVIEW — the published, read-only face of a map.
+   body.guest = guest.html, decoded from a share link;
+   body.preview = preview.html, your own draft from the store.
+   They are separate pages now, so these rules mostly just reclaim
+   the space the editor chrome used to occupy.
+   ============================================================ */
+body.guest header#topbar { display: none; }
+body.guest #stage { inset: 0; }
+
+#guest-hero {
+  position: absolute; top: var(--s4); left: var(--s4); z-index: 30;
+  width: 372px; max-width: calc(100vw - 48px);
+  background: rgba(255,255,255,.94); backdrop-filter: blur(10px);
+  border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-hi);
+  padding: var(--s4); display: none;
+}
+body.guest #guest-hero { display: block; }
+.gh-eyebrow { font-size: var(--t00); letter-spacing: .26em; text-transform: uppercase; color: var(--ink-faint); font-weight: 700; margin-bottom: 8px; }
+.gh-title { font-family: var(--serif); font-size: 37px; font-weight: 600; line-height: 1.05; margin-bottom: 10px; }
+.gh-desc { color: var(--ink-soft); font-size: var(--t0); line-height: 1.6; margin-bottom: var(--s3); }
+.gh-meta { display: flex; align-items: center; gap: 8px; font-size: var(--t00); color: var(--ink-faint); }
+.gh-list-toggle { margin-top: var(--s3); width: 100%; justify-content: center; }
+#guest-list { margin-top: var(--s2); max-height: 300px; overflow-y: auto; display: none; }
+#guest-list.open { display: block; }
+#guest-badge {
+  /* clear of the Mapbox zoom stack, which owns the bottom-right corner */
+  position: absolute; bottom: calc(var(--s3) + 74px); right: var(--s3); z-index: 30;
+  background: rgba(255,255,255,.92); border: 1px solid var(--line); border-radius: 999px;
+  font-size: var(--t00); color: var(--ink-soft); padding: 7px 14px; display: none;
+  text-decoration: none; font-weight: 600; box-shadow: var(--shadow);
+}
+body.guest #guest-badge, body.preview #guest-badge { display: inline-flex; gap: 6px; align-items: center; }
+#guest-badge:hover { color: var(--ink); box-shadow: var(--shadow-hi); }
+
+/* preview mode = guest look while editing — full-bleed, like the real
+   guest view: rail, topbar and every editor affordance recede so the
+   map fills the whole viewport. A floating pill is the way back. */
+body.preview #topbar { display: none; }
+body.preview #rail { display: none; }
+body.preview #stage { inset: 0; }
+body.preview #guest-hero { display: block; }
+/* The place panel follows its own .open state here, exactly as it does
+   in guest mode. It used to be pinned open by a `display:block` that
+   outranked `.open`, which contradicted the rule above it — preview is
+   supposed to shed editor chrome, and the layer column is chrome. */
+
+#preview-exit {
+  position: fixed; top: var(--s3); right: var(--s3); z-index: 120;
+  display: none; align-items: center; gap: 7px;
+  background: var(--ink); color: var(--surface); border: none; box-shadow: var(--shadow-hi);
+}
+#preview-exit:hover { opacity: .85; }
+body.preview #preview-exit { display: inline-flex; }

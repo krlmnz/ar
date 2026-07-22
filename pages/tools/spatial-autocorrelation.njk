@@ -1,0 +1,505 @@
+---
+layout: layouts/base.njk
+permalink: /tools/spatial-autocorrelation/
+title: Spatial Autocorrelation
+noindex: true
+seo:
+  title: "Spatial Autocorrelation, Visually — Andean Road"
+  description: "A visual reference for spatial autocorrelation — a live Gaussian-random-field simulator, Moran's I in plain English, LISA cluster maps, ColorBrewer palettes, and reusable prompt blocks."
+---
+
+<link rel="stylesheet" href="/assets/css/tools.css">
+<link rel="stylesheet" href="/assets/css/spatial-autocorrelation.css">
+
+{% set crumbs = [{ label: "Templates", url: "/templates/" }, { label: "Spatial Autocorrelation" }] %}
+{% include "partials/breadcrumbs.njk" %}
+
+<div class="tool sa">
+
+  <!-- ── Cover ── -->
+  <header class="tool-hero">
+    <div class="tool-cols tool-cols--wide tool-cols--center">
+      <div>
+        <div class="hero-overline">A visual reference for designers and researchers</div>
+        <h1 class="hero-title">Near things are more related than distant things.</h1>
+        <p class="hero-lede">That's Tobler's law, and it's the engine behind every clustered map you've ever read. This page makes the math visible — drag the slider, watch the noise organize itself into hot spots and weaves, and pick up enough fluency to brief an agent on it.</p>
+        <div class="btn-row">
+          <a href="#sim" class="btn btn--filled">Try the simulation</a>
+          <a href="#prompts" class="btn">Jump to prompts</a>
+        </div>
+      </div>
+      <div class="tool-panel">
+        <div class="tool-panel__label">Working definition</div>
+        <div class="prose">
+          <p>Spatial autocorrelation measures whether values at nearby locations resemble each other more than chance would predict.</p>
+          <p>Positive: hot spots and cold spots. Negative: a checkerboard. Zero: random noise. Most real-world data is positive — that's why so much of the world looks lumpy on a map.</p>
+        </div>
+      </div>
+    </div>
+
+    <nav class="tool-toc" aria-label="On this page">
+      <a href="#sim">Simulate</a>
+      <a href="#regimes">Regimes</a>
+      <a href="#morans">Moran's I</a>
+      <a href="#lisa">LISA</a>
+      <a href="#weave">The weave</a>
+      <a href="#color">Color</a>
+      <a href="#project">Project</a>
+      <a href="#prompts">Prompts</a>
+      <a href="#glossary">Glossary</a>
+    </nav>
+  </header>
+
+  <!-- ── Live simulation ── -->
+  <section class="tool-section" id="sim">
+    <div class="section-label">The algorithm, live</div>
+    <h2 class="section-title">Tobler's loom</h2>
+    <div class="section-description">This is a Gaussian random field. Every pixel starts as independent noise. Increase the correlation length and a smoothing kernel pulls neighbors toward each other — patterns emerge. Drag past zero into negative territory and the system flips into a woven, alternating state.</div>
+
+    <div class="sa-sim">
+      <div>
+        <div class="tool-plate">
+          <canvas id="simField" width="480" height="480" aria-label="Simulated spatial field, colored with the RdBu diverging palette"></canvas>
+        </div>
+        <p class="tool-caption">The colors are ColorBrewer's <code>RdBu</code> diverging ramp — blue low, red high. A diverging palette is the right call whenever zero, or the mean, is the meaningful midpoint.</p>
+      </div>
+
+      <div class="tool-controls">
+        <div class="tool-control">
+          <label for="rho">Correlation strength <span id="rhoVal">+0.60</span></label>
+          <input type="range" id="rho" min="-1" max="1" step="0.05" value="0.6">
+          <div class="tool-control__hint">Slide left for dispersion (weave), right for clustering (hot spots).</div>
+        </div>
+        <div class="tool-control">
+          <label for="seed">Random seed <span id="seedVal">42</span></label>
+          <input type="range" id="seed" min="1" max="999" step="1" value="42">
+          <div class="tool-control__hint">Same seed, same pattern. Reproducibility is mandatory.</div>
+        </div>
+        <div class="tool-control">
+          <label for="res">Resolution <span id="resVal">64</span></label>
+          <input type="range" id="res" min="20" max="96" step="4" value="64">
+          <div class="tool-control__hint">More cells = more detail, slower compute.</div>
+        </div>
+        <div class="tool-stats">
+          <div class="tool-stat">
+            <div class="tool-stat__label">Moran's I</div>
+            <div class="tool-stat__value" id="moranOut">—</div>
+          </div>
+          <div class="tool-stat">
+            <div class="tool-stat__label">Regime</div>
+            <div class="tool-stat__value tool-stat__value--text" id="regimeOut">—</div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" id="randomBtn" type="button">New seed</button>
+          <button class="btn" id="resetBtn" type="button">Reset</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── The three regimes ── -->
+  <section class="tool-section" id="regimes">
+    <div class="section-label">Section 01</div>
+    <h2 class="section-title">The three regimes</h2>
+    <div class="section-description">Every spatial dataset lives somewhere on a continuum from perfect clustering to perfect dispersion. These three snapshots mark the extremes and the null.</div>
+
+    <div class="sa-regimes">
+      <div>
+        <div class="tool-plate"><canvas id="p1" width="180" height="180"></canvas></div>
+        <h3 class="sa-regime__name">Positive</h3>
+        <div class="sa-regime__value">Moran's I ≈ +0.7</div>
+        <p class="sa-regime__note">Hot spots, cold spots, clusters. The default in the real world: income, disease prevalence, language, retail density.</p>
+      </div>
+      <div>
+        <div class="tool-plate"><canvas id="p2" width="180" height="180"></canvas></div>
+        <h3 class="sa-regime__name">Random</h3>
+        <div class="sa-regime__value">Moran's I ≈ 0</div>
+        <p class="sa-regime__note">The null hypothesis. Rare in the wild but the baseline you test against before claiming a pattern is real.</p>
+      </div>
+      <div>
+        <div class="tool-plate"><canvas id="p3" width="180" height="180"></canvas></div>
+        <h3 class="sa-regime__name">Negative</h3>
+        <div class="sa-regime__value">Moran's I ≈ −0.9</div>
+        <p class="sa-regime__note">A literal weave. Almost always engineered: competition, territorial rules, or sampling design.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Moran's I ── -->
+  <section class="tool-section" id="morans">
+    <div class="section-label">Section 02</div>
+    <h2 class="section-title">Moran's I in plain English</h2>
+
+    <div class="tool-cols">
+      <div class="prose">
+        <p>Moran's I is the one statistic to learn first. It behaves like a correlation coefficient — but instead of correlating two variables, it correlates a variable with itself across space.</p>
+        <p>Range: roughly −1 to +1. Expected value under no spatial pattern is a tiny negative number, −1/(n−1), close to zero for any decent sample size.</p>
+        <p>Read it like this:</p>
+        <div class="callout"><strong>+0.6 to +1.0</strong> — strong clustering. Hot spots are real.</div>
+        <div class="callout"><strong>+0.1 to +0.5</strong> — moderate clustering. Worth a closer look.</div>
+        <div class="callout"><strong>Near 0</strong> — random. Don't read shapes into noise.</div>
+        <div class="callout"><strong>Below 0</strong> — dispersion. Ask why.</div>
+      </div>
+
+      <div class="tool-panel">
+        <div class="tool-panel__label">The formula</div>
+        <div class="tool-code">      n     Σᵢ Σⱼ wᵢⱼ (xᵢ − x̄)(xⱼ − x̄)
+I = ───  · ─────────────────────────
+      W           Σᵢ (xᵢ − x̄)²</div>
+        <h3 class="subhead">What each piece does</h3>
+        <div class="prose">
+          <p><strong>wᵢⱼ</strong> — the spatial weights matrix. Says which locations count as neighbors of which.</p>
+          <p><strong>(xᵢ − x̄)(xⱼ − x̄)</strong> — the cross-product. Positive when both locations are on the same side of the mean.</p>
+          <p><strong>n / W</strong> — a normalization so I sits roughly between −1 and +1.</p>
+          <p><strong>In one line:</strong> sum up how often a place and its neighbors deviate from the mean in the same direction. Divide by total variance. That's it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── LISA ── -->
+  <section class="tool-section" id="lisa">
+    <div class="section-label">Section 03</div>
+    <h2 class="section-title">LISA — local indicators of spatial association</h2>
+    <div class="section-description">Moran's I gives you one number for the whole map. LISA gives you a label for every single location. That's the difference between knowing a city has crime hot spots and knowing exactly which blocks are which.</div>
+
+    <div class="tool-cols">
+      <div>
+        <div class="tool-plate"><canvas id="lisaMap" width="320" height="320" aria-label="LISA cluster map: each cell classified as high-high, low-low, high-low, low-high, or not significant"></canvas></div>
+        <div class="tool-legend">
+          <div class="tool-legend__item"><span class="tool-legend__swatch" style="background: var(--lisa-hh)"></span>High-High</div>
+          <div class="tool-legend__item"><span class="tool-legend__swatch" style="background: var(--lisa-ll)"></span>Low-Low</div>
+          <div class="tool-legend__item"><span class="tool-legend__swatch" style="background: var(--lisa-hl)"></span>High-Low</div>
+          <div class="tool-legend__item"><span class="tool-legend__swatch" style="background: var(--lisa-lh)"></span>Low-High</div>
+          <div class="tool-legend__item"><span class="tool-legend__swatch" style="background: var(--lisa-ns)"></span>Not significant</div>
+        </div>
+      </div>
+      <div>
+        <h3 class="subhead">Four categories, one outlier class</h3>
+        <div class="prose">
+          <p><strong>High-High (HH)</strong> — a high value surrounded by other high values. The actual hot spot.</p>
+          <p><strong>Low-Low (LL)</strong> — a low value surrounded by low values. The cold spot.</p>
+          <p><strong>High-Low (HL)</strong> — a high value among low neighbors. A spatial outlier worth investigating.</p>
+          <p><strong>Low-High (LH)</strong> — the opposite outlier. A pocket of low values inside an otherwise high region.</p>
+          <p>For audience segmentation, LISA is the move. It surfaces look-alike clusters and the unusual cells that don't fit the local pattern — exactly the two things a segmentation product needs to flag.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── The weave question ── -->
+  <section class="tool-section" id="weave">
+    <div class="section-label">Section 04 — the question you asked</div>
+    <h2 class="section-title">Why do these diagrams look like weaving?</h2>
+    <div class="section-description">Three different visualizations converge on a quilt-like look. The cause is the same in each case: discrete categorical color, painted onto a regular tessellation.</div>
+
+    <div class="tool-cols--3 tool-cols">
+      <div>
+        <div class="tool-plate"><canvas id="weave1" width="240" height="240"></canvas></div>
+        <h3 class="sa-regime__name">LISA cluster map</h3>
+        <p class="sa-regime__note">Every cell gets one of five unrelated colors. Adjacent agreeing cells form solid blocks; adjacent disagreeing cells form the interlock.</p>
+      </div>
+      <div>
+        <div class="tool-plate"><canvas id="weave2" width="240" height="240"></canvas></div>
+        <h3 class="sa-regime__name">Bivariate choropleth</h3>
+        <p class="sa-regime__note">Two variables, blended via a 3×3 color grid. Cartographers literally call these "spatial weaves." The fabric look is the design intent.</p>
+      </div>
+      <div>
+        <div class="tool-plate"><canvas id="weave3" width="240" height="240"></canvas></div>
+        <h3 class="sa-regime__name">The math itself</h3>
+        <p class="sa-regime__note">A perfect checkerboard minimizes Moran's I. So the textbook illustration of "negative autocorrelation" is, mathematically, a weave.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout__label">The pattern behind the pattern</div>
+      <p>Spatial statistics visuals share a visual grammar with quilts and weavings — interlocking blocks of bounded color on a regular grid. Once you see it, you can't unsee it.</p>
+    </div>
+  </section>
+
+  <!-- ── Color ── -->
+  <section class="tool-section" id="color">
+    <div class="section-label">Section 05</div>
+    <h2 class="section-title">ColorBrewer and CIEDE2000</h2>
+    <div class="section-description">Two questions you raised, two distinct answers. ColorBrewer is directly in the workflow. CIEDE2000 sits one layer above it.</div>
+
+    <div class="tool-cols">
+      <div>
+        <h3 class="subhead">ColorBrewer — directly related</h3>
+        <div class="prose">
+          <p>Cynthia Brewer's palette library is the de facto standard for choropleth maps. Spatial autocorrelation visuals lean on it constantly. Three scheme types, three jobs:</p>
+        </div>
+
+        <div class="tool-swatch-group">
+          <div class="tool-swatches" id="palSeq"></div>
+          <div class="tool-swatch-name">Sequential — YlGnBu — for raw values</div>
+        </div>
+        <div class="tool-swatch-group">
+          <div class="tool-swatches" id="palDiv"></div>
+          <div class="tool-swatch-name">Diverging — RdBu — for deviations from a midpoint</div>
+        </div>
+        <div class="tool-swatch-group">
+          <div class="tool-swatches" id="palQual"></div>
+          <div class="tool-swatch-name">Qualitative — Set1 — for LISA categories</div>
+        </div>
+
+        <p class="note-line">All three are baked into <code>tmap</code>, <code>geopandas</code>, <code>ggplot2</code>, ArcGIS, and QGIS. Use them. Don't invent palettes for spatial work.</p>
+      </div>
+
+      <div>
+        <h3 class="subhead">CIEDE2000 — one layer above</h3>
+        <div class="prose">
+          <p>CIEDE2000 is the CIE's perceptual color-difference formula, ΔE2000. It tells you how distinguishable two colors are to the human eye.</p>
+          <p>It doesn't appear in spatial statistics literature. It appears in <strong>cartographic design</strong>, especially when someone is building a custom bivariate palette and needs to prove that adjacent cells in the legend are perceptually distinct enough to read separately.</p>
+        </div>
+
+        <div class="tool-panel__label" style="margin-top: var(--space-3)">Distinguishable vs. not</div>
+        <div class="sa-delta">
+          <div class="sa-delta__pair"><div style="background: #2c5f8f"></div><div style="background: #2f6294"></div></div>
+          <div>
+            <div class="sa-delta__num">ΔE ≈ 2</div>
+            <div class="sa-delta__label">Imperceptible to most viewers</div>
+          </div>
+        </div>
+        <div class="sa-delta">
+          <div class="sa-delta__pair"><div style="background: #2c5f8f"></div><div style="background: #6c9bc4"></div></div>
+          <div>
+            <div class="sa-delta__num">ΔE ≈ 18</div>
+            <div class="sa-delta__label">Easily distinguished</div>
+          </div>
+        </div>
+        <div class="sa-delta">
+          <div class="sa-delta__pair"><div style="background: #2c5f8f"></div><div style="background: #f06b1d"></div></div>
+          <div>
+            <div class="sa-delta__num">ΔE ≈ 60</div>
+            <div class="sa-delta__label">Clearly different categories</div>
+          </div>
+        </div>
+        <p class="note-line">Rule of thumb: ΔE under 2 is invisible, 2–10 noticeable, above 10 clearly different. ColorBrewer schemes are engineered to keep adjacent colors above the threshold.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Starter project ── -->
+  <section class="tool-section" id="project">
+    <div class="section-label">Section 06</div>
+    <h2 class="section-title">Learn by doing — an afternoon project</h2>
+    <div class="section-description">Median household income by US county. The data is clean, the spatial pattern is loud, and you'll recognize the clusters on sight.</div>
+
+    <h3 class="subhead">Pick your path</h3>
+    <div class="tool-table-wrap">
+      <table class="tool-table">
+        <thead><tr><th>Tool</th><th>Best for</th><th>Time to first map</th></tr></thead>
+        <tbody>
+          <tr><td>GeoDa (free GUI)</td><td>Designers, click-driven learning, fastest insight</td><td>~30 min</td></tr>
+          <tr><td>Python + GeoPandas + PySAL</td><td>Reusable notebooks, integration with other workflows</td><td>~2 hr</td></tr>
+          <tr><td>R + sf + spdep</td><td>Stats community standard, best documentation</td><td>~2 hr</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="prose">
+      <p><strong>Recommended sequence for you:</strong> open GeoDa first — Luc Anselin (who invented LISA) built it as a teaching tool, and it'll get you to a finished cluster map in half an hour. Then port the analysis to Python so you have a reusable notebook.</p>
+    </div>
+
+    <h3 class="subhead">The seven steps</h3>
+    <ol class="steps" role="list">
+      <li class="step">
+        <div>
+          <h4 class="step__title">Get the geometry</h4>
+          <div class="step__body">Download the US counties shapefile from Census TIGER/Line.</div>
+        </div>
+      </li>
+      <li class="step">
+        <div>
+          <h4 class="step__title">Join the data</h4>
+          <div class="step__body">Pull median household income from ACS 5-year estimates, table B19013.</div>
+        </div>
+      </li>
+      <li class="step">
+        <div>
+          <h4 class="step__title">Choropleth first</h4>
+          <div class="step__body">ColorBrewer YlGnBu, 5 classes, quantile breaks. Look before you measure.</div>
+        </div>
+      </li>
+      <li class="step">
+        <div>
+          <h4 class="step__title">Define neighbors</h4>
+          <div class="step__body">Queen contiguity is the safe default for county polygons.</div>
+        </div>
+      </li>
+      <li class="step">
+        <div>
+          <h4 class="step__title">Run Moran's I</h4>
+          <div class="step__body">Permutation test, 999 reps. Expect a value near +0.6.</div>
+        </div>
+      </li>
+      <li class="step">
+        <div>
+          <h4 class="step__title">Compute LISA</h4>
+          <div class="step__body">Produce a cluster map with the standard 5-color legend.</div>
+        </div>
+      </li>
+      <li class="step">
+        <div>
+          <h4 class="step__title">Write it up</h4>
+          <div class="step__body">Three bullets in plain English: where the hot spots are, where the cold spots are, what's surprising.</div>
+        </div>
+      </li>
+    </ol>
+
+    <h3 class="subhead">Python starter — copy and run</h3>
+    <div class="tool-code"><button class="tool-copy" type="button">Copy</button>import geopandas as gpd
+from libpysal.weights import Queen
+from esda.moran import Moran, Moran_Local
+import matplotlib.pyplot as plt
+
+# 1. Load counties + income (assumes you've joined them)
+gdf = gpd.read_file("us_counties_income.geojson")
+
+# 2. Spatial weights
+w = Queen.from_dataframe(gdf)
+w.transform = "r"   # row-standardize
+
+# 3. Global Moran's I
+mi = Moran(gdf["median_income"], w, permutations=999)
+print(f"Moran's I = {mi.I:.3f}, p = {mi.p_sim:.4f}")
+
+# 4. Local Moran's I (LISA)
+lisa = Moran_Local(gdf["median_income"], w, permutations=999)
+
+# 5. Plot the cluster map
+from splot.esda import lisa_cluster
+fig, ax = plt.subplots(figsize=(12, 8))
+lisa_cluster(lisa, gdf, p=0.05, ax=ax)
+plt.show()</div>
+
+    <h3 class="subhead">Stretch — make it about your job</h3>
+    <div class="prose">
+      <p>Swap counties for ZIP codes or DMAs. Swap median income for campaign open rate, revenue per recipient, or list growth rate. The workflow is identical. The patterns you surface should directly shape how a segmentation product recommends "look-alike geos" or flags "underperforming neighborhoods."</p>
+    </div>
+  </section>
+
+  <!-- ── Prompt library ── -->
+  <section class="tool-section" id="prompts">
+    <div class="section-label">Section 07</div>
+    <h2 class="section-title">Prompt blocks for agentic workflows</h2>
+    <div class="section-description">Three reusable prompts. Drop them into a system prompt, a skill description, or a research note. Each one is opinionated about defaults so the agent doesn't ask trivial questions.</div>
+
+    <h3 class="subhead">1. Spatial analyst agent</h3>
+    <div class="tool-code"><button class="tool-copy" type="button">Copy</button>You are a spatial statistics analyst. When given geographic data
+with values per location, work through these steps in order:
+
+1. Confirm the spatial unit (ZIP, tract, county, hex bin) and the
+   variable you're analyzing.
+2. Define the spatial weights matrix. Default to queen contiguity
+   for polygons, k=8 for points. Ask only if the default is wrong.
+3. Compute global Moran's I. Report:
+   - the I value
+   - its expected value under the null
+   - the pseudo p-value from 999 permutations
+   - one sentence interpreting the result in plain English
+4. Compute LISA. Produce a cluster map labeling each unit as
+   HH, LL, HL, LH, or not significant (p > 0.05).
+5. Surface the three most actionable clusters. For each, write one
+   line of "what to do about it" tied to the user's domain.
+
+Use ColorBrewer's RdBu for the variable's choropleth. Use the
+standard LISA qualitative palette (red HH, blue LL, light red LH,
+light blue HL, grey ns) for the cluster map. Don't invent custom
+palettes unless asked.
+
+Never call a pattern "clustered" or "dispersed" without a p-value
+to back it up.</div>
+
+    <h3 class="subhead">2. Translate results for a stakeholder</h3>
+    <div class="tool-code"><button class="tool-copy" type="button">Copy</button>You're translating a spatial autocorrelation analysis for a
+product or marketing audience. Avoid "Moran," "Geary," and "LISA"
+in the body — name them only in a footnote.
+
+Structure your output as:
+- Headline: one sentence on whether nearby locations behave alike,
+  with a confidence qualifier (strong / moderate / weak / none).
+- What it means: two sentences in domain language.
+- Where the action is: 2–4 named clusters or outlier locations.
+- One recommendation: a single move the team can make on this.
+
+Show one supporting visual: a choropleth of the variable OR a LISA
+cluster map. Caption it in 12 words or fewer.</div>
+
+    <h3 class="subhead">3. Teach the concept to a teammate</h3>
+    <div class="tool-code"><button class="tool-copy" type="button">Copy</button>You are an instructional designer explaining spatial autocorrelation
+to someone with a data background but no spatial-stats training.
+
+Open with Tobler's law as a single sentence. Then walk through
+three regimes — positive, none, negative — and show what each
+looks like on a 6×6 grid using ColorBrewer RdBu.
+
+Introduce Moran's I as "a correlation coefficient between a
+variable and its spatial neighbors." Skip the formula on the first
+pass; offer it as a follow-up if asked.
+
+Introduce LISA as "Moran's I per location, with a clustering label."
+Use HH/LL/HL/LH and define each in one line.
+
+End with one starter project the learner could complete in an
+afternoon. Default to median household income by US county unless
+the user names a domain.
+
+Don't use the words "intuitively," "essentially," or "simply."</div>
+  </section>
+
+  <!-- ── Glossary ── -->
+  <section class="tool-section" id="glossary">
+    <div class="section-label">Section 08</div>
+    <h2 class="section-title">Compact glossary</h2>
+
+    <dl class="sa-glossary">
+      <dt>Spatial autocorrelation</dt>
+      <dd>Similarity of values among neighboring locations, measured against a null of randomness.</dd>
+
+      <dt>Tobler's First Law</dt>
+      <dd>"Everything is related to everything else, but near things are more related than distant things."</dd>
+
+      <dt>Moran's I</dt>
+      <dd>Global scalar measure of spatial autocorrelation. Roughly −1 to +1.</dd>
+
+      <dt>Geary's C</dt>
+      <dd>Alternative global measure. Inverted scale: 0 means clustered, 1 means random.</dd>
+
+      <dt>LISA</dt>
+      <dd>Local Indicators of Spatial Association. Local Moran's I per location. Yields HH, LL, HL, LH classes.</dd>
+
+      <dt>Getis-Ord Gi*</dt>
+      <dd>Local hot spot / cold spot statistic, expressed as a z-score.</dd>
+
+      <dt>Spatial weights matrix (W)</dt>
+      <dd>The definition of "neighbor." Determines which locations contribute to each other's local measures.</dd>
+
+      <dt>Queen contiguity</dt>
+      <dd>Neighbors share an edge or a corner. The safe default for irregular polygons.</dd>
+
+      <dt>Rook contiguity</dt>
+      <dd>Neighbors share an edge only. Stricter than queen.</dd>
+
+      <dt>Choropleth</dt>
+      <dd>A map shaded by a value per region.</dd>
+
+      <dt>Bivariate choropleth</dt>
+      <dd>A map encoding two variables at once via a color grid. Sometimes called a spatial weave.</dd>
+
+      <dt>ColorBrewer</dt>
+      <dd>Cynthia Brewer's palette library. Three scheme types: sequential, diverging, qualitative.</dd>
+
+      <dt>CIEDE2000 (ΔE2000)</dt>
+      <dd>The CIE's perceptual color-difference formula. Tells you whether two colors are distinguishable.</dd>
+
+      <dt>Gaussian random field</dt>
+      <dd>A statistical model that generates spatially smooth random data. Used to simulate autocorrelated values.</dd>
+    </dl>
+  </section>
+
+</div>
+
+<script src="/assets/js/spatial-autocorrelation.js" defer></script>

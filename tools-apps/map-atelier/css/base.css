@@ -1,0 +1,75 @@
+/* ============================================================
+   BASE — reset, typography, shared primitives
+   Components used on more than one page (home, editor, overlays)
+   live here. Page- and feature-specific styles live in their own
+   sheets. All values come from tokens.css.
+   ============================================================ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  font-size: var(--t1);
+}
+
+button { font-family: var(--sans); cursor: pointer; }
+input, textarea { font-family: var(--sans); color: var(--ink); }
+::placeholder { color: var(--ink-faint); }
+
+/* ---------- buttons ---------- */
+.btn {
+  border: 1px solid var(--line); background: var(--card);
+  font-size: var(--t0); font-weight: 600; color: var(--ink);
+  border-radius: 999px; padding: 8px 16px;
+  display: inline-flex; align-items: center; gap: 7px;
+  transition: box-shadow .15s, transform .12s, background .15s;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.btn:hover { box-shadow: var(--shadow); }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.btn.primary:hover { opacity: .85; }
+.btn.ghost { border-color: transparent; background: transparent; color: var(--ink-soft); }
+.btn.ghost:hover { background: var(--line-soft); box-shadow: none; color: var(--ink); }
+.btn.danger { color: var(--danger); border-color: var(--danger-line); }
+.btn.danger:hover { background: var(--danger-soft); }
+
+.icon-x { border: none; background: none; color: var(--ink-faint); padding: 6px; border-radius: 8px; }
+.icon-x:hover { background: var(--line-soft); color: var(--ink); }
+
+/* ---------- form fields ---------- */
+.field-label {
+  font-size: var(--t00); font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--ink-faint); margin-bottom: 7px;
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.field-label .hint { font-weight: 500; letter-spacing: 0; text-transform: none; }
+.text-input, textarea.text-input {
+  width: 100%; font-size: var(--t1);
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  background: var(--card); padding: 10px 12px; outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.text-input:focus { border-color: var(--select); box-shadow: 0 0 0 3px var(--select-soft); }
+textarea.text-input { resize: vertical; min-height: 74px; line-height: 1.5; }
+
+/* ---------- brand lockup (topbar of every page) ---------- */
+.brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; text-decoration: none; color: var(--ink); }
+.brand-mark {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: grid; place-items: center; color: #fff;
+  background: var(--ink); flex-shrink: 0;
+}
+.brand-name { font-family: var(--serif); font-size: 19px; font-weight: 600; line-height: 1.05; letter-spacing: .01em; }
+.brand-sub { font-size: var(--t00); color: var(--ink-faint); letter-spacing: .16em; text-transform: uppercase; }
+
+/* ---------- toast ---------- */
+#toast {
+  position: fixed; left: 50%; bottom: var(--s5); transform: translateX(-50%) translateY(20px);
+  background: var(--ink); color: var(--surface); font-size: var(--t0);
+  padding: 11px 22px; border-radius: 999px; box-shadow: var(--shadow-hi);
+  opacity: 0; pointer-events: none; transition: opacity .22s, transform .22s; z-index: 200;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }

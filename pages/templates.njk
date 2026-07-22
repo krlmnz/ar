@@ -17,10 +17,20 @@ seo:
   {% else %}{% set writing = (writing.push(t), writing) %}{% endif %}
 {% endfor %}
 
+{% set tools = [
+  { url: "/tools/color-scales/", path: "pages/tools/color-scales.njk", title: "Color Scales", description: "Blend two brand colors into a 5–11 step scale, preview it in a chart and heatmap, and export as CSS, Figma tokens, SVG, or PNG." },
+  { url: "/tools/map-atelier/", path: "tools/map-atelier/editor.html", title: "Map Atelier", description: "A separate app, hosted as-is — pin places on a map, dress it in a palette and pattern, and share it as a self-contained link." },
+  { url: "/tools/internet-loom/", path: "pages/tools/internet-loom.njk", title: "Internet Loom", description: "A weaving draft on a grid loom — lift warp and weft threads with heddle dots, start from twill or huckaback, and export the draft as SVG or PNG." },
+  { url: "/tools/svg-editor/", path: "tools/svg-editor/index.html", title: "SVG Map Editor", description: "Recolor and manage layers on an embedded SVG map — fill and stroke color groups, per-layer visibility, undo, and export, all in the browser." },
+  { url: "/tools/spatial-autocorrelation/", path: "pages/tools/spatial-autocorrelation.njk", title: "Spatial Autocorrelation", description: "A visual reference with a live Gaussian-random-field simulator — drag the correlation slider, watch Moran's I respond, and read LISA cluster maps." },
+  { url: "/tools/chromatlas/", path: "pages/tools/chromatlas.njk", title: "Chromatlas", description: "Pantone's Colours of the Year as a browsable atlas, plus a harmony engine that turns any hue into complementary, triadic, and analogous palettes." },
+  { url: "/tools/destination-weddings/", path: "pages/tools/destination-weddings.njk", title: "Destination Wedding Websites", description: "A market briefing on destination-wedding software — the numbers, the competitive matrix, and where the jobs-to-be-done scores point." }
+] %}
+
 <div class="hero">
   <div class="hero-overline">Write, don't design</div>
   <h1 class="hero-title">Templates</h1>
-  <p class="hero-lede">{{ collections.templates | length }} layouts built on the Andean Road tokens — {{ writing | length }} for writing, {{ maps | length }} for maps. Pick one, set a <code>layout:</code> in your front matter, and write markdown. Each page documents its own fields.</p>
+  <p class="hero-lede">{{ collections.templates | length }} layouts built on the Andean Road tokens — {{ writing | length }} for writing, {{ maps | length }} for maps — plus {{ tools | length }} standalone tool{{ "s" if tools | length != 1 }}. Pick a layout, set it in your front matter, and write markdown. Each page documents its own fields.</p>
 </div>
 
 <hr class="rule rule--heavy">
@@ -49,6 +59,20 @@ seo:
     <div class="guide-entry__overline">layouts/{{ t.fileSlug }}.njk</div>
     <h3 class="guide-entry__title">{{ t.data.title }}</h3>
     <div class="guide-entry__description">{{ t.data.summary or t.data.subtitle }}</div>
+  </a>
+  {% endfor %}
+</section>
+
+<section class="section">
+  <div class="section-label">Tools</div>
+  <h2 class="section-title">Utilities</h2>
+  <div class="section-description">Not templates — standalone pages and apps that live outside a markdown file. Some share the Andean Road tokens, some bring their own.</div>
+
+  {% for t in tools %}
+  <a href="{{ t.url }}" class="guide-entry">
+    <div class="guide-entry__overline">{{ t.path }}</div>
+    <h3 class="guide-entry__title">{{ t.title }}</h3>
+    <div class="guide-entry__description">{{ t.description }}</div>
   </a>
   {% endfor %}
 </section>

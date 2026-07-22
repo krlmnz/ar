@@ -1,0 +1,180 @@
+/* ============================================================
+   LEGEND PANE — the cartographic-first builder.
+
+   Uses the Meridian token set (--space-*, --surface, --text-*,
+   --border, --accent) rather than the legacy --s*/--ink names, so
+   this pane is also the reference for how new surfaces are built.
+   ============================================================ */
+
+/* ── brand input ─────────────────────────────────────────────── */
+.lg-brand-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  margin-bottom: var(--s3);
+}
+.lg-brand-row input[type="color"] {
+  inline-size: 42px;
+  block-size: 42px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: none;
+  cursor: pointer;
+  flex: none;
+}
+.lg-brand-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 3px; }
+.lg-brand-row input[type="color"]::-webkit-color-swatch { border: none; border-radius: var(--radius-sm); }
+.lg-brand-row .text-input { flex: 1; font-variant-numeric: tabular-nums; }
+
+/* ── taxonomy editor ─────────────────────────────────────────── */
+.lg-tax-group {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--s2);
+  margin-bottom: var(--s2);
+  background: var(--surface);
+}
+.lg-tax-head { display: flex; gap: var(--s1); align-items: center; margin-bottom: var(--s1); }
+.lg-tax-child { display: flex; gap: var(--s1); align-items: center; margin: 4px 0 4px var(--s3); }
+
+.lg-tax-name, .lg-tax-cname {
+  flex: 1; min-inline-size: 0;
+  font: inherit; color: var(--text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 5px 7px;
+}
+.lg-tax-name { font-size: var(--t1); font-weight: 600; }
+.lg-tax-cname { font-size: var(--t0); color: var(--text-2); }
+.lg-tax-name:hover, .lg-tax-cname:hover { border-color: var(--border); }
+.lg-tax-name:focus, .lg-tax-cname:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.lg-x {
+  flex: none;
+  inline-size: 22px; block-size: 22px;
+  display: grid; place-items: center;
+  border: none; background: none; cursor: pointer;
+  color: var(--text-2); font-size: 17px; line-height: 1;
+  border-radius: var(--radius-sm);
+}
+.lg-x:hover { background: var(--bg); color: var(--danger); }
+.lg-x:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.lg-add-child, .lg-add-group {
+  font: inherit; font-size: var(--t0);
+  color: var(--text-2);
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 9px;
+  cursor: pointer;
+  margin-left: var(--s3);
+}
+.lg-add-group { margin: 0; inline-size: 100%; }
+.lg-add-child:hover, .lg-add-group:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ── audit readout ───────────────────────────────────────────── */
+.lg-audit-head {
+  display: flex; align-items: center; gap: var(--s2);
+  margin-bottom: var(--s2);
+}
+.lg-badge {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: var(--radius-full);
+  color: #fff;
+}
+.lg-badge.pass { background: var(--success); }
+.lg-badge.fail { background: var(--warn); }
+.lg-audit-sum { font-size: var(--t0); color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+.lg-cvd-grid { display: grid; gap: 4px; }
+.lg-cvd {
+  display: flex; align-items: center; gap: var(--s2);
+  inline-size: 100%;
+  font: inherit; font-size: var(--t0);
+  text-align: left;
+  padding: 7px var(--s2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none; cursor: pointer;
+  color: var(--text);
+}
+.lg-cvd:hover { background: var(--bg); }
+.lg-cvd.on { border-color: var(--accent); background: var(--select-soft); }
+.lg-cvd:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.lg-cvd-dot { inline-size: 8px; block-size: 8px; border-radius: 50%; flex: none; }
+.lg-cvd-dot.ok { background: var(--success); }
+.lg-cvd-dot.no { background: var(--warn); }
+.lg-cvd-label { flex: 1; }
+.lg-cvd-de { color: var(--text-2); font-variant-numeric: tabular-nums; font-size: var(--text-xs); }
+
+.lg-warnings {
+  margin: var(--s2) 0 0;
+  padding-left: var(--s3);
+  font-size: var(--t0);
+  line-height: 1.5;
+  color: var(--text-2);
+}
+.lg-warnings li { margin-bottom: 6px; }
+
+/* ── generated swatches ──────────────────────────────────────── */
+.lg-group { margin-bottom: var(--s3); }
+.lg-group-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: var(--s2);
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+  border-bottom: 1px solid var(--border);
+}
+.lg-group-name { font-size: var(--t0); font-weight: 700; }
+.lg-group-meta { font-size: var(--text-xs); color: var(--text-2); }
+
+.lg-row { display: flex; align-items: center; gap: var(--s2); padding: 4px 0; }
+.lg-chip {
+  inline-size: 26px; block-size: 26px;
+  flex: none;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+.lg-name { flex: 1; font-size: var(--t0); }
+.lg-hex {
+  font-size: var(--text-xs);
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+  text-transform: uppercase;
+}
+
+.lg-prompt {
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--text-2);
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: var(--s2);
+  margin-bottom: var(--s2);
+}
+
+.lg-empty {
+  font-size: var(--t0);
+  line-height: 1.55;
+  color: var(--text-2);
+  padding: var(--s3);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+/* ── actions ─────────────────────────────────────────────────── */
+.lg-actions { display: flex; gap: var(--s1); }
+.lg-actions button { flex: 1; }

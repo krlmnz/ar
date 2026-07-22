@@ -1,0 +1,89 @@
+---
+layout: layouts/base.njk
+permalink: /tools/internet-loom/
+title: Internet Loom
+noindex: true
+seo:
+  title: "Internet Loom — Andean Road"
+  description: "Draft a weave on a grid loom — lift warp and weft threads, start from classic structures like twill and huckaback, and export the draft as SVG or PNG."
+---
+
+<link rel="stylesheet" href="/assets/css/tools.css">
+<link rel="stylesheet" href="/assets/css/internet-loom.css">
+
+{% set crumbs = [{ label: "Templates", url: "/templates/" }, { label: "Internet Loom" }] %}
+{% include "partials/breadcrumbs.njk" %}
+
+<div class="tool loom-tool">
+  <div class="sr-only" id="lmStatus" role="status" aria-live="polite"></div>
+
+  <header class="tool-hero">
+    <div class="hero-overline">Tool</div>
+    <h1 class="hero-title">Internet Loom</h1>
+    <p class="hero-lede">A weaving draft on a grid. Click a cell to raise a thread, drag to weave a run, or press a heddle dot on the selvedge to lift a whole warp column or weft row. Start from a classic structure if you like.</p>
+  </header>
+
+  <hr class="rule rule--heavy">
+
+  <div class="lm-toolbar">
+    <div class="lm-toolbar-group">
+      <span class="section-label">Loom</span>
+      <div class="lm-seg" id="lmSizeSeg"></div>
+      <button class="btn" id="lmUndo" title="Undo">
+        {% icon "arrow-counter-clockwise", size=13 %}
+        Undo
+      </button>
+      <button class="btn" id="lmRedo" title="Redo">
+        {% icon "arrow-clockwise", size=13 %}
+        Redo
+      </button>
+      <button class="btn" id="lmClear" title="Clear every cell back to the ground">
+        {% icon "eraser", size=13 %}
+        Clear
+      </button>
+    </div>
+    <div class="lm-toolbar-group">
+      <span class="section-label">Export</span>
+      <button class="btn" id="lmExportSvg" title="Download the draft as SVG">
+        {% icon "download-simple", size=13 %}
+        SVG
+      </button>
+      <button class="btn" id="lmExportPng" title="Download the draft as PNG">
+        {% icon "download-simple", size=13 %}
+        PNG
+      </button>
+    </div>
+  </div>
+
+  <div class="lm-bench">
+    <aside class="lm-rail">
+      <div class="lm-rail-section">
+        <div class="section-label">Weave structures</div>
+        <div class="lm-weaves" id="lmWeaves"></div>
+        <p class="tool-caption">Each structure is drawn in the selected thread over the ground. Applying one replaces what's on the loom.</p>
+      </div>
+    </aside>
+
+    <div>
+      <div class="tool-plate lm-plate">
+        <div class="lm-stage" id="lmStage">
+          <canvas id="lmCanvas" aria-label="Weaving draft grid. Click a cell to toggle the selected thread; use the heddle buttons around the edge to weave whole rows and columns."></canvas>
+        </div>
+      </div>
+      <p class="tool-caption lm-caption">The dots are heddles — one per thread. Press one to lift the line; press it again to lower it.</p>
+    </div>
+
+    <aside class="lm-rail">
+      <div class="lm-rail-section">
+        <div class="section-label">Threads</div>
+        <div id="lmPalettes"></div>
+        <div class="lm-picker-row">
+          <input type="color" id="lmPicker" value="#D7561D">
+          <label for="lmPicker">Custom thread</label>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script src="/assets/js/internet-loom.js" defer></script>
