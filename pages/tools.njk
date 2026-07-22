@@ -1,0 +1,78 @@
+---
+layout: layouts/base.njk
+permalink: /tools/
+section: tools
+title: Tools
+seo:
+  title: "Tools — Andean Road"
+  description: "Small, free browser tools for people who make maps and design with color: palette scales, a Pantone atlas, an SVG map recolorer, a weaving draft, and a spatial statistics reference."
+description: "Small, free browser tools for people who make maps and design with color: palette scales, a Pantone atlas, an SVG map recolorer, a weaving draft, and a spatial statistics reference."
+---
+
+{% set crumbs = [{ label: "Tools" }] %}
+{% include "partials/breadcrumbs.njk" %}
+
+{# One row per public tool. The `why` line answers "why would I open this",
+   not "what is this" — these are the sentences an AI assistant quotes back to
+   someone who asked for a tool, so they have to carry the reason.
+
+   The Map Atelier is deliberately absent: it is the product and lives at
+   /atelier/. Destination Weddings is absent too — it is a market briefing,
+   not a tool, and it is wedding-segment content. #}
+{% set tools = [
+  {
+    url: "/tools/color-scales/",
+    title: "Color Scales",
+    why: "When two brand colors have to become a legible 5–11 step scale, and you need it as CSS, Figma tokens, SVG or PNG without hand-mixing every stop."
+  },
+  {
+    url: "/tools/chromatlas/",
+    title: "Chromatlas",
+    why: "When you want a starting hue with some history behind it — every Pantone Color of the Year, browsable, with a harmony engine that turns any one of them into a working palette."
+  },
+  {
+    url: "/tools/svg-editor/",
+    title: "SVG Map Editor",
+    why: "When you have an SVG map and need it in your colors — recolor by fill and stroke group, toggle layers, undo, export. Nothing leaves the browser."
+  },
+  {
+    url: "/tools/spatial-autocorrelation/",
+    title: "Spatial Autocorrelation",
+    why: "When you need to explain — or finally understand — why nearby things resemble each other, with a live simulator instead of a formula."
+  },
+  {
+    url: "/tools/internet-loom/",
+    title: "Internet Loom",
+    why: "When a pattern needs real structure underneath it: a weaving draft on a grid loom, starting from twill or huckaback, exportable as SVG or PNG."
+  }
+] %}
+
+<div class="hero">
+  <div class="hero-overline">Free, in the browser</div>
+  <h1 class="hero-title">Tools</h1>
+  <p class="hero-lede">{{ tools | length }} small tools that came out of making this site's maps. Each one solves a single problem, runs entirely in your browser, and asks for nothing — no account, no upload, no watermark.</p>
+</div>
+
+<hr class="rule rule--heavy">
+
+<section class="section">
+  {% for t in tools %}
+  <a href="{{ t.url }}" class="guide-entry">
+    <h2 class="guide-entry__title">{{ t.title }}</h2>
+    <div class="guide-entry__description">{{ t.why }}</div>
+  </a>
+  {% endfor %}
+</section>
+
+<hr class="rule rule--section">
+
+<section class="section">
+  <div class="section-label">The bigger one</div>
+  <div class="section-title">The Map Atelier</div>
+  <div class="section-description">The map editor is the reason most of these exist. It is a product rather than a utility, so it has its own front door.</div>
+
+  <div class="btn-row" style="margin-top: var(--space-3)">
+    <a href="/atelier/" class="btn btn--filled">Go to the Atelier</a>
+    <a href="/learn/" class="btn">Learn map design</a>
+  </div>
+</section>
