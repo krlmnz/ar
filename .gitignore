@@ -29,3 +29,9 @@ tools-apps/map-atelier/js/config.js
 
 # Local Netlify folder
 .netlify
+
+# Claude session-local settings
+.claude/settings.local.json
+
+# Staging area for files to delete manually (VM cannot rm)
+_to_delete/
