@@ -108,8 +108,8 @@
 
   function drawGrid() {
     const size = canvas.width / (window.devicePixelRatio || 1);
-    const ground = cssVar('--surface');
-    const line = cssVar('--border');
+    const ground = cssVar('--color-container-background-primary');
+    const line = cssVar('--color-container-border-primary');
     ctx.clearRect(0, 0, size, size);
     for (let row = 0; row < gridSize; row++) {
       for (let col = 0; col < gridSize; col++) {
@@ -357,7 +357,7 @@
 
   $('#lmExportSvg').addEventListener('click', () => {
     const size = gridSize * EXPORT_CELL;
-    const ground = cssVar('--surface');
+    const ground = cssVar('--color-container-background-primary');
     let out = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size +
       '" viewBox="0 0 ' + size + ' ' + size + '"><rect width="' + size + '" height="' + size + '" fill="' + ground + '"/>';
     grid.forEach((row, i) => row.forEach((color, j) => {
@@ -374,7 +374,7 @@
     off.width = size;
     off.height = size;
     const octx = off.getContext('2d');
-    octx.fillStyle = cssVar('--surface');
+    octx.fillStyle = cssVar('--color-container-background-primary');
     octx.fillRect(0, 0, size, size);
     grid.forEach((row, i) => row.forEach((color, j) => {
       if (color) {
@@ -401,9 +401,10 @@
   function announce(text) { status.textContent = text; }
 
   // The ground and grid lines are theme tokens — repaint when the
-  // site's theme toggle flips data-theme on <html>.
+  // site's theme toggle flips. Dark now lives on data-colorscheme
+  // (data-theme stays pinned to "andean"), so watch both.
   new MutationObserver(drawGrid)
-    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-colorscheme'] });
 
   let resizeTimer;
   window.addEventListener('resize', () => {

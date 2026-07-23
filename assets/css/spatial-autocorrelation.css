@@ -10,7 +10,7 @@
    controls split, the three-regime figure row, the ΔE swatch
    pairs, and the two-column glossary.
 
-   Everything is scoped under .sa. No colour tokens are declared:
+   Everything is scoped under .sa. No theme colour is declared:
    the only colour on the page is inside the figures themselves —
    the ColorBrewer RdBu ramp, the five LISA classes, the 3×3
    bivariate grid — and those live in the JS, where the maths
@@ -20,7 +20,12 @@
 
 /* The LISA legend swatches are the one place a data colour has
    to appear in CSS rather than on a canvas, so the five class
-   colours are declared once here and referenced by the legend. */
+   colours are declared once here and referenced by the legend.
+   This is a data palette outside the andean scheme: the values
+   are literal on purpose and must never flip with
+   data-colorscheme, or the legend would desync from the seeded
+   canvas figures spatial-autocorrelation.js paints with the
+   same hexes. */
 .sa {
   --lisa-hh: #d7191c;
   --lisa-ll: #2c7bb6;
@@ -30,95 +35,97 @@
 }
 
 /* ── Simulator: figure beside its controls ─────────────────── */
+/* The old 32px gap has no slot on the gap axis, so it
+   compresses to the 24px one. */
 .sa-sim {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 280px;
-  gap: var(--space-4);
+  gap: var(--space-column-gap-large);
   align-items: start;
-  margin-top: var(--space-4);
+  margin-top: var(--space-container-padding-x-large);
 }
 
 /* ── Three regimes: figure, name, value, note ──────────────── */
 .sa-regimes {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-3);
-  margin-top: var(--space-3);
+  gap: var(--space-column-gap-large);
+  margin-top: var(--space-large);
 }
 
 .sa-regime__name {
-  font-family: var(--font-display);
-  font-size: var(--text-h3);
-  font-weight: var(--text-h3-weight);
-  letter-spacing: var(--text-h3-ls);
-  margin-top: var(--space-2);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-heading-3);
+  font-weight: var(--font-weight-heading-bold);
+  line-height: var(--line-height-heading);
+  margin-top: var(--space-medium);
 }
 
 .sa-regime__value {
-  font-family: var(--font-ui);
-  font-size: var(--text-caption);
-  color: var(--text-3);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  color: var(--color-text-tertiary);
   font-variant-numeric: tabular-nums;
-  margin-bottom: var(--space-1);
+  margin-bottom: var(--space-x-small);
 }
 
 .sa-regime__note {
-  font-family: var(--font-body);
-  font-size: var(--text-body-sm);
-  color: var(--text-2);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3);
+  color: var(--color-text-secondary);
 }
 
 /* ── ΔE demo: a swatch pair against its reading ────────────── */
 .sa-delta {
   display: flex;
-  gap: var(--space-3);
+  gap: var(--space-column-gap-large);
   align-items: center;
-  margin: var(--space-2) 0;
+  margin: var(--space-medium) 0;
 }
 
-.sa-delta__pair { display: flex; flex: none; border: 1px solid var(--border); }
+.sa-delta__pair { display: flex; flex: none; border: 1px solid var(--color-container-border-primary); }
 .sa-delta__pair div { width: 56px; height: 40px; }
 
 .sa-delta__num {
-  font-family: var(--font-display);
-  font-size: var(--text-h3);
-  font-weight: 700;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-heading-3);
+  font-weight: var(--font-weight-heading-bold);
   font-variant-numeric: tabular-nums;
-  line-height: 1.2;
+  line-height: var(--line-height-heading);
 }
 
 .sa-delta__label {
-  font-family: var(--font-ui);
-  font-size: var(--text-caption);
-  color: var(--text-3);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  color: var(--color-text-tertiary);
 }
 
 /* ── Glossary: a two-column definition list ────────────────── */
 .sa-glossary {
   columns: 2;
-  column-gap: var(--space-5);
-  margin-top: var(--space-3);
+  column-gap: var(--space-column-gap-x-large);
+  margin-top: var(--space-large);
   max-width: none;
 }
 
 .sa-glossary dt {
-  font-family: var(--font-ui);
-  font-size: var(--text-body-sm);
-  font-weight: 700;
-  color: var(--text);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-3);
+  font-weight: var(--font-weight-body-bold);
+  color: var(--color-text-primary);
 }
 
 .sa-glossary dd {
-  font-family: var(--font-body);
-  font-size: var(--text-body-sm);
-  color: var(--text-2);
-  margin: 0 0 var(--space-2);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3);
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-medium);
   break-inside: avoid;
 }
 
 /* ── Responsive ────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .sa-sim,
-  .sa-regimes { grid-template-columns: 1fr; gap: var(--space-4); }
+  .sa-regimes { grid-template-columns: 1fr; gap: var(--space-row-gap-large); }
   .sa-glossary { columns: 1; }
 }

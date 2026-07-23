@@ -94,7 +94,8 @@ function renderPlacePanel(p) {
   const noBg = p.color === 'none';
   $('pp-pin').classList.toggle('no-bg', noBg);
   $('pp-pin').style.background = noBg ? 'transparent' : pinColor(p);
-  $('pp-pin').style.color = noBg ? 'var(--ink)' : '#fff';
+  // #fff stays literal: the glyph sits on the user-picked pin color, not on theme chrome
+  $('pp-pin').style.color = noBg ? 'var(--color-text-primary)' : '#fff';
   $('pp-pin').innerHTML = iconSVG(p.icon, 19, 2);
   $('pp-name').value = p.name;
   $('pp-note').value = p.note;

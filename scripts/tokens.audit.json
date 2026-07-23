@@ -1,217 +1,625 @@
 {
   "config": {
-    "_": "Source of truth for the Andean Road colour layer. Edit this, then run `npm run tokens`.",
-    "neutralSource": "#EFB42A",
-    "neutralTint": 0.08,
-    "_neutralSource": "Inca gold — the same hue as --brand-gold in map-tokens.css. Only its HUE is used; chroma is crushed to a whisper so the greys read as warm paper (#FAFAF8), not beige. This is what keeps 'warm paper undertone' (DESIGN-SYSTEM.md §4) true by construction instead of by hand-picking.",
-    "contrastTargets": {
-      "text": 13,
-      "text2": 5.5,
-      "text3": 4.5
+    "_": "Config for the colour GATE, not a colour generator. assets/css/andean.css is hand-authored truth — edit IT to change values; edit THIS to change what the gate verifies. Then run `npm run tokens` to refresh the audit + the spec tables.",
+    "source": "assets/css/andean.css",
+    "floors": {
+      "body": 4.5,
+      "largeOrUi": 3
     },
-    "_contrastTargets": "Floors, enforced by the build. text is 13.0 rather than the AAA 7.0 on purpose: primary text on this site measured 15.9:1 and reads as ink, not as dark grey. Dropping it to 7.0 passes WCAG and still looks wrong. text-2/text-3 were 4.63:1 and 4.54:1 by hand — thin enough that DESIGN-SYSTEM.md warns not to touch them; they now have real headroom."
-  },
-  "ramp": {
-    "50": "#FAFAF8",
-    "100": "#F2F2F0",
-    "200": "#E4E3E1",
-    "300": "#CBCAC6",
-    "400": "#ADABA6",
-    "500": "#95938D",
-    "600": "#78746E",
-    "610": "#726D65",
-    "650": "#65615B",
-    "700": "#5A5751",
-    "800": "#423F3B",
-    "900": "#2D2C29",
-    "950": "#1D1C1B",
-    "975": "#111010"
+    "_floors": "The WCAG line: 4.5:1 for body-size text, 3.0:1 for large text and non-text UI. Every audited pairing today is body-size text, but largeOrUi is declared so a future large-type or icon pairing has a named floor to point at. These are regression floors, not aspirations — the export was measured first (2026-07-23) and anything already under its line is pinned in knownBelowFloor.",
+    "pairings": [
+      {
+        "fg": "text-primary",
+        "bg": "page-background-primary",
+        "floor": "body"
+      },
+      {
+        "fg": "text-primary",
+        "bg": "page-background-secondary",
+        "floor": "body"
+      },
+      {
+        "fg": "text-primary",
+        "bg": "page-background-tertiary",
+        "floor": "body"
+      },
+      {
+        "fg": "text-primary",
+        "bg": "container-background-primary",
+        "floor": "body"
+      },
+      {
+        "fg": "text-primary",
+        "bg": "container-background-secondary",
+        "floor": "body"
+      },
+      {
+        "fg": "text-primary",
+        "bg": "container-background-tertiary",
+        "floor": "body"
+      },
+      {
+        "fg": "text-secondary",
+        "bg": "page-background-primary",
+        "floor": "body"
+      },
+      {
+        "fg": "text-secondary",
+        "bg": "page-background-secondary",
+        "floor": "body"
+      },
+      {
+        "fg": "text-secondary",
+        "bg": "page-background-tertiary",
+        "floor": "body"
+      },
+      {
+        "fg": "text-secondary",
+        "bg": "container-background-primary",
+        "floor": "body"
+      },
+      {
+        "fg": "text-secondary",
+        "bg": "container-background-secondary",
+        "floor": "body"
+      },
+      {
+        "fg": "text-secondary",
+        "bg": "container-background-tertiary",
+        "floor": "body"
+      },
+      {
+        "fg": "text-tertiary",
+        "bg": "page-background-primary",
+        "floor": "body"
+      },
+      {
+        "fg": "text-tertiary",
+        "bg": "page-background-secondary",
+        "floor": "body"
+      },
+      {
+        "fg": "text-tertiary",
+        "bg": "container-background-primary",
+        "floor": "body"
+      },
+      {
+        "fg": "text-tertiary",
+        "bg": "container-background-secondary",
+        "floor": "body"
+      },
+      {
+        "fg": "link-text",
+        "bg": "page-background-primary",
+        "floor": "body"
+      },
+      {
+        "fg": "text-inverse",
+        "bg": "action-standard",
+        "floor": "body"
+      },
+      {
+        "fg": "text-inverse",
+        "bg": "container-background-inverse",
+        "floor": "body"
+      },
+      {
+        "fg": "text-complementary",
+        "bg": "action-complementary",
+        "floor": "body"
+      },
+      {
+        "fg": "input-label",
+        "bg": "page-background-primary",
+        "floor": "body"
+      },
+      {
+        "fg": "input-placeholder",
+        "bg": "input-background-primary",
+        "informational": true
+      },
+      {
+        "fg": "text-primary",
+        "bg": "container-background-neutral",
+        "floor": "body"
+      }
+    ],
+    "_pairings": "Every fg/bg pair a component actually renders, audited in BOTH schemes (names get the --color- prefix). `informational` rows are measured and printed but never fail — WCAG exempts placeholder text, and we keep it visible in the audit anyway so a truly invisible placeholder gets noticed.",
+    "knownBelowFloor": [
+      {
+        "mode": "light",
+        "fg": "text-tertiary",
+        "bg": "page-background-primary",
+        "measured": 4.17,
+        "why": "Export ships tertiary meta text at 4.17:1 on white — pinned; the gate fails only if it drops further."
+      },
+      {
+        "mode": "light",
+        "fg": "text-tertiary",
+        "bg": "page-background-secondary",
+        "measured": 3.98,
+        "why": "Same tertiary grey on the F8FAFB wash — 3.98:1 in the export, pinned at that value."
+      },
+      {
+        "mode": "light",
+        "fg": "text-tertiary",
+        "bg": "container-background-primary",
+        "measured": 4.17,
+        "why": "Cards share the white page value, so this pins the same 4.17:1 as page-primary."
+      },
+      {
+        "mode": "light",
+        "fg": "text-tertiary",
+        "bg": "container-background-secondary",
+        "measured": 3.98,
+        "why": "Card wash mirrors page-secondary — 3.98:1 in the export, pinned."
+      }
+    ],
+    "_knownBelowFloor": "Pairings the export already ships under the WCAG line, pinned at their measured ratio. The gate fails only when one measures LOWER than recorded here. Delete an entry the day the palette clears its floor — the gate warns when an entry has gone stale."
   },
   "light": {
-    "bg": "#FAFAF8",
-    "surface": "#FFFFFF",
-    "text": "#1D1C1B",
-    "text-2": "#5A5751",
-    "text-3": "#726D65",
-    "border": "#E4E3E1",
-    "border-subtle": "#F2F2F0",
-    "accent-hover": "#5A5751",
-    "accent-soft": "#F2F2F0"
+    "text-primary": "#21262A",
+    "page-background-primary": "#FFFFFF",
+    "page-background-secondary": "#F8FAFB",
+    "page-background-tertiary": "#F0F4F6",
+    "container-background-primary": "#FFFFFF",
+    "container-background-secondary": "#F8FAFB",
+    "container-background-tertiary": "#F0F4F6",
+    "text-secondary": "#4C555B",
+    "text-tertiary": "#727E85",
+    "link-text": "#017E89",
+    "text-inverse": "#FFFFFF",
+    "action-standard": "#017E89",
+    "container-background-inverse": "#21262A",
+    "text-complementary": "#FFFFFF",
+    "action-complementary": "#5D686F",
+    "input-label": "#5D686F",
+    "input-placeholder": "#ADBAC2",
+    "input-background-primary": "#FFFFFF",
+    "container-background-neutral": "#E2E9ED"
   },
   "dark": {
-    "bg": "#111010",
-    "surface": "#2D2C29",
-    "text": "#FAFAF8",
-    "text-2": "#ADABA6",
-    "text-3": "#95938D",
-    "border": "#5A5751",
-    "border-subtle": "#2D2C29",
-    "accent-hover": "#ADABA6",
-    "accent-soft": "#2D2C29"
+    "text-primary": "#FFFFFF",
+    "page-background-primary": "#181C1F",
+    "page-background-secondary": "#21262A",
+    "page-background-tertiary": "#2B3135",
+    "container-background-primary": "#21262A",
+    "container-background-secondary": "#2B3135",
+    "container-background-tertiary": "#3C4348",
+    "text-secondary": "#F0F4F6",
+    "text-tertiary": "#D5DEE3",
+    "link-text": "#00B3C2",
+    "text-inverse": "#21262A",
+    "action-standard": "#00B3C2",
+    "container-background-inverse": "#FFFFFF",
+    "text-complementary": "#FFFFFF",
+    "action-complementary": "#2B3135",
+    "input-label": "#C3CED5",
+    "input-placeholder": "#727E85",
+    "input-background-primary": "#21262A",
+    "container-background-neutral": "#3C4348"
   },
   "rows": [
     {
       "mode": "light",
-      "pair": "text on bg",
-      "fg": "#1D1C1B",
-      "bg": "#FAFAF8",
-      "ratio": 16.28,
-      "need": 13,
-      "pass": true
-    },
-    {
-      "mode": "light",
-      "pair": "text-2 on bg",
-      "fg": "#5A5751",
-      "bg": "#FAFAF8",
-      "ratio": 6.89,
-      "need": 5.5,
-      "pass": true
-    },
-    {
-      "mode": "light",
-      "pair": "text-3 on bg",
-      "fg": "#726D65",
-      "bg": "#FAFAF8",
-      "ratio": 4.91,
-      "need": 4.5,
-      "pass": true
-    },
-    {
-      "mode": "light",
-      "pair": "text on surface",
-      "fg": "#1D1C1B",
+      "pair": "text-primary on page-background-primary",
+      "fg": "#21262A",
       "bg": "#FFFFFF",
-      "ratio": 17.02,
-      "need": 13,
+      "ratio": 15.27,
+      "need": 4.5,
       "pass": true
     },
     {
       "mode": "light",
-      "pair": "text-2 on surface",
-      "fg": "#5A5751",
+      "pair": "text-primary on page-background-secondary",
+      "fg": "#21262A",
+      "bg": "#F8FAFB",
+      "ratio": 14.58,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "text-primary on page-background-tertiary",
+      "fg": "#21262A",
+      "bg": "#F0F4F6",
+      "ratio": 13.8,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "text-primary on container-background-primary",
+      "fg": "#21262A",
       "bg": "#FFFFFF",
-      "ratio": 7.2,
-      "need": 5.5,
+      "ratio": 15.27,
+      "need": 4.5,
       "pass": true
     },
     {
       "mode": "light",
-      "pair": "text-3 on surface",
-      "fg": "#726D65",
+      "pair": "text-primary on container-background-secondary",
+      "fg": "#21262A",
+      "bg": "#F8FAFB",
+      "ratio": 14.58,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "text-primary on container-background-tertiary",
+      "fg": "#21262A",
+      "bg": "#F0F4F6",
+      "ratio": 13.8,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "text-secondary on page-background-primary",
+      "fg": "#4C555B",
       "bg": "#FFFFFF",
-      "ratio": 5.13,
+      "ratio": 7.61,
       "need": 4.5,
       "pass": true
     },
     {
       "mode": "light",
-      "pair": "text on accent-soft",
-      "fg": "#1D1C1B",
-      "bg": "#F2F2F0",
-      "ratio": 15.18,
-      "need": 13,
+      "pair": "text-secondary on page-background-secondary",
+      "fg": "#4C555B",
+      "bg": "#F8FAFB",
+      "ratio": 7.27,
+      "need": 4.5,
       "pass": true
     },
     {
       "mode": "light",
-      "pair": "text-2 on accent-soft",
-      "fg": "#5A5751",
-      "bg": "#F2F2F0",
-      "ratio": 6.42,
-      "need": 5.5,
+      "pair": "text-secondary on page-background-tertiary",
+      "fg": "#4C555B",
+      "bg": "#F0F4F6",
+      "ratio": 6.88,
+      "need": 4.5,
       "pass": true
     },
     {
       "mode": "light",
-      "pair": "text-3 on accent-soft",
-      "fg": "#726D65",
-      "bg": "#F2F2F0",
-      "ratio": 4.58,
+      "pair": "text-secondary on container-background-primary",
+      "fg": "#4C555B",
+      "bg": "#FFFFFF",
+      "ratio": 7.61,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "text-secondary on container-background-secondary",
+      "fg": "#4C555B",
+      "bg": "#F8FAFB",
+      "ratio": 7.27,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "text-secondary on container-background-tertiary",
+      "fg": "#4C555B",
+      "bg": "#F0F4F6",
+      "ratio": 6.88,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "text-tertiary on page-background-primary",
+      "fg": "#727E85",
+      "bg": "#FFFFFF",
+      "ratio": 4.17,
+      "need": 4.5,
+      "pass": true,
+      "allowlisted": 4.17
+    },
+    {
+      "mode": "light",
+      "pair": "text-tertiary on page-background-secondary",
+      "fg": "#727E85",
+      "bg": "#F8FAFB",
+      "ratio": 3.98,
+      "need": 4.5,
+      "pass": true,
+      "allowlisted": 3.98
+    },
+    {
+      "mode": "light",
+      "pair": "text-tertiary on container-background-primary",
+      "fg": "#727E85",
+      "bg": "#FFFFFF",
+      "ratio": 4.17,
+      "need": 4.5,
+      "pass": true,
+      "allowlisted": 4.17
+    },
+    {
+      "mode": "light",
+      "pair": "text-tertiary on container-background-secondary",
+      "fg": "#727E85",
+      "bg": "#F8FAFB",
+      "ratio": 3.98,
+      "need": 4.5,
+      "pass": true,
+      "allowlisted": 3.98
+    },
+    {
+      "mode": "light",
+      "pair": "link-text on page-background-primary",
+      "fg": "#017E89",
+      "bg": "#FFFFFF",
+      "ratio": 4.83,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "text-inverse on action-standard",
+      "fg": "#FFFFFF",
+      "bg": "#017E89",
+      "ratio": 4.83,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "text-inverse on container-background-inverse",
+      "fg": "#FFFFFF",
+      "bg": "#21262A",
+      "ratio": 15.27,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "text-complementary on action-complementary",
+      "fg": "#FFFFFF",
+      "bg": "#5D686F",
+      "ratio": 5.71,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "input-label on page-background-primary",
+      "fg": "#5D686F",
+      "bg": "#FFFFFF",
+      "ratio": 5.71,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "light",
+      "pair": "input-placeholder on input-background-primary",
+      "fg": "#ADBAC2",
+      "bg": "#FFFFFF",
+      "ratio": 1.98,
+      "need": null,
+      "pass": true,
+      "informational": true
+    },
+    {
+      "mode": "light",
+      "pair": "text-primary on container-background-neutral",
+      "fg": "#21262A",
+      "bg": "#E2E9ED",
+      "ratio": 12.44,
       "need": 4.5,
       "pass": true
     },
     {
       "mode": "dark",
-      "pair": "text on bg",
-      "fg": "#FAFAF8",
-      "bg": "#111010",
-      "ratio": 18.18,
-      "need": 13,
-      "pass": true
-    },
-    {
-      "mode": "dark",
-      "pair": "text-2 on bg",
-      "fg": "#ADABA6",
-      "bg": "#111010",
-      "ratio": 8.28,
-      "need": 5.5,
-      "pass": true
-    },
-    {
-      "mode": "dark",
-      "pair": "text-3 on bg",
-      "fg": "#95938D",
-      "bg": "#111010",
-      "ratio": 6.18,
+      "pair": "text-primary on page-background-primary",
+      "fg": "#FFFFFF",
+      "bg": "#181C1F",
+      "ratio": 17.15,
       "need": 4.5,
       "pass": true
     },
     {
       "mode": "dark",
-      "pair": "text on surface",
-      "fg": "#FAFAF8",
-      "bg": "#2D2C29",
-      "ratio": 13.36,
-      "need": 13,
-      "pass": true
-    },
-    {
-      "mode": "dark",
-      "pair": "text-2 on surface",
-      "fg": "#ADABA6",
-      "bg": "#2D2C29",
-      "ratio": 6.09,
-      "need": 5.5,
-      "pass": true
-    },
-    {
-      "mode": "dark",
-      "pair": "text-3 on surface",
-      "fg": "#95938D",
-      "bg": "#2D2C29",
-      "ratio": 4.55,
+      "pair": "text-primary on page-background-secondary",
+      "fg": "#FFFFFF",
+      "bg": "#21262A",
+      "ratio": 15.27,
       "need": 4.5,
       "pass": true
     },
     {
       "mode": "dark",
-      "pair": "text on accent-soft",
-      "fg": "#FAFAF8",
-      "bg": "#2D2C29",
-      "ratio": 13.36,
-      "need": 13,
+      "pair": "text-primary on page-background-tertiary",
+      "fg": "#FFFFFF",
+      "bg": "#2B3135",
+      "ratio": 13.18,
+      "need": 4.5,
       "pass": true
     },
     {
       "mode": "dark",
-      "pair": "text-2 on accent-soft",
-      "fg": "#ADABA6",
-      "bg": "#2D2C29",
-      "ratio": 6.09,
-      "need": 5.5,
+      "pair": "text-primary on container-background-primary",
+      "fg": "#FFFFFF",
+      "bg": "#21262A",
+      "ratio": 15.27,
+      "need": 4.5,
       "pass": true
     },
     {
       "mode": "dark",
-      "pair": "text-3 on accent-soft",
-      "fg": "#95938D",
-      "bg": "#2D2C29",
-      "ratio": 4.55,
+      "pair": "text-primary on container-background-secondary",
+      "fg": "#FFFFFF",
+      "bg": "#2B3135",
+      "ratio": 13.18,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-primary on container-background-tertiary",
+      "fg": "#FFFFFF",
+      "bg": "#3C4348",
+      "ratio": 10.05,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-secondary on page-background-primary",
+      "fg": "#F0F4F6",
+      "bg": "#181C1F",
+      "ratio": 15.49,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-secondary on page-background-secondary",
+      "fg": "#F0F4F6",
+      "bg": "#21262A",
+      "ratio": 13.8,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-secondary on page-background-tertiary",
+      "fg": "#F0F4F6",
+      "bg": "#2B3135",
+      "ratio": 11.91,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-secondary on container-background-primary",
+      "fg": "#F0F4F6",
+      "bg": "#21262A",
+      "ratio": 13.8,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-secondary on container-background-secondary",
+      "fg": "#F0F4F6",
+      "bg": "#2B3135",
+      "ratio": 11.91,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-secondary on container-background-tertiary",
+      "fg": "#F0F4F6",
+      "bg": "#3C4348",
+      "ratio": 9.09,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-tertiary on page-background-primary",
+      "fg": "#D5DEE3",
+      "bg": "#181C1F",
+      "ratio": 12.56,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-tertiary on page-background-secondary",
+      "fg": "#D5DEE3",
+      "bg": "#21262A",
+      "ratio": 11.19,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-tertiary on container-background-primary",
+      "fg": "#D5DEE3",
+      "bg": "#21262A",
+      "ratio": 11.19,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-tertiary on container-background-secondary",
+      "fg": "#D5DEE3",
+      "bg": "#2B3135",
+      "ratio": 9.66,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "link-text on page-background-primary",
+      "fg": "#00B3C2",
+      "bg": "#181C1F",
+      "ratio": 6.72,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-inverse on action-standard",
+      "fg": "#21262A",
+      "bg": "#00B3C2",
+      "ratio": 5.98,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-inverse on container-background-inverse",
+      "fg": "#21262A",
+      "bg": "#FFFFFF",
+      "ratio": 15.27,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-complementary on action-complementary",
+      "fg": "#FFFFFF",
+      "bg": "#2B3135",
+      "ratio": 13.18,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "input-label on page-background-primary",
+      "fg": "#C3CED5",
+      "bg": "#181C1F",
+      "ratio": 10.7,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "mode": "dark",
+      "pair": "input-placeholder on input-background-primary",
+      "fg": "#727E85",
+      "bg": "#21262A",
+      "ratio": 3.66,
+      "need": null,
+      "pass": true,
+      "informational": true
+    },
+    {
+      "mode": "dark",
+      "pair": "text-primary on container-background-neutral",
+      "fg": "#FFFFFF",
+      "bg": "#3C4348",
+      "ratio": 10.05,
       "need": 4.5,
       "pass": true
     }
   ],
-  "structural": []
+  "issues": []
 }

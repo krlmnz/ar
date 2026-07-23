@@ -19,7 +19,8 @@ function makeMarkerEl(place) {
   const el = document.createElement('div');
   el.className = 'hv-marker' + (hasPinBg(place) ? '' : ' no-bg');
   el.dataset.id = place.id;
-  const glyphColor = hasPinBg(place) ? '#fff' : 'var(--ink)';
+  // #fff stays literal: the glyph sits on a user-picked pin color, not on theme chrome
+  const glyphColor = hasPinBg(place) ? '#fff' : 'var(--color-text-primary)';
   el.innerHTML = `<div class="hv-pin" style="background:${pinColor(place)}"><span style="color:${glyphColor};display:grid;place-items:center">${iconSVG(place.icon, 16, 2)}</span></div>`;
   el.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -58,7 +59,7 @@ export function refreshMarker(place) {
   const pin = el.querySelector('.hv-pin');
   pin.style.background = pinColor(place);
   const span = pin.querySelector('span');
-  span.style.color = hasPinBg(place) ? '#fff' : 'var(--ink)';
+  span.style.color = hasPinBg(place) ? '#fff' : 'var(--color-text-primary)';
   span.innerHTML = iconSVG(place.icon, 16, 2);
 }
 

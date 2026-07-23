@@ -1,0 +1,1142 @@
+/* ============================================================
+   ANDEAN COMPONENTS — full implementation of the token vocabulary
+   ------------------------------------------------------------
+   Why this file exists: andean.css defines far more than the site
+   currently consumes — whole families (messages, code, data-viz,
+   badges, progress) have no shipped component yet. The standing
+   requirement is that every token still gets working CSS, so that
+   future components are COMPOSED from these classes instead of
+   hand-writing new rules and drifting from the palette.
+
+   Every color/size/weight/space/motion value is a var(--…) andean
+   token. The only literals are structural (0, 1px, percentages,
+   currentColor, transparent, repeat(12, 1fr)) and the 2px focus
+   ring the mapping contract specifies verbatim.
+
+   Namespace: .and-* (plus the .tok-* syntax classes the code-block
+   spec names). Nothing here restyles an existing site class. This
+   sheet loads on every page, so selectors stay flat single classes
+   (state pseudo-classes and paired state classes only — no
+   descendant chains). Sections mirror the token families in
+   andean.css.
+============================================================ */
+
+/* ======================== */
+/* Global plumbing          */
+/* ======================== */
+
+::selection {
+  background: var(--color-text-highlight);
+}
+
+/* One focus language everywhere. Component sheets that need a
+   different treatment override later in the cascade (main.css and
+   the tool sheets load after this file). The 2px ring is the
+   mapping-contract focus spec, not a theme value. */
+:focus-visible {
+  outline: 2px solid var(--color-focus-indicator);
+  outline-offset: 2px;
+}
+
+/* ======================== */
+/* Type scale               */
+/* ======================== */
+
+/* Each utility sets the full quartet (family/size/weight/leading)
+   so a class is a complete type decision, never a partial one.
+   Responsiveness comes from the tokens themselves — andean.css
+   re-declares the sizes at 992/480. */
+
+.and-display-1,
+.and-display-2,
+.and-display-3,
+.and-display-4 {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-display-bold);
+  line-height: var(--line-height-display);
+}
+.and-display-1 { font-size: var(--font-size-display-1); }
+.and-display-2 { font-size: var(--font-size-display-2); }
+.and-display-3 { font-size: var(--font-size-display-3); }
+.and-display-4 { font-size: var(--font-size-display-4); }
+
+.and-heading-1,
+.and-heading-2,
+.and-heading-3,
+.and-heading-4,
+.and-heading-5,
+.and-heading-6 {
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-heading-bold);
+  line-height: var(--line-height-heading);
+}
+.and-heading-1 { font-size: var(--font-size-heading-1); }
+.and-heading-2 { font-size: var(--font-size-heading-2); }
+.and-heading-3 { font-size: var(--font-size-heading-3); }
+.and-heading-4 { font-size: var(--font-size-heading-4); }
+.and-heading-5 { font-size: var(--font-size-heading-5); }
+.and-heading-6 { font-size: var(--font-size-heading-6); }
+
+.and-body-1,
+.and-body-2,
+.and-body-3,
+.and-body-4 {
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-body);
+  line-height: var(--line-height-body);
+}
+.and-body-1 { font-size: var(--font-size-body-1); }
+.and-body-2 { font-size: var(--font-size-body-2); }
+.and-body-3 { font-size: var(--font-size-body-3); }
+.and-body-4 { font-size: var(--font-size-body-4); }
+
+.and-component-x-small,
+.and-component-small,
+.and-component-medium,
+.and-component-large,
+.and-component-x-large {
+  font-family: var(--font-family-component);
+  font-weight: var(--font-weight-component);
+  line-height: var(--line-height-component);
+}
+.and-component-x-small { font-size: var(--font-size-component-x-small); }
+.and-component-small   { font-size: var(--font-size-component-small); }
+.and-component-medium  { font-size: var(--font-size-component-medium); }
+.and-component-large   { font-size: var(--font-size-component-large); }
+.and-component-x-large { font-size: var(--font-size-component-x-large); }
+
+/* Action type is semibold by definition — it labels things you press. */
+.and-action-x-small,
+.and-action-small,
+.and-action-medium,
+.and-action-large {
+  font-family: var(--font-family-component);
+  font-weight: var(--font-weight-component-semibold);
+  line-height: var(--line-height-component);
+}
+.and-action-x-small { font-size: var(--font-size-action-x-small); }
+.and-action-small   { font-size: var(--font-size-action-small); }
+.and-action-medium  { font-size: var(--font-size-action-medium); }
+.and-action-large   { font-size: var(--font-size-action-large); }
+
+/* Text color utilities — the text family's direct consumers.
+   (text-highlight lives in ::selection above.) */
+.and-text--primary       { color: var(--color-text-primary); }
+.and-text--secondary     { color: var(--color-text-secondary); }
+.and-text--tertiary      { color: var(--color-text-tertiary); }
+.and-text--quaternary    { color: var(--color-text-quaternary); }
+.and-text--accent        { color: var(--color-text-accent); }
+.and-text--disabled      { color: var(--color-text-disabled); }
+.and-text--inverse       { color: var(--color-text-inverse); }
+.and-text--complementary { color: var(--color-text-complementary); }
+
+/* ======================== */
+/* Grid & container         */
+/* ======================== */
+
+/* The 12-column grid the space-column/row-gap tokens exist for.
+   Gap variants rename the whole grid, not one axis, so column and
+   row rhythm stay on the same step of the scale. */
+.and-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  column-gap: var(--space-column-gap-medium);
+  row-gap: var(--space-row-gap-medium);
+}
+.and-grid--small {
+  column-gap: var(--space-column-gap-small);
+  row-gap: var(--space-row-gap-small);
+}
+.and-grid--large {
+  column-gap: var(--space-column-gap-large);
+  row-gap: var(--space-row-gap-large);
+}
+.and-grid--x-large {
+  column-gap: var(--space-column-gap-x-large);
+  row-gap: var(--space-row-gap-x-large);
+}
+
+.and-col-1  { grid-column: span 1; }
+.and-col-2  { grid-column: span 2; }
+.and-col-3  { grid-column: span 3; }
+.and-col-4  { grid-column: span 4; }
+.and-col-5  { grid-column: span 5; }
+.and-col-6  { grid-column: span 6; }
+.and-col-7  { grid-column: span 7; }
+.and-col-8  { grid-column: span 8; }
+.and-col-9  { grid-column: span 9; }
+.and-col-10 { grid-column: span 10; }
+.and-col-11 { grid-column: span 11; }
+.and-col-12 { grid-column: span 12; }
+
+/* Responsive spans ride the same breakpoints the token type scale
+   uses (992/480), so layout and type step down together. */
+@media (max-width: 992px) {
+  .and-col-md-1  { grid-column: span 1; }
+  .and-col-md-2  { grid-column: span 2; }
+  .and-col-md-3  { grid-column: span 3; }
+  .and-col-md-4  { grid-column: span 4; }
+  .and-col-md-5  { grid-column: span 5; }
+  .and-col-md-6  { grid-column: span 6; }
+  .and-col-md-7  { grid-column: span 7; }
+  .and-col-md-8  { grid-column: span 8; }
+  .and-col-md-9  { grid-column: span 9; }
+  .and-col-md-10 { grid-column: span 10; }
+  .and-col-md-11 { grid-column: span 11; }
+  .and-col-md-12 { grid-column: span 12; }
+}
+@media (max-width: 480px) {
+  .and-col-sm-1  { grid-column: span 1; }
+  .and-col-sm-2  { grid-column: span 2; }
+  .and-col-sm-3  { grid-column: span 3; }
+  .and-col-sm-4  { grid-column: span 4; }
+  .and-col-sm-5  { grid-column: span 5; }
+  .and-col-sm-6  { grid-column: span 6; }
+  .and-col-sm-7  { grid-column: span 7; }
+  .and-col-sm-8  { grid-column: span 8; }
+  .and-col-sm-9  { grid-column: span 9; }
+  .and-col-sm-10 { grid-column: span 10; }
+  .and-col-sm-11 { grid-column: span 11; }
+  .and-col-sm-12 { grid-column: span 12; }
+}
+
+/* --page-width is a layout measure, not theme — it lives in
+   main.css's :root by design; the gutter is the page-inline token. */
+.and-container {
+  max-inline-size: var(--page-width);
+  margin-inline: auto;
+  padding-inline: var(--space-page-inline);
+}
+
+/* ======================== */
+/* Actions — buttons        */
+/* ======================== */
+
+/* A bare .and-btn renders the standard family; the family modifiers
+   below are the explicit spellings. Subtle variants are flat
+   single classes (.and-btn--passive-subtle, not a --subtle stack)
+   so state rules never need compound selectors. */
+.and-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-component-gap-medium);
+  padding: var(--space-component-stack-padding-large) var(--space-component-inline-padding-xx-large);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-action-medium);
+  font-weight: var(--font-weight-component-semibold);
+  line-height: var(--line-height-component);
+  border: 1px solid transparent;
+  border-radius: var(--radius-action);
+  background: var(--color-action-standard);
+  /* text-inverse, not text-complementary: standard/negative actions go
+     BRIGHT in dark scheme, so their labels must flip to ink — the same
+     pairing the export uses for message-background/text-sent.
+     Complementary keeps text-complementary (its fill is grey-dark in
+     both schemes, so white is right there). */
+  color: var(--color-text-inverse);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color var(--duration-fade-fast) var(--ease-fade),
+    border-color var(--duration-fade-fast) var(--ease-fade),
+    color var(--duration-fade-fast) var(--ease-fade);
+}
+.and-btn:hover         { background: var(--color-action-standard-hover); }
+.and-btn:focus-visible { background: var(--color-action-standard-focus); }
+.and-btn:active        { background: var(--color-action-standard-active); }
+.and-btn:disabled,
+.and-btn[aria-disabled="true"] {
+  opacity: var(--opacity-disabled);
+  pointer-events: none;
+}
+
+.and-btn--standard {
+  background: var(--color-action-standard);
+  color: var(--color-text-inverse);
+}
+.and-btn--standard:hover         { background: var(--color-action-standard-hover); }
+.and-btn--standard:focus-visible { background: var(--color-action-standard-focus); }
+.and-btn--standard:active        { background: var(--color-action-standard-active); }
+
+/* Outline/secondary: white (light) or ink (dark) fill, standard-teal
+   label, accent border — the mapping's secondary-button recipe. */
+.and-btn--standard-subtle {
+  background: var(--color-action-standard-subtle);
+  border-color: var(--color-container-border-accent);
+  color: var(--color-action-standard);
+}
+.and-btn--standard-subtle:hover         { background: var(--color-action-standard-subtle-hover); }
+.and-btn--standard-subtle:focus-visible { background: var(--color-action-standard-subtle-focus); }
+.and-btn--standard-subtle:active        { background: var(--color-action-standard-subtle-active); }
+
+.and-btn--complementary {
+  background: var(--color-action-complementary);
+  color: var(--color-text-complementary);
+}
+.and-btn--complementary:hover         { background: var(--color-action-complementary-hover); }
+.and-btn--complementary:focus-visible { background: var(--color-action-complementary-focus); }
+.and-btn--complementary:active        { background: var(--color-action-complementary-active); }
+
+/* The complementary-border token is rgba(...,0) by design — an
+   invisible border that keeps geometry stable and shows up under
+   forced-colors. The subtle hover fill is the dark complementary
+   surface even in light scheme, so the label flips to
+   complementary text on interaction. */
+.and-btn--complementary-subtle {
+  background: var(--color-action-complementary-subtle);
+  border-color: var(--color-action-complementary-border);
+  color: var(--color-text-primary);
+}
+.and-btn--complementary-subtle:hover {
+  background: var(--color-action-complementary-subtle-hover);
+  color: var(--color-text-complementary);
+}
+.and-btn--complementary-subtle:focus-visible {
+  background: var(--color-action-complementary-subtle-focus);
+  color: var(--color-text-complementary);
+}
+.and-btn--complementary-subtle:active {
+  background: var(--color-action-complementary-subtle-active);
+  color: var(--color-text-complementary);
+}
+
+/* Passive is the quiet grey workhorse — dark label, and the one
+   family that ships a real (non-transparent) border token. */
+.and-btn--passive {
+  background: var(--color-action-passive);
+  border-color: var(--color-action-passive-border);
+  color: var(--color-text-primary);
+}
+.and-btn--passive:hover         { background: var(--color-action-passive-hover); }
+.and-btn--passive:focus-visible { background: var(--color-action-passive-focus); }
+.and-btn--passive:active        { background: var(--color-action-passive-active); }
+
+.and-btn--passive-subtle {
+  background: var(--color-action-passive-subtle);
+  color: var(--color-text-primary);
+}
+.and-btn--passive-subtle:hover         { background: var(--color-action-passive-subtle-hover); }
+.and-btn--passive-subtle:focus-visible { background: var(--color-action-passive-subtle-focus); }
+.and-btn--passive-subtle:active        { background: var(--color-action-passive-subtle-active); }
+
+.and-btn--negative {
+  background: var(--color-action-negative);
+  color: var(--color-text-inverse);
+}
+.and-btn--negative:hover         { background: var(--color-action-negative-hover); }
+.and-btn--negative:focus-visible { background: var(--color-action-negative-focus); }
+.and-btn--negative:active        { background: var(--color-action-negative-active); }
+
+/* Quiet destructive: grey fill, negative label — the fill only
+   commits to red once the user reaches the solid variant. */
+.and-btn--negative-subtle {
+  background: var(--color-action-negative-subtle);
+  color: var(--color-action-negative);
+}
+.and-btn--negative-subtle:hover         { background: var(--color-action-negative-subtle-hover); }
+.and-btn--negative-subtle:focus-visible { background: var(--color-action-negative-subtle-focus); }
+.and-btn--negative-subtle:active        { background: var(--color-action-negative-subtle-active); }
+
+/* The special-use fill stays yellow in both schemes, but no single
+   text token is dark in both — text-primary is dark in light mode,
+   text-inverse is dark in dark mode. Pair them per scheme so the
+   label never goes white-on-yellow. */
+.and-btn--special {
+  background: var(--color-action-special-use);
+  color: var(--color-text-primary);
+}
+.and-btn--special:hover         { background: var(--color-action-special-use-hover); }
+.and-btn--special:focus-visible { background: var(--color-action-special-use-focus); }
+.and-btn--special:active        { background: var(--color-action-special-use-active); }
+[data-colorscheme="dark"] .and-btn--special { color: var(--color-text-inverse); }
+
+/* Special-use "subtle" is not a ghost — the token set makes it a
+   solid teal alternate fill (same hues as action-standard), so it
+   takes text-inverse: white on the light teal, ink on the bright
+   dark-scheme cyan. One declaration, no scheme override needed. */
+.and-btn--special-subtle {
+  background: var(--color-action-special-use-subtle);
+  color: var(--color-text-inverse);
+}
+.and-btn--special-subtle:hover         { background: var(--color-action-special-use-subtle-hover); }
+.and-btn--special-subtle:focus-visible { background: var(--color-action-special-use-subtle-focus); }
+.and-btn--special-subtle:active        { background: var(--color-action-special-use-subtle-active); }
+
+/* Sizes — font from the action scale, padding one step up or down
+   the component padding scales so height tracks the type. */
+.and-btn--x-small {
+  padding: var(--space-component-stack-padding-small) var(--space-component-inline-padding-medium);
+  font-size: var(--font-size-action-x-small);
+}
+.and-btn--small {
+  padding: var(--space-component-stack-padding-medium) var(--space-component-inline-padding-x-large);
+  font-size: var(--font-size-action-small);
+}
+.and-btn--large {
+  padding: var(--space-component-stack-padding-x-large) var(--space-component-inline-padding-xxx-large);
+  font-size: var(--font-size-action-large);
+}
+
+/* ======================== */
+/* Links                    */
+/* ======================== */
+
+/* LVHA order so each state can win over the last. */
+.and-link {
+  color: var(--color-link-text);
+  text-decoration: underline;
+  transition: color var(--duration-fade-fast) var(--ease-fade);
+}
+.and-link:visited       { color: var(--color-link-text-visited); }
+.and-link:hover         { color: var(--color-link-text-hover); }
+.and-link:focus-visible { color: var(--color-link-text-focus); }
+.and-link:active        { color: var(--color-link-text-active); }
+
+/* For links sitting on dark/complementary surfaces. */
+.and-link--complementary          { color: var(--color-link-text-complementary); }
+.and-link--complementary:visited  { color: var(--color-link-text-complementary-visited); }
+
+/* Highlighted link: the wash marks it as a link even without
+   underline-hunting; visited keeps its own wash token. */
+.and-link--background {
+  background: var(--color-link-background);
+  padding-inline: var(--space-component-inline-padding-xx-small);
+  border-radius: var(--radius-x-small);
+}
+.and-link--background:visited { background: var(--color-link-background-visited); }
+
+/* ======================== */
+/* Inputs                   */
+/* ======================== */
+
+.and-label {
+  display: block;
+  margin-block-end: var(--space-component-gap-small);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-input-label);
+  font-weight: var(--font-weight-input-label);
+  line-height: var(--line-height-component);
+  color: var(--color-input-label);
+}
+
+.and-field__hint {
+  margin-block-start: var(--space-component-gap-small);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  line-height: var(--line-height-component);
+  color: var(--color-text-tertiary);
+}
+
+.and-input,
+.and-textarea,
+.and-select {
+  display: block;
+  inline-size: 100%;
+  padding: var(--space-component-stack-padding-large) var(--space-component-inline-padding-x-large);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-input-text);
+  font-weight: var(--font-weight-input-text);
+  line-height: var(--line-height-component);
+  color: var(--color-text-primary);
+  background: var(--color-input-background-primary);
+  border: 1px solid var(--color-input-border-primary);
+  border-radius: var(--radius-small);
+  transition:
+    background-color var(--duration-fade-fast) var(--ease-fade),
+    border-color var(--duration-fade-fast) var(--ease-fade),
+    box-shadow var(--duration-fade-fast) var(--ease-fade);
+}
+.and-textarea { resize: vertical; }
+.and-select   { cursor: pointer; }
+
+.and-input::placeholder,
+.and-textarea::placeholder {
+  color: var(--color-input-placeholder);
+}
+
+.and-input:hover,
+.and-textarea:hover,
+.and-select:hover {
+  background: var(--color-input-background-primary-hover);
+  border-color: var(--color-input-border-primary-hover);
+}
+.and-input:active,
+.and-textarea:active,
+.and-select:active {
+  background: var(--color-input-background-primary-active);
+  border-color: var(--color-input-border-primary-active);
+}
+/* Focus per the input matrix: focus border + a 2px indicator ring
+   (box-shadow so it hugs the radius; the global outline is
+   suppressed in its favour). */
+.and-input:focus,
+.and-textarea:focus,
+.and-select:focus {
+  outline: none;
+  background: var(--color-input-background-primary-focus);
+  border-color: var(--color-input-border-primary-focus);
+  box-shadow: 0 0 0 2px var(--color-focus-indicator);
+}
+
+.and-input.is-error,
+.and-textarea.is-error,
+.and-select.is-error {
+  background: var(--color-input-background-error);
+  border-color: var(--color-input-border-error);
+}
+.and-input.is-error:focus,
+.and-textarea.is-error:focus,
+.and-select.is-error:focus {
+  background: var(--color-input-background-error-focus);
+  border-color: var(--color-input-border-error);
+}
+
+.and-input.is-warning,
+.and-textarea.is-warning,
+.and-select.is-warning {
+  background: var(--color-input-background-warning);
+  border-color: var(--color-input-border-warning);
+}
+.and-input.is-warning:focus,
+.and-textarea.is-warning:focus,
+.and-select.is-warning:focus {
+  background: var(--color-input-background-warning-focus);
+  border-color: var(--color-input-border-warning);
+}
+
+.and-input[readonly],
+.and-textarea[readonly] {
+  background: var(--color-input-background-readonly);
+  border-color: var(--color-input-border-readonly);
+}
+
+.and-input:disabled,
+.and-textarea:disabled,
+.and-select:disabled {
+  background: var(--color-input-background-disabled);
+  border-color: var(--color-input-border-disabled);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+.and-input:disabled::placeholder,
+.and-textarea:disabled::placeholder {
+  color: var(--color-input-placeholder-disabled);
+}
+
+/* Selected fills pair with inverse glyphs per the input matrix. */
+.and-input.is-selected,
+.and-textarea.is-selected,
+.and-select.is-selected {
+  background: var(--color-input-background-primary-selected);
+  border-color: var(--color-input-border-primary-selected);
+  color: var(--color-icon-inverse);
+}
+
+/* Secondary input family: the filled-control surface (the switch
+   track below draws from the same tokens). Text stays primary —
+   the fill is mid-grey in both schemes. */
+.and-input--secondary {
+  background: var(--color-input-background-secondary);
+  border-color: var(--color-input-border-secondary);
+}
+.and-input--secondary:hover {
+  background: var(--color-input-background-secondary-hover);
+  border-color: var(--color-input-border-secondary-hover);
+}
+.and-input--secondary:active {
+  background: var(--color-input-background-secondary-active);
+  border-color: var(--color-input-border-secondary-active);
+}
+.and-input--secondary:focus {
+  background: var(--color-input-background-secondary-focus);
+  border-color: var(--color-input-border-secondary-focus);
+}
+
+/* Tertiary input family: the low-chrome variant for dense UIs. */
+.and-input--tertiary {
+  background: var(--color-input-background-tertiary);
+  border-color: var(--color-input-border-tertiary);
+}
+.and-input--tertiary:hover {
+  background: var(--color-input-background-tertiary-hover);
+  border-color: var(--color-input-border-tertiary-hover);
+}
+.and-input--tertiary:active {
+  background: var(--color-input-background-tertiary-active);
+  border-color: var(--color-input-border-tertiary-active);
+}
+.and-input--tertiary:focus {
+  background: var(--color-input-background-tertiary-focus);
+  border-color: var(--color-input-border-tertiary-focus);
+}
+
+/* Checkbox/radio keep native rendering (free a11y + forced-colors);
+   accent-color is the selected token from the matrix. Size rides
+   the component type scale so controls track their labels. */
+.and-checkbox,
+.and-radio {
+  inline-size: var(--font-size-component-medium);
+  block-size: var(--font-size-component-medium);
+  accent-color: var(--color-input-background-primary-selected);
+  cursor: pointer;
+}
+.and-checkbox:disabled,
+.and-radio:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+/* Switch: a checkbox drawn as a toggle. Track geometry derives from
+   the component type scale + the smallest component gap; the 1px
+   figures in the calcs are the track's own borders (border-box). */
+.and-switch {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  inline-size: calc(var(--font-size-component-medium) * 2 + var(--space-component-gap-x-small) * 2);
+  block-size: calc(var(--font-size-component-medium) + var(--space-component-gap-x-small) * 2);
+  border: 1px solid var(--color-input-border-primary);
+  border-radius: var(--radius-full);
+  background: var(--color-input-background-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fade-fast) var(--ease-fade),
+    border-color var(--duration-fade-fast) var(--ease-fade);
+}
+/* Thumb: icon-inverse is light-on-grey in light scheme and
+   ink-on-grey in dark — correct against both track fills. */
+.and-switch::before {
+  content: "";
+  position: absolute;
+  inset-block-start: var(--space-component-gap-x-small);
+  inset-inline-start: var(--space-component-gap-x-small);
+  inline-size: calc(var(--font-size-component-medium) - var(--space-component-gap-x-small) - 1px - 1px);
+  block-size: calc(var(--font-size-component-medium) - var(--space-component-gap-x-small) - 1px - 1px);
+  border-radius: var(--radius-full);
+  background: var(--color-icon-inverse);
+  transition: transform var(--duration-transform-fast) var(--ease-transform);
+}
+.and-switch:hover { background: var(--color-input-background-secondary-hover); }
+.and-switch:checked {
+  background: var(--color-input-background-primary-selected);
+  border-color: var(--color-input-border-primary-selected);
+}
+.and-switch:checked::before {
+  /* Travel = inner track width minus thumb and both insets — which
+     the geometry above makes exactly one medium component step. */
+  transform: translateX(var(--font-size-component-medium));
+}
+.and-switch:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+/* Range: accent-color covers thumb + progress fill natively; the
+   track tokens apply where engines style tracks without
+   appearance:none (Gecko). Elsewhere the native track stands in. */
+.and-range {
+  inline-size: 100%;
+  accent-color: var(--color-progress-indicator);
+  cursor: pointer;
+}
+.and-range::-moz-range-track {
+  block-size: var(--space-component-gap-small);
+  border-radius: var(--radius-full);
+  background: var(--color-track-primary);
+}
+.and-range::-moz-range-progress {
+  block-size: var(--space-component-gap-small);
+  border-radius: var(--radius-full);
+  background: var(--color-progress-indicator);
+}
+.and-range:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+/* ======================== */
+/* Containers               */
+/* ======================== */
+
+/* Card surfaces pair each background step with the border step of
+   the same rank (quaternary has no border token — it keeps
+   tertiary, the deepest border available). */
+.and-card {
+  background: var(--color-container-background-primary);
+  border: 1px solid var(--color-container-border-primary);
+  border-radius: var(--radius-medium);
+  padding: var(--space-container-padding-large);
+  color: var(--color-text-primary);
+}
+.and-card--secondary {
+  background: var(--color-container-background-secondary);
+  border-color: var(--color-container-border-secondary);
+}
+.and-card--tertiary {
+  background: var(--color-container-background-tertiary);
+  border-color: var(--color-container-border-tertiary);
+}
+.and-card--quaternary {
+  background: var(--color-container-background-quaternary);
+  border-color: var(--color-container-border-tertiary);
+}
+
+/* The accent container is the only family shipping hover/focus/
+   active/selected steps, so it gets the interactive (selectable-
+   card) treatment. */
+.and-card--accent {
+  background: var(--color-container-background-accent);
+  border-color: var(--color-container-border-accent);
+}
+.and-card--accent:hover        { background: var(--color-container-background-accent-hover); }
+.and-card--accent:focus-within { background: var(--color-container-background-accent-focus); }
+.and-card--accent:active       { background: var(--color-container-background-accent-active); }
+.and-card--accent.is-selected  { background: var(--color-container-background-accent-selected); }
+
+/* Complementary container: the inverse-surface card. */
+.and-card--complementary {
+  background: var(--color-container-background-complementary);
+  border-color: var(--color-container-border-complementary);
+  color: var(--color-text-inverse);
+}
+
+/* Badges and banners share one status-color table below; they
+   differ only in scale and layout. Base = neutral. */
+.and-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-component-gap-small);
+  padding: var(--space-component-stack-padding-x-small) var(--space-component-inline-padding-medium);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-component-x-small);
+  font-weight: var(--font-weight-component-semibold);
+  line-height: var(--line-height-component);
+  border: 1px solid var(--color-ui-neutral);
+  border-radius: var(--radius-full);
+  background: var(--color-container-background-neutral);
+  color: var(--color-text-primary);
+}
+
+.and-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-component-gap-medium);
+  padding: var(--space-container-padding-small);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-component-small);
+  line-height: var(--line-height-component);
+  border: 1px solid var(--color-ui-neutral);
+  border-radius: var(--radius-medium);
+  background: var(--color-container-background-neutral);
+  color: var(--color-text-primary);
+}
+
+/* Status pairings: container background + the matching container
+   border. beta/neutral/new ship no container-border token, so they
+   borrow the same-named --color-ui-* hue instead. */
+.and-badge--accent,
+.and-banner--accent {
+  background: var(--color-container-background-accent);
+  border-color: var(--color-container-border-accent);
+}
+.and-badge--attention,
+.and-banner--attention {
+  background: var(--color-container-background-attention);
+  border-color: var(--color-container-border-attention);
+}
+.and-badge--beta,
+.and-banner--beta {
+  background: var(--color-container-background-beta);
+  border-color: var(--color-ui-beta);
+}
+.and-badge--info,
+.and-banner--info {
+  background: var(--color-container-background-info);
+  border-color: var(--color-container-border-info);
+}
+.and-badge--negative,
+.and-banner--negative {
+  background: var(--color-container-background-negative);
+  border-color: var(--color-container-border-negative);
+}
+.and-badge--neutral,
+.and-banner--neutral {
+  background: var(--color-container-background-neutral);
+  border-color: var(--color-ui-neutral);
+}
+.and-badge--new,
+.and-banner--new {
+  background: var(--color-container-background-new);
+  border-color: var(--color-ui-new);
+}
+.and-badge--positive,
+.and-banner--positive {
+  background: var(--color-container-background-positive);
+  border-color: var(--color-container-border-positive);
+}
+.and-badge--inverse,
+.and-banner--inverse {
+  background: var(--color-container-background-inverse);
+  border-color: transparent;
+  color: var(--color-text-inverse);
+}
+
+/* Special-use surfaces: saturated brand fills. text-primary holds
+   in both schemes — the dark-scheme fills are deep enough for the
+   white primary ink. */
+.and-special-1 { background: var(--color-container-background-special-use-1); color: var(--color-text-primary); }
+.and-special-2 { background: var(--color-container-background-special-use-2); color: var(--color-text-primary); }
+.and-special-3 { background: var(--color-container-background-special-use-3); color: var(--color-text-primary); }
+.and-special-4 { background: var(--color-container-background-special-use-4); color: var(--color-text-primary); }
+
+/* ======================== */
+/* Messages                 */
+/* ======================== */
+
+.and-message {
+  display: inline-block;
+  max-inline-size: 100%;
+  padding: var(--space-component-stack-padding-large) var(--space-component-inline-padding-x-large);
+  border-radius: var(--radius-large);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-2);
+  line-height: var(--line-height-body);
+}
+.and-message--sent {
+  background: var(--color-message-background-sent);
+  color: var(--color-message-text-sent);
+}
+.and-message--received {
+  background: var(--color-message-background-received);
+  color: var(--color-message-text-received);
+}
+
+/* ======================== */
+/* Code                     */
+/* ======================== */
+
+/* The andean export has no monospace family token — the stack stays
+   a literal by mapping contract. */
+.and-code-block {
+  padding: var(--space-container-padding-small);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: var(--font-size-body-3);
+  line-height: var(--line-height-body);
+  color: var(--color-code-text);
+  background: var(--color-container-background-tertiary);
+  border-radius: var(--radius-medium);
+  overflow-x: auto;
+}
+
+.tok-keyword     { color: var(--color-code-keyword); }
+.tok-string      { color: var(--color-code-string); }
+.tok-number      { color: var(--color-code-number); }
+.tok-comment     { color: var(--color-code-comment); }
+.tok-operator    { color: var(--color-code-operator); }
+.tok-attribute   { color: var(--color-code-attribute); }
+.tok-boolean     { color: var(--color-code-boolean); }
+.tok-qualifier   { color: var(--color-code-qualifier); }
+.tok-type        { color: var(--color-code-type); }
+.tok-variable-1  { color: var(--color-code-variable-1); }
+.tok-variable-2  { color: var(--color-code-variable-2); }
+.tok-variable-3  { color: var(--color-code-variable-3); }
+/* Line numbers are chrome, not code — keep them out of copy/paste. */
+.tok-line-number {
+  color: var(--color-code-line-number);
+  user-select: none;
+}
+
+.and-code-line--highlight {
+  display: block;
+  background: var(--color-code-line-highlight);
+}
+
+/* ======================== */
+/* Data visualization       */
+/* ======================== */
+
+/* Categorical ramp — foreground (marks, text, strokes)… */
+.and-data-1  { color: var(--color-data-category-1); }
+.and-data-2  { color: var(--color-data-category-2); }
+.and-data-3  { color: var(--color-data-category-3); }
+.and-data-4  { color: var(--color-data-category-4); }
+.and-data-5  { color: var(--color-data-category-5); }
+.and-data-6  { color: var(--color-data-category-6); }
+.and-data-7  { color: var(--color-data-category-7); }
+.and-data-8  { color: var(--color-data-category-8); }
+.and-data-9  { color: var(--color-data-category-9); }
+.and-data-10 { color: var(--color-data-category-10); }
+/* …and the paired area fills. */
+.and-data-1-bg  { background-color: var(--color-data-category-1-background); }
+.and-data-2-bg  { background-color: var(--color-data-category-2-background); }
+.and-data-3-bg  { background-color: var(--color-data-category-3-background); }
+.and-data-4-bg  { background-color: var(--color-data-category-4-background); }
+.and-data-5-bg  { background-color: var(--color-data-category-5-background); }
+.and-data-6-bg  { background-color: var(--color-data-category-6-background); }
+.and-data-7-bg  { background-color: var(--color-data-category-7-background); }
+.and-data-8-bg  { background-color: var(--color-data-category-8-background); }
+.and-data-9-bg  { background-color: var(--color-data-category-9-background); }
+.and-data-10-bg { background-color: var(--color-data-category-10-background); }
+
+/* Status/sequential ramps — each role plus its 100–400 steps. */
+.and-data--positive      { color: var(--color-data-positive); }
+.and-data--positive-100  { color: var(--color-data-positive-100); }
+.and-data--positive-200  { color: var(--color-data-positive-200); }
+.and-data--positive-300  { color: var(--color-data-positive-300); }
+.and-data--positive-400  { color: var(--color-data-positive-400); }
+.and-data--negative      { color: var(--color-data-negative); }
+.and-data--negative-100  { color: var(--color-data-negative-100); }
+.and-data--negative-200  { color: var(--color-data-negative-200); }
+.and-data--negative-300  { color: var(--color-data-negative-300); }
+.and-data--negative-400  { color: var(--color-data-negative-400); }
+.and-data--attention     { color: var(--color-data-attention); }
+.and-data--attention-100 { color: var(--color-data-attention-100); }
+.and-data--attention-200 { color: var(--color-data-attention-200); }
+.and-data--attention-300 { color: var(--color-data-attention-300); }
+.and-data--attention-400 { color: var(--color-data-attention-400); }
+.and-data--neutral       { color: var(--color-data-neutral); }
+.and-data--neutral-100   { color: var(--color-data-neutral-100); }
+.and-data--neutral-200   { color: var(--color-data-neutral-200); }
+.and-data--neutral-300   { color: var(--color-data-neutral-300); }
+.and-data--neutral-400   { color: var(--color-data-neutral-400); }
+.and-data--primary       { color: var(--color-data-primary); }
+.and-data--primary-100   { color: var(--color-data-primary-100); }
+.and-data--primary-200   { color: var(--color-data-primary-200); }
+.and-data--primary-300   { color: var(--color-data-primary-300); }
+.and-data--primary-400   { color: var(--color-data-primary-400); }
+.and-data--secondary     { color: var(--color-data-secondary); }
+.and-data--secondary-100 { color: var(--color-data-secondary-100); }
+.and-data--secondary-200 { color: var(--color-data-secondary-200); }
+.and-data--secondary-300 { color: var(--color-data-secondary-300); }
+.and-data--secondary-400 { color: var(--color-data-secondary-400); }
+.and-data--tertiary      { color: var(--color-data-tertiary); }
+.and-data--tertiary-100  { color: var(--color-data-tertiary-100); }
+.and-data--tertiary-200  { color: var(--color-data-tertiary-200); }
+.and-data--tertiary-300  { color: var(--color-data-tertiary-300); }
+.and-data--tertiary-400  { color: var(--color-data-tertiary-400); }
+
+/* Paints from currentColor so it composes with any color class:
+   <span class="and-data-4 and-swatch"></span> */
+.and-swatch {
+  display: inline-block;
+  inline-size: var(--space-medium);
+  block-size: var(--space-medium);
+  border-radius: var(--radius-x-small);
+  background: currentColor;
+  vertical-align: middle;
+}
+
+/* ======================== */
+/* Progress & meter         */
+/* ======================== */
+
+.and-progress {
+  display: block;
+  block-size: var(--space-x-small);
+  background: var(--color-track-primary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.and-progress--secondary { background: var(--color-track-secondary); }
+
+/* Consumer sets the bar's inline-size (style or a local custom
+   property); the progress duration/ease pair animates the change. */
+.and-progress__bar {
+  block-size: 100%;
+  inline-size: 0;
+  background: var(--color-progress-indicator);
+  border-radius: var(--radius-full);
+  transition: inline-size var(--duration-progress-fast) var(--ease-transform);
+}
+.and-progress__bar--indeterminate {
+  inline-size: 40%;
+  animation: and-progress-indeterminate var(--duration-progress-slowest) var(--ease-transform) infinite;
+}
+@keyframes and-progress-indeterminate {
+  /* transform %s are relative to the 40% bar: -100% parks it off the
+     left edge, 250% (of 40%) carries it across the full rail. */
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(250%); }
+}
+
+/* Meter: same rail, but the bar reports a judgment, not activity —
+   the local custom property lets modifiers recolor without
+   descendant selectors. */
+.and-meter {
+  --and-meter-color: var(--color-ui-positive);
+  display: block;
+  block-size: var(--space-x-small);
+  background: var(--color-track-primary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.and-meter--attention { --and-meter-color: var(--color-ui-attention); }
+.and-meter--negative  { --and-meter-color: var(--color-ui-negative); }
+.and-meter__bar {
+  block-size: 100%;
+  inline-size: 0;
+  background: var(--and-meter-color);
+  border-radius: var(--radius-full);
+  transition: inline-size var(--duration-progress-fast) var(--ease-transform);
+}
+
+/* ======================== */
+/* Dividers                 */
+/* ======================== */
+
+.and-divider {
+  border: 0;
+  border-block-start: 1px solid var(--color-divider-primary);
+  margin-block: var(--space-medium);
+}
+.and-divider--secondary { border-block-start-color: var(--color-divider-secondary); }
+.and-divider--tertiary  { border-block-start-color: var(--color-divider-tertiary); }
+.and-divider--inverse   { border-block-start-color: var(--color-divider-inverse); }
+
+/* Consumes --color-selection-indicator: the active-item bar for
+   tabs and segmented controls. A hairline here; components wanting
+   a heavier bar restyle in their own sheet. */
+.and-selected {
+  border-block-end: 1px solid var(--color-selection-indicator);
+}
+
+/* ======================== */
+/* Status dots              */
+/* ======================== */
+
+/* Dot size rides the generic space scale — 8px reads at text sizes
+   without swallowing the line. */
+.and-status {
+  display: inline-block;
+  inline-size: var(--space-x-small);
+  block-size: var(--space-x-small);
+  border-radius: var(--radius-full);
+  background: var(--color-ui-neutral);
+  vertical-align: middle;
+}
+.and-status--beta      { background: var(--color-ui-beta); }
+.and-status--completed { background: var(--color-ui-completed); }
+.and-status--discover  { background: var(--color-ui-discover); }
+.and-status--info      { background: var(--color-ui-info); }
+.and-status--negative  { background: var(--color-ui-negative); }
+.and-status--neutral   { background: var(--color-ui-neutral); }
+.and-status--new       { background: var(--color-ui-new); }
+.and-status--positive  { background: var(--color-ui-positive); }
+.and-status--attention { background: var(--color-ui-attention); }
+.and-status--primary   { background: var(--color-ui-primary); }
+
+/* ======================== */
+/* Icons                    */
+/* ======================== */
+
+/* Color only — the {% icon %} shortcode's .icon sizing stays in
+   main.css. */
+.and-icon--primary       { color: var(--color-icon-primary); }
+.and-icon--secondary     { color: var(--color-icon-secondary); }
+.and-icon--accent        { color: var(--color-icon-accent); }
+.and-icon--disabled      { color: var(--color-icon-disabled); }
+.and-icon--inverse       { color: var(--color-icon-inverse); }
+.and-icon--complementary { color: var(--color-icon-complementary); }
+
+/* ======================== */
+/* Elevation & radius       */
+/* ======================== */
+
+/* Elevation tokens carry no colour — always paired with
+   --color-shadow, per the andean.css header. */
+.and-elevation-0 { box-shadow: var(--elevation-level-0) var(--color-shadow); }
+.and-elevation-1 { box-shadow: var(--elevation-level-1) var(--color-shadow); }
+.and-elevation-2 { box-shadow: var(--elevation-level-2) var(--color-shadow); }
+.and-elevation-3 { box-shadow: var(--elevation-level-3) var(--color-shadow); }
+.and-elevation-4 { box-shadow: var(--elevation-level-4) var(--color-shadow); }
+
+.and-radius-none    { border-radius: var(--radius-none); }
+.and-radius-x-small { border-radius: var(--radius-x-small); }
+.and-radius-small   { border-radius: var(--radius-small); }
+.and-radius-medium  { border-radius: var(--radius-medium); }
+.and-radius-large   { border-radius: var(--radius-large); }
+.and-radius-x-large { border-radius: var(--radius-x-large); }
+.and-radius-full    { border-radius: var(--radius-full); }
+
+/* ======================== */
+/* Motion                   */
+/* ======================== */
+
+.and-fade { transition: opacity var(--duration-fade-moderate) var(--ease-fade); }
+/* The fade axis ships no emphasize duration/ease — slow is its
+   emphatic end. */
+.and-fade--emphasize { transition: opacity var(--duration-fade-slow) var(--ease-fade); }
+
+.and-appear {
+  animation: and-appear var(--duration-appear-moderate) var(--ease-appear) both;
+}
+.and-appear--emphasize {
+  animation: and-appear var(--duration-appear-emphasize-moderate) var(--ease-appear-emphasize) both;
+}
+.and-disappear {
+  animation: and-disappear var(--duration-disappear-moderate) var(--ease-disappear) both;
+}
+.and-disappear--emphasize {
+  animation: and-disappear var(--duration-disappear-emphasize-moderate) var(--ease-disappear-emphasize) both;
+}
+@keyframes and-appear {
+  from { opacity: 0; transform: translateY(var(--space-component-gap-small)); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes and-disappear {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateY(var(--space-component-gap-small)); }
+}
+
+/* ======================== */
+/* Disabled, overlay, page  */
+/* ======================== */
+
+.and-disabled {
+  opacity: var(--opacity-disabled);
+  pointer-events: none;
+}
+
+.and-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--color-overlay);
+  /* Under the skip link (z-index 100 in main.css), over the page. */
+  z-index: 90;
+}
+/* Same treatment pinned inside a positioned ancestor — the
+   container-overlay token is its own axis in the set. */
+.and-overlay--container {
+  position: absolute;
+  background: var(--color-container-overlay);
+}
+
+.and-page--secondary { background: var(--color-page-background-secondary); }
+.and-page--tertiary  { background: var(--color-page-background-tertiary); }
+.and-page--accent    { background: var(--color-page-background-accent); }
+
+/* ======================== */
+/* Reduced motion           */
+/* ======================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .and-appear,
+  .and-appear--emphasize,
+  .and-disappear,
+  .and-disappear--emphasize {
+    animation: none;
+  }
+  .and-fade,
+  .and-fade--emphasize {
+    transition: none;
+  }
+  /* A frozen left-anchored bar reads as a stalled determinate
+     value; a static centered segment is the recognizable
+     "busy, no measure" idiom. */
+  .and-progress__bar--indeterminate {
+    animation: none;
+    transform: none;
+    margin-inline: auto;
+  }
+}

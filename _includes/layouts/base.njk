@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+{# data-theme names the token universe (andean.css is scoped to it); the
+   light/dark axis lives on data-colorscheme. Two attributes on purpose —
+   the scheme toggles at runtime, the theme name never does. #}
+<html lang="en" data-theme="andean">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,10 +40,13 @@
      the foot of the body so page-load events can fire from the page itself. #}
   <script src="/assets/js/analytics.js"></script>
 
-  {# Theme — must run before first paint to avoid a flash of light theme #}
+  {# Scheme — must run before first paint to avoid a flash of light theme.
+     localStorage key and value are unchanged ('theme' → 'dark') so visitors
+     who chose dark under the old system keep it; only the attribute moved
+     from data-theme to data-colorscheme. #}
   <script>
     const t = localStorage.getItem('theme');
-    if (t) document.documentElement.dataset.theme = t;
+    if (t === 'dark') document.documentElement.dataset.colorscheme = 'dark';
   </script>
 
   {# Map layouts talk to Mapbox — start the handshake during HTML parse.
@@ -50,9 +56,10 @@
   <link rel="preconnect" href="https://events.mapbox.com">
   {% endif %}
 
-  {# Fonts — Rethink Sans + Source Serif 4, self-hosted #}
+  {# Fonts — Rethink Sans, self-hosted. Source Serif 4 preload dropped: the
+     Andean tokens map every family to Rethink Sans, so the serif has no
+     consumer and preloading it would waste the visitor's bandwidth. #}
   <link rel="preload" href="/assets/fonts/rethink-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="/assets/fonts/source-serif-4-latin.woff2" as="font" type="font/woff2" crossorigin>
 
   {# Styles #}
   <link rel="stylesheet" href="/assets/css/main.css">
@@ -75,8 +82,9 @@
   <script>
     const root = document.documentElement;
     function toggleTheme() {
-      const isDark = root.dataset.theme === 'dark';
-      root.dataset.theme = isDark ? '' : 'dark';
+      const isDark = root.dataset.colorscheme === 'dark';
+      if (isDark) delete root.dataset.colorscheme;
+      else root.dataset.colorscheme = 'dark';
       localStorage.setItem('theme', isDark ? '' : 'dark');
       // The map engine re-styles its basemap on this — see andean-map.js.
       window.dispatchEvent(new CustomEvent('themechange'));

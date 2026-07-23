@@ -15,7 +15,7 @@ npm run new -- <kind> "<Title>"   # scaffold content
 ```
 
 ## Hard rules
-- Never use `--gray-*`, `--white`, `--black` primitives for color/background — semantic tokens only (`--text`, `--bg`, `--surface`, `--border`). Map chrome is the one exception.
+- Andean tokens only (`--color-*`, `--font-*`, `--space-*`, `--radius-*`, `--elevation-*`, `--duration-*`/`--ease-*`) — never raw hex in UI chrome. Map chrome (the `[data-map-theme]` axis) and data/content palettes are the exceptions.
 - Dates in front matter unquoted: `updated: 2026-07-22`.
 - Maps read coordinates from place files — never copy coordinates into a map page.
 - `taxonomy.yml` is the single source of truth for facets. A new tag goes there first.
@@ -25,4 +25,4 @@ npm run new -- <kind> "<Title>"   # scaffold content
 - One brand: Andean Road. The editor is "the Atelier". "Hue & Vow" may only appear in wedding-segment content.
 
 ## Branch & deploy
-Work on `feat/engine-tokens` (current). Netlify builds `main` with `npm run tokens:check && npm run build` — token drift fails the deploy.
+Work on `feat/engine-tokens` (current). Netlify builds `main` with `npm run tokens:check && npm run build` — `tokens:check` now guards `assets/css/andean.css` (light/dark parity + contrast regression); a failing check fails the deploy.

@@ -105,7 +105,7 @@ export const STAGE_HTML = `
         <input type="range" id="line-width" min="1" max="24" step="1">
         <span class="val" id="line-width-val"></span>
       </div>
-      <div style="margin-top: var(--s1)">
+      <div style="margin-top: var(--space-component-inline-padding-small)">
         <div class="field-label">Dash</div>
         <div class="seg-chips" id="line-styles"></div>
       </div>

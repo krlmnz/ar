@@ -1,25 +1,31 @@
 /* Site search dialog — command-palette style, top-aligned. Everything is
-   tokens so both themes come for free. The one literal colour is the
-   backdrop scrim: no overlay token exists, and a black scrim reads
-   correctly over light and dark alike. */
+   andean tokens so both colour schemes come for free. The dialog is a
+   floating surface, so it carries elevation and the large overlay radius;
+   the input row follows the andean input matrix. */
 
 .search {
-  width: min(560px, calc(100vw - 2 * var(--space-3)));
+  width: min(560px, calc(100vw - 2 * var(--space-large)));
   margin: 12vh auto auto;
   padding: 0;
-  border: 2px solid var(--text); /* same frame weight as the site header */
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--text);
+  border: 2px solid var(--color-divider-primary); /* same frame weight as the site header */
+  border-radius: var(--radius-large);
+  background: var(--color-container-background-primary);
+  color: var(--color-text-primary);
+  box-shadow: var(--elevation-level-3) var(--color-shadow);
 }
 
+/* Literal first, token second: ::backdrop does not reliably inherit
+   custom properties from the document root in every engine, so the
+   literal guarantees a scrim everywhere and the token declaration
+   upgrades it where inheritance works. */
 .search::backdrop {
-  background: rgb(0 0 0 / 0.5);
+  background: rgba(0, 0, 0, 0.5);
+  background: var(--color-overlay, rgba(0, 0, 0, 0.5));
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .search[open] {
-    animation: search-in 120ms ease;
+    animation: search-in var(--duration-appear-fast) var(--ease-appear);
   }
 }
 
@@ -33,16 +39,18 @@
 .search__field {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-2);
-  border-bottom: 1px solid var(--border);
-  color: var(--text-3); /* tints the magnifier icon */
+  gap: var(--space-component-gap-medium);
+  padding: var(--space-container-padding-small);
+  background: var(--color-input-background-primary);
+  border-bottom: 1px solid var(--color-input-border-primary);
+  color: var(--color-icon-secondary); /* tints the magnifier icon */
 }
 
-/* Focus lives on the input; the whole row darkening is its visible ring. */
+/* Focus lives on the input; the row's rule turning the focus colour is
+   its visible ring, so no extra outline is drawn. */
 .search__field:focus-within {
-  color: var(--text);
-  border-bottom-color: var(--text);
+  color: var(--color-icon-primary);
+  border-bottom-color: var(--color-focus-indicator);
 }
 
 .search__input {
@@ -51,13 +59,13 @@
   border: none;
   outline: none; /* replaced by the :focus-within treatment above */
   background: transparent;
-  color: var(--text);
-  font-family: var(--font-ui);
-  font-size: var(--text-body);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-input-text);
 }
 
 .search__input::placeholder {
-  color: var(--text-3);
+  color: var(--color-input-placeholder);
 }
 
 /* ---- results ---- */
@@ -75,46 +83,52 @@
 }
 
 .search__group {
-  padding: var(--space-2) var(--space-2) var(--space-0);
-  font-family: var(--font-ui);
-  font-size: var(--text-overline);
-  font-weight: var(--text-overline-weight);
-  letter-spacing: var(--text-overline-ls);
-  text-transform: var(--text-overline-tt);
-  color: var(--text-3);
+  padding: var(--space-container-padding-small) var(--space-container-padding-small) var(--space-container-padding-xxx-small);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
 }
 
 .search__option {
   display: grid;
-  gap: 2px;
-  padding: var(--space-1) var(--space-2);
+  gap: var(--space-component-gap-x-small);
+  padding: var(--space-component-stack-padding-large) var(--space-component-inline-padding-xx-large);
   cursor: pointer;
 }
 
-.search__option:hover,
+/* Hover is a passing wash; the keyboard-selected row gets the stronger
+   accent-selected fill so the two states read differently. */
+.search__option:hover {
+  background: var(--color-action-passive-subtle-hover);
+}
+
 .search__option[aria-selected="true"] {
-  background: var(--accent-soft);
+  background: var(--color-container-background-accent-selected);
 }
 
 .search__option-title {
-  font-family: var(--font-ui);
-  font-weight: 600;
-  font-size: var(--text-body-sm);
-  color: var(--text);
+  font-family: var(--font-family-component);
+  font-weight: var(--font-weight-component-semibold);
+  font-size: var(--font-size-body-3);
+  color: var(--color-text-primary);
 }
 
-/* <mark> as underline, not the UA's yellow — stays legible in dark mode. */
+/* <mark> as an accent underline, not the UA's yellow — stays legible in
+   both schemes. */
 .search__option-title mark {
   background: transparent;
-  color: inherit;
+  color: var(--color-text-accent);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .search__option-sub {
-  font-size: var(--text-caption);
-  line-height: 1.4;
-  color: var(--text-2);
+  font-size: var(--font-size-body-3);
+  line-height: 1.4; /* tighter than body copy so rows stay compact */
+  color: var(--color-text-secondary);
 }
 
 /* Body-copy snippet, shown in place of the subtitle when the hit was in the
@@ -125,29 +139,29 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  color: var(--text-3);
+  color: var(--color-text-tertiary);
 }
 
-/* Same treatment as the title: underline, never the UA's yellow, which
-   would be the only saturated colour on the page and unreadable in dark. */
+/* Same treatment as the title: accent underline, never the UA's yellow,
+   which would fight the page and be unreadable in dark. */
 .search__option-snippet mark {
   background: transparent;
-  color: var(--text);
-  font-weight: 600;
+  color: var(--color-text-accent);
+  font-weight: var(--font-weight-body-semibold);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .search__option-meta {
-  font-family: var(--font-ui);
-  font-size: var(--text-caption);
-  color: var(--text-3);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  color: var(--color-text-tertiary);
 }
 
 .search__empty {
-  padding: var(--space-2);
-  font-size: var(--text-body-sm);
-  color: var(--text-2);
+  padding: var(--space-container-padding-small);
+  font-size: var(--font-size-body-3);
+  color: var(--color-text-secondary);
 }
 
 /* ---- result count: visually hidden, still announced ---- */
@@ -169,20 +183,20 @@
 .search__hints {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
-  padding: var(--space-1) var(--space-2);
-  border-top: 1px solid var(--border);
-  font-family: var(--font-ui);
-  font-size: var(--text-caption);
-  color: var(--text-3);
+  gap: var(--space-column-gap-small);
+  padding: var(--space-container-padding-xx-small) var(--space-container-padding-small);
+  border-top: 1px solid var(--color-divider-tertiary);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  color: var(--color-text-tertiary);
 }
 
 .search__hints kbd {
-  font-family: var(--font-ui);
-  font-size: 11px;
-  padding: 1px 4px;
-  margin-right: 2px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--bg);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-component-x-small);
+  padding: 1px var(--space-component-inline-padding-x-small);
+  margin-right: var(--space-component-gap-x-small);
+  border: 1px solid var(--color-container-border-primary);
+  border-radius: var(--radius-x-small);
+  background: var(--color-container-background-tertiary);
 }

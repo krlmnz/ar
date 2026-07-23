@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="andean">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Preview — Map Atelier</title>
+<!-- colorscheme bootstrap: runs before first paint so a saved dark
+     preference never flashes light -->
+<script>const t=localStorage.getItem('theme');if(t==='dark')document.documentElement.dataset.colorscheme='dark';</script>
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Rethink+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<link rel="stylesheet" href="/assets/css/andean.css">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/editor/shell.css">
 <link rel="stylesheet" href="css/editor/places.css">

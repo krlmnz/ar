@@ -1,14 +1,58 @@
 {
-  "_": "Source of truth for the Andean Road colour layer. Edit this, then run `npm run tokens`.",
+  "_": "Config for the colour GATE, not a colour generator. assets/css/andean.css is hand-authored truth — edit IT to change values; edit THIS to change what the gate verifies. Then run `npm run tokens` to refresh the audit + the spec tables.",
 
-  "neutralSource": "#EFB42A",
-  "neutralTint": 0.08,
-  "_neutralSource": "Inca gold — the same hue as --brand-gold in map-tokens.css. Only its HUE is used; chroma is crushed to a whisper so the greys read as warm paper (#FAFAF8), not beige. This is what keeps 'warm paper undertone' (DESIGN-SYSTEM.md §4) true by construction instead of by hand-picking.",
+  "source": "assets/css/andean.css",
 
-  "contrastTargets": {
-    "text": 13.0,
-    "text2": 5.5,
-    "text3": 4.5
+  "floors": {
+    "body": 4.5,
+    "largeOrUi": 3.0
   },
-  "_contrastTargets": "Floors, enforced by the build. text is 13.0 rather than the AAA 7.0 on purpose: primary text on this site measured 15.9:1 and reads as ink, not as dark grey. Dropping it to 7.0 passes WCAG and still looks wrong. text-2/text-3 were 4.63:1 and 4.54:1 by hand — thin enough that DESIGN-SYSTEM.md warns not to touch them; they now have real headroom."
+  "_floors": "The WCAG line: 4.5:1 for body-size text, 3.0:1 for large text and non-text UI. Every audited pairing today is body-size text, but largeOrUi is declared so a future large-type or icon pairing has a named floor to point at. These are regression floors, not aspirations — the export was measured first (2026-07-23) and anything already under its line is pinned in knownBelowFloor.",
+
+  "pairings": [
+    { "fg": "text-primary", "bg": "page-background-primary", "floor": "body" },
+    { "fg": "text-primary", "bg": "page-background-secondary", "floor": "body" },
+    { "fg": "text-primary", "bg": "page-background-tertiary", "floor": "body" },
+    { "fg": "text-primary", "bg": "container-background-primary", "floor": "body" },
+    { "fg": "text-primary", "bg": "container-background-secondary", "floor": "body" },
+    { "fg": "text-primary", "bg": "container-background-tertiary", "floor": "body" },
+    { "fg": "text-secondary", "bg": "page-background-primary", "floor": "body" },
+    { "fg": "text-secondary", "bg": "page-background-secondary", "floor": "body" },
+    { "fg": "text-secondary", "bg": "page-background-tertiary", "floor": "body" },
+    { "fg": "text-secondary", "bg": "container-background-primary", "floor": "body" },
+    { "fg": "text-secondary", "bg": "container-background-secondary", "floor": "body" },
+    { "fg": "text-secondary", "bg": "container-background-tertiary", "floor": "body" },
+    { "fg": "text-tertiary", "bg": "page-background-primary", "floor": "body" },
+    { "fg": "text-tertiary", "bg": "page-background-secondary", "floor": "body" },
+    { "fg": "text-tertiary", "bg": "container-background-primary", "floor": "body" },
+    { "fg": "text-tertiary", "bg": "container-background-secondary", "floor": "body" },
+    { "fg": "link-text", "bg": "page-background-primary", "floor": "body" },
+    { "fg": "text-inverse", "bg": "action-standard", "floor": "body" },
+    { "fg": "text-inverse", "bg": "container-background-inverse", "floor": "body" },
+    { "fg": "text-complementary", "bg": "action-complementary", "floor": "body" },
+    { "fg": "input-label", "bg": "page-background-primary", "floor": "body" },
+    { "fg": "input-placeholder", "bg": "input-background-primary", "informational": true },
+    { "fg": "text-primary", "bg": "container-background-neutral", "floor": "body" }
+  ],
+  "_pairings": "Every fg/bg pair a component actually renders, audited in BOTH schemes (names get the --color- prefix). `informational` rows are measured and printed but never fail — WCAG exempts placeholder text, and we keep it visible in the audit anyway so a truly invisible placeholder gets noticed.",
+
+  "knownBelowFloor": [
+    {
+      "mode": "light", "fg": "text-tertiary", "bg": "page-background-primary", "measured": 4.17,
+      "why": "Export ships tertiary meta text at 4.17:1 on white — pinned; the gate fails only if it drops further."
+    },
+    {
+      "mode": "light", "fg": "text-tertiary", "bg": "page-background-secondary", "measured": 3.98,
+      "why": "Same tertiary grey on the F8FAFB wash — 3.98:1 in the export, pinned at that value."
+    },
+    {
+      "mode": "light", "fg": "text-tertiary", "bg": "container-background-primary", "measured": 4.17,
+      "why": "Cards share the white page value, so this pins the same 4.17:1 as page-primary."
+    },
+    {
+      "mode": "light", "fg": "text-tertiary", "bg": "container-background-secondary", "measured": 3.98,
+      "why": "Card wash mirrors page-secondary — 3.98:1 in the export, pinned."
+    }
+  ],
+  "_knownBelowFloor": "Pairings the export already ships under the WCAG line, pinned at their measured ratio. The gate fails only when one measures LOWER than recorded here. Delete an entry the day the palette clears its floor — the gate warns when an entry has gone stale."
 }

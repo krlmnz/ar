@@ -1,6 +1,6 @@
 [build]
-# tokens:check fails the deploy if tokens.css drifted from the engine output —
-# the whole point of the drift detector is that it runs where it can say no.
+# tokens:check fails the deploy if andean.css loses light/dark parity or a
+# contrast pairing regresses — the gate runs where it can say no.
 command = "npm run tokens:check && npm run build"
 publish = "_site"
 

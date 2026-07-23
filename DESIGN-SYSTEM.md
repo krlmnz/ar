@@ -18,10 +18,10 @@ Places are personal recommendations, not database entries. Each entry should rea
 Following Vignelli's axiom: *the grid is the skeleton, type is the voice.* Typography carries 80% of the visual hierarchy. Contrast achieved through size, weight, and tracking — not color.
 
 ### Monochrome Restraint
-Greyscale by default. Color is reserved for future moments: audience segment tints, map pins, interactive data visualizations. When color appears, it should feel like a single accent on a black-and-white photograph.
+Greyscale by default. Color is earned, not decorative: one teal accent where interaction is promised (links, actions, focus), hue on maps and in data visualization where a legend decodes it. When color appears, it should feel like a single accent on a black-and-white photograph.
 
-### Sharp Geometry
-No border-radius. Horizontal rules and clean rectangles as structural elements. The aesthetic is editorial/architectural, not playful. Vignelli would not round corners here.
+### Geometry With Depth
+Radius and elevation are part of the language now — the no-border-radius principle is retired (2026-07-23, see §18). The reason: the site stopped being only a broadsheet when the Atelier took the lead. Application chrome — buttons, inputs, panels, dialogs — earns product affordances, and hard rectangles everywhere made the editor read as a form printed on newsprint. Both live on fixed scales, never ad hoc: `--radius-*` (with `--radius-none` keeping square a deliberate choice — map canvas edges, tables) and `--elevation-*` paired with `--color-shadow`, reserved for surfaces that genuinely float. Horizontal rules and clean rectangles still structure the editorial pages.
 
 ### Content-First
 The writing IS the design. Everything else serves the prose. Strip away decoration. A well-written description of a place needs no badge or badge color.
@@ -33,169 +33,212 @@ Design for both map and list views. Both should feel native, not like one is a r
 
 ## 2. Typography System
 
-Complete type hierarchy with fluid scaling (clamp) for responsive scaling without breakpoints.
+One family — **Rethink Sans** — across five tiers. The serif is retired
+(2026-07-23, see §18): the sans/serif split was carrying a distinction that the
+andean size and weight axes now carry alone. Rethink Sans still says
+"magazine"; the "trust this voice" job the serif used to do now belongs to the
+body tier's generous size and 1.5 line-height. Hierarchy comes from the tier,
+not the family.
 
-### Type Scale
+### Tiers
 
-| Level | Font | Size | Weight | Line Height | Letter Spacing | Usage |
-|-------|------|------|--------|-------------|----------------|-------|
-| **Display** | Rethink Sans | clamp(42px, 5vw + 16px, 72px) | 800 | 1.0 | -0.04em | Homepage title, hero statements |
-| **H1** | Rethink Sans | clamp(32px, 3.5vw + 12px, 52px) | 800 | 1.05 | -0.035em | Page titles, major sections |
-| **H2** | Rethink Sans | clamp(22px, 2vw + 8px, 30px) | 700 | 1.15 | -0.02em | Section headers, guide entry titles |
-| **H3** | Rethink Sans | clamp(18px, 1.2vw + 8px, 22px) | 600 | 1.25 | -0.01em | Place names, subsection titles |
-| **Body** | Source Serif 4 | clamp(16px, 0.5vw + 14px, 18px) | 400 | 1.65 | normal | Editorial prose, place descriptions |
-| **Body SM** | Rethink Sans | clamp(14px, 0.3vw + 12px, 15px) | 400 | 1.55 | normal | Descriptions, metadata, helper text |
-| **Caption** | Rethink Sans | 13px | 400 | 1.4 | normal | Small labels, footnotes, timestamps |
-| **Overline** | Rethink Sans | 11px | 600 | 1.4 | 0.1em | Category labels, section markers |
+Every tier is a token triple — `--font-size-*`, `--font-weight-*`,
+`--line-height-*` — on its family token (`--font-family-display`, `-heading`,
+`-body`, `-component`; the action tier rides `--font-family-component`). All
+four families resolve to Rethink Sans.
 
-### Font Pairing Rationale
+| Tier | Sizes (desktop) | Weight | Line height | Usage |
+|-------|------|--------|-------------|-------|
+| **Display 1–4** | 84 / 72 / 60 / 48px | 400 | 1.2 | Hero statements, homepage title |
+| **Heading 1–6** | 48 / 40 / 34 / 28 / 24 / 20px | 500 | 1.2 | Page titles down to card titles |
+| **Body 1–4** | 20 / 16 / 14 / 12px | 400 (bold: 500) | 1.5 | Ledes, prose, descriptions, micro-meta |
+| **Component x-small–x-large** | 12 / 14 / 16 / 20 / 24px | 400 (semibold: 500) | 1.2 | Interface text: labels, chips, panels |
+| **Action x-small–large** | 12 / 14 / 16 / 20px | 500 | 1.2 | Buttons and controls, by control size |
 
-**Rethink Sans** (geometric grotesque, bold at display sizes) — Says "magazine." Handles all headlines and interface text. The visual authority of the page. Geometric clarity, no serifs, professional restraint.
+Inputs have their own pair: `--font-size-input-text` and
+`--font-size-input-label` (both 14px), with `--font-weight-input-label` and
+`--color-input-label` on the label.
 
-**Source Serif 4** (optical-size variable serif) — Says "trust this voice." Handles reading-heavy content (place descriptions, guides). Optical sizing means the serif detail is fine at large sizes and robust at small sizes. Feels literary, editorial, credible.
+Two weights exist in the entire system: **400 and 500**. The old
+600/700/800 ladder converged on purpose — the display sizes are big enough to
+carry authority without heft (§18).
 
-This pairing echoes the sans/serif split used throughout Condé Nast publications — bold sans for structure, elegant serif for narrative.
+### Responsive scaling
+
+`clamp()` is gone. The token file owns responsiveness: display and heading
+sizes step down inside `andean.css` at its two breakpoints (≤992px and
+≤480px), so a component states its tier once and never carries its own fluid
+math. Body, component and action sizes hold steady across breakpoints.
+
+### What has no token axis
+
+Letter-spacing and text-transform have no andean axis — they stay literal, per
+component, where the design calls for them. The overline pattern is the
+canonical example:
+
+```css
+.hero-overline {
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
+  text-transform: uppercase;  /* no token axis for transform — deliberate literal */
+  letter-spacing: 0.1em;      /* nor for tracking */
+}
+```
+
+Monospace stacks also stay literal (`ui-monospace, SFMono-Regular, "SF Mono",
+Menlo, monospace`) — the export carries no mono family token.
 
 ### Implementation
 
 ```css
-/* CSS Custom Properties */
---font-sans: "Rethink Sans", system-ui, sans-serif;
---font-serif: "Source Serif 4", system-ui, serif;
-
-/* Display text */
-.text-display {
-  font-family: var(--font-sans);
-  font-size: clamp(42px, 5vw + 16px, 72px);
-  font-weight: 800;
-  line-height: 1.0;
-  letter-spacing: -0.04em;
-}
-
-/* Use clamp() throughout for fluid scaling */
 h1 {
-  font-family: var(--font-sans);
-  font-size: clamp(32px, 3.5vw + 12px, 52px);
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.035em;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-heading-1);   /* 48 → 40 → 34 via the token file */
+  font-weight: var(--font-weight-heading-bold);
+  line-height: var(--line-height-heading);
 }
 ```
+
+Fonts are self-hosted: `assets/css/fonts.css` loads Rethink Sans from
+`/assets/fonts/` with absolute paths, safe to import from any page depth. No
+Google Fonts request anywhere.
 
 ---
 
 ## 3. Spacing Scale
 
-4px base unit. Geometric progression for predictable rhythm.
+The single numbered ladder is retired. The andean layer spaces by **role**:
+seven families whose names describe the job, so a reader can tell a card's
+padding from a grid gutter without looking at values. The grid is very
+important — context decides the family:
 
-```css
---space-0: 4px;   /* Tight component internals, micro-spacing */
---space-1: 8px;   /* Element gaps, small padding */
---space-2: 16px;  /* Component padding, paragraph spacing */
---space-3: 24px;  /* Section internals, card padding */
---space-4: 32px;  /* Section padding, major spacing */
---space-5: 48px;  /* Section dividers, breathing room */
---space-6: 64px;  /* Major section breaks */
---space-7: 96px;  /* Page-level spacing, dramatic */
---space-8: 128px; /* Full-screen whitespace, visual climax */
-```
+| Context | Family | Steps |
+|---|---|---|
+| Generic margins between blocks | `--space-{x-small…x-large}` | 8 / 12 / 16 / 24 / 40px |
+| Container padding (cards, panels, dialogs) | `--space-container-padding-{xxx-small…xxx-large}` | 4–60px |
+| Intra-component padding, horizontal | `--space-component-inline-padding-{xxx-small…xxx-large}` | 0–20px |
+| Intra-component padding, vertical | `--space-component-stack-padding-{xx-small…x-large}` | 0–10px |
+| Icon↔label and tight element gaps | `--space-component-gap-{x-small…large}` | 2 / 4 / 8 / 12px |
+| Grid/flex `column-gap` | `--space-column-gap-{xx-small…x-large}` | 4 / 8 / 16 / 20 / 24 / 40px |
+| Grid/flex `row-gap`, stacked-list rhythm | `--space-row-gap-{x-small…x-large}` | 8 / 16 / 20 / 24 / 40px |
+| Page gutter (`.wrap` horizontal padding) | `--space-page-inline` | 20px |
 
 **Usage examples:**
-- `.place-entry` padding: var(--space-2) var(--space-3)
-- Section top margin: var(--space-6)
-- Page top padding: var(--space-7)
-- Between place listings: var(--space-4) margin-top
+- Card padding: `var(--space-container-padding-small)`
+- Button padding: `var(--space-component-stack-padding-medium) var(--space-component-inline-padding-xx-large)`
+- Grid gutters: `gap: var(--space-row-gap-medium) var(--space-column-gap-medium)`
+- Section top margin: `var(--space-x-large)`
+- Beyond the scale's 60px ceiling, compose it: `calc(var(--space-x-large) * 2)` with a why-comment
+
+`--page-width` (1200px) and `--content-width` (720px) are **layout constants,
+not theme tokens** — they live in `main.css`'s own `:root` block. They are
+measures of the page and would mean the same thing under any theme.
 
 ---
 
 ## 4. Color System
 
-> Source of truth is `scripts/tokens.config.json`. The colour values in
-> `assets/css/tokens.css` are **generated** from it by `scripts/build-tokens.js`,
-> and the tables in this section are generated by the same script. Do not
-> hand-edit either — change the config and run `npm run tokens`.
+> Source of truth is `assets/css/andean.css` — a **hand-authored export**,
+> adopted 2026-07-23, scoped to `[data-theme="andean"]` with the dark scheme
+> under `[data-theme="andean"][data-colorscheme="dark"]`. Nothing generates it;
+> to change a colour, you edit it, and then the gate measures what you did.
 >
-> `npm run tokens:check` re-solves the palette, compares it against the file on
-> disk, and exits non-zero if they differ. A hand-edit or a stale rebuild fails
-> the check.
+> The gate is `scripts/build-tokens.js`, which changed jobs with the adoption:
+> it no longer writes the palette, it **verifies** it. `npm run tokens:check`
+> parses `andean.css`, confirms the light and dark blocks declare the same set
+> of `--color-*` names, confirms every value parses as a colour, and
+> re-measures contrast across the real foreground/surface pairings in both
+> schemes. Floors live in `scripts/tokens.config.json` at the WCAG line (4.5
+> body, 3.0 large-or-UI); pairings that measured below the line on adoption
+> day are allowlisted in `knownBelowFloor` with their measured values — so the
+> gate fails on **regression**, never on history. Netlify still runs the check
+> before every deploy.
 
-Every foreground below is **solved** against each surface it actually renders
-on — `--bg`, `--surface`, and `--accent-soft` — not just against the page
-background. That distinction is not academic: the previous hand-picked
-`--text-2`/`--text-3` measured 4.63:1 and 4.54:1 on `--bg` but only 4.32:1 and
-4.24:1 on `--accent-soft`, the row-hover background they also sit on. They had
-been failing AA on every hover row.
+### Roles, not primitives
 
-### Primitives — there are none
-
-There is no `--gray-*`, `--white` or `--black` in the CSS any more. The greyscale
-ramp still exists, warm-tinted and solved, but it lives **inside the generator**;
-its rungs are recorded in `scripts/tokens.audit.json` if you need to read them.
-
-Nothing consumed a primitive except two rules, and both were bugs: `.map-container`
-and `.placeholder-img` used `background: var(--gray-100)`. Primitives do not flip
-between themes, so those blocks rendered near-white on a dark page — the same
-failure recorded in §18 for `.hero-overline`. They now use `--accent-soft`, which
-is the identical colour in light mode and correct in dark.
-
-Emitting a palette nobody references invites exactly that mistake. **Components
-consume semantic tokens. That is the whole API.**
+There is still no `--gray-*`, `--white` or `--black`. The andean layer exposes
+**role-named tokens only** — `--color-text-primary`,
+`--color-container-background-primary`, `--color-action-standard`,
+`--color-input-border-error`, and so on. Every role has a dark value, declared
+in the same file; pick the token whose name describes the job and both schemes
+come along for free. A palette nobody references is a trap (§18, 2026-07-21) —
+so there isn't one. **Components consume roles. That is still the whole API.**
 
 ### Semantic tokens
 
-These are what components use. Every one has a dark-mode value.
+The tables between the markers below are spliced by the gate's write mode
+(`npm run tokens`) and refreshed whenever it runs — do not hand-edit them.
 
 <!-- GENERATED:DOC-SEMANTIC:START -->
 | Token | Light | Dark | Usage |
 |---|---|---|---|
-| `--bg` | #FAFAF8 | #111010 | Page background |
-| `--surface` | #FFFFFF | #2D2C29 | Cards, elevated surfaces |
-| `--text` | #1D1C1B | #FAFAF8 | Primary text, headlines |
-| `--text-2` | #5A5751 | #ADABA6 | Secondary text, descriptions |
-| `--text-3` | #726D65 | #95938D | Overlines, captions, meta |
-| `--border` | #E4E3E1 | #5A5751 | Borders, dividers |
-| `--border-subtle` | #F2F2F0 | #2D2C29 | Barely-visible separators |
-| `--accent-hover` | #5A5751 | #ADABA6 | Hover state |
-| `--accent-soft` | #F2F2F0 | #2D2C29 | Tinted backgrounds, row hover |
+| `--color-page-background-primary` | #FFFFFF | #181C1F | Page background |
+| `--color-page-background-secondary` | #F8FAFB | #21262A | Alternate page wash (app canvas, banded sections) |
+| `--color-page-background-tertiary` | #F0F4F6 | #2B3135 | Deep-set page regions |
+| `--color-container-background-primary` | #FFFFFF | #21262A | Cards, panels, elevated surfaces |
+| `--color-container-background-secondary` | #F8FAFB | #2B3135 | Nested surfaces inside cards |
+| `--color-container-background-tertiary` | #F0F4F6 | #3C4348 | Tinted blocks, code backgrounds |
+| `--color-text-primary` | #21262A | #FFFFFF | Primary text, headlines |
+| `--color-text-secondary` | #4C555B | #F0F4F6 | Secondary text, descriptions |
+| `--color-text-tertiary` | #727E85 | #D5DEE3 | Overlines, captions, meta |
+| `--color-link-text` | #017E89 | #00B3C2 | Links (hover/active/visited have their own tokens) |
+| `--color-action-standard` | #017E89 | #00B3C2 | Filled actions — pair with --color-text-complementary |
+| `--color-focus-indicator` | #017E89 | #00B3C2 | Focus rings, 2px |
 <!-- GENERATED:DOC-SEMANTIC:END -->
 
 **Measured contrast** — worst case across every surface the token renders on:
 
 <!-- GENERATED:DOC-CONTRAST:START -->
-| | Light | Dark | Floor |
+| Foreground | Light (worst) | Dark (worst) | Floor |
 |---|---|---|---|
-| `--text` | 15.18:1 | 13.36:1 | 13.0:1 |
-| `--text-2` | 6.42:1 | 6.09:1 | 5.5:1 |
-| `--text-3` | 4.58:1 | 4.55:1 | 4.5:1 |
+| `--color-text-primary` | 12.44:1 | 10.05:1 | 4.5:1 |
+| `--color-text-secondary` | 6.88:1 | 9.09:1 | 4.5:1 |
+| `--color-text-tertiary` | 3.98:1\* | 9.66:1 | 4.5:1 |
+| `--color-link-text` | 4.83:1 | 6.72:1 | 4.5:1 |
+| `--color-text-inverse` | 4.83:1 | 5.98:1 | 4.5:1 |
+| `--color-text-complementary` (on action-standard) | 5.71:1 | 13.18:1 | 4.5:1 |
+| `--color-input-label` | 5.71:1 | 10.70:1 | 4.5:1 |
+| `--color-input-placeholder` (on its input) | 1.98:1 | 3.66:1 | — (informational) |
+
+\* ships below the WCAG floor — pinned in `tokens.config.json` `knownBelowFloor`; the gate fails only on further regression.
 <!-- GENERATED:DOC-CONTRAST:END -->
 
-These are floors enforced by the build, not observations. `--text` is held to
-13:1 rather than the AAA 7:1 because primary text on this site reads as ink,
-not as dark grey — 7:1 passes WCAG and still looks wrong.
+These are regression floors enforced by the gate, not observations: the file
+was measured on adoption day, the floors were set at the WCAG line, and
+anything that measured below it is recorded in `knownBelowFloor` rather than
+papered over. Full measurements for every audited pairing live in
+`scripts/tokens.audit.json`.
 
 ### Color philosophy
 
-**Monochrome first.** Greyscale supports the editorial voice — the writing is the
-color. Hierarchy comes from typography and spacing.
+**Neutral first, one accent.** Greyscale still carries the reading experience —
+the writing is the color. The one accent is the andean teal, and it is spent
+only where interaction is promised: links, actions, focus, selection.
 
-**Future color is intentional.** Map pins, audience-segment tints, and data
-visualisation are where color is earned. When it appears it should read like a
-single accent on a black-and-white photograph. No decorative color.
+**Data color is decoded, never decorative.** Visualisation draws from its own
+`--color-data-*` palettes and is only legitimate under a legend or a list that
+repeats the same colours (§17). Prose stays neutral.
 
 ### Implementation
 
-The theme is an **attribute on `<html>`**, not a media query — it has to be
-user-switchable and remembered.
+The theme is **two attributes on `<html>`**, not a media query — it has to be
+user-switchable and remembered:
+
+- `data-theme="andean"` — the theme *name*, static, stamped in `base.njk`.
+- `data-colorscheme="dark"` — the *scheme*, toggled at runtime.
 
 ```css
-:root            { --bg: var(--gray-50);  --text: var(--gray-900); /* … */ }
-[data-theme="dark"] { --bg: #111416;      --text: #F0F0EE;         /* … */ }
+[data-theme="andean"]                          { --color-text-primary: #21262A; /* … */ }
+[data-theme="andean"][data-colorscheme="dark"] { --color-text-primary: #FFFFFF; /* … */ }
 ```
 
-The toggle writes `localStorage.theme` and sets `document.documentElement.dataset.theme`.
-The read-back runs as a **blocking inline script in `<head>`** (see
-`layouts/base.njk`) so the saved theme is applied before first paint — moving it
-to the end of `<body>` reintroduces a white flash for dark-mode users.
+The toggle flips `document.documentElement.dataset.colorscheme` and writes
+`localStorage.theme` — key `'theme'`, value `'dark'`, both unchanged from the
+old single-attribute system on purpose, so every visitor's saved preference
+survived the migration. The read-back runs as a **blocking inline script in
+`<head>`** (see `layouts/base.njk`) so the saved scheme is applied before first
+paint — moving it to the end of `<body>` reintroduces a white flash for
+dark-mode users.
 
 ---
 
@@ -212,15 +255,15 @@ to the end of `<body>` reintroduces a white flash for dark-mode users.
 ### Padding & Margins
 
 **Desktop (>1200px):**
-- Page horizontal padding: 32px
-- Section padding: var(--space-4) horizontal
+- Page gutter: var(--space-page-inline)
+- Section padding: var(--space-container-padding-x-large) horizontal
 
 **Tablet (641–1200px):**
-- Page horizontal padding: 32px
-- Content reflows naturally via fluid type (no explicit breakpoint)
+- Page gutter: var(--space-page-inline)
+- Content reflows naturally (the token file's ≤992px block handles type)
 
 **Mobile (≤640px):**
-- Page horizontal padding: 16px
+- Page gutter: var(--space-page-inline)
 - Stacked layouts
 - Full-width sections
 
@@ -231,7 +274,7 @@ to the end of `<body>` reintroduces a white flash for dark-mode users.
 - Editorial entries (not cards) for "Places" and "Guides"
 - Hero with overline → title → lede
 - No cards, no database-style layouts
-- Breathing room between sections (var(--space-7) margin)
+- Breathing room between sections (`calc(var(--space-x-large) * 2)` margin — past the scale's ceiling, composed on purpose)
 
 #### Place Pages
 - Narrow reading column (720px, centered)
@@ -255,7 +298,7 @@ to the end of `<body>` reintroduces a white flash for dark-mode users.
 ### Grid Philosophy
 
 No CSS Grid framework. Responsive behavior comes from:
-1. Fluid typography (clamp) scaling naturally with viewport
+1. The type tiers stepping down at the token file's 992/480 breakpoints
 2. Max-width containers for text (var(--content-width), --column-narrow)
 3. Padding adjustments at mobile breakpoint
 4. Flexbox for simple one-dimensional layouts
@@ -267,6 +310,11 @@ This keeps the code simple and the design focused.
 ## 6. Components
 
 All components are documented with structure, states, and usage guidelines.
+
+> *(stale token names — see §18, 2026-07-23)* The CSS excerpts below predate
+> the andean adoption and still show the old `--text`/`--bg`-era vocabulary.
+> Structure, class names and usage guidance hold; for the current token per
+> role, read §2–§4 — the shipped sheets are the reference for exact rules.
 
 ### Header
 
@@ -634,21 +682,32 @@ Every interactive element must support these states:
 | State | Treatment |
 |-------|-----------|
 | **Default** | As designed above |
-| **Hover** | Documented per component (underline, background shift, border darken) |
-| **Focus-visible** | 2px solid var(--text), 2px offset |
-| **Active** | Slight color/opacity change (opacity 0.85) |
-| **Disabled** | opacity 0.5, pointer-events: none |
+| **Hover** | The family's `-hover` token (`--color-action-standard-hover`, `--color-input-border-primary-hover`, …) |
+| **Focus-visible** | 2px solid var(--color-focus-indicator), 2px offset |
+| **Active** | The family's `-active` token |
+| **Disabled** | opacity: var(--opacity-disabled), pointer-events: none — plus the `-disabled` input colours where they exist |
 | **Loading** | Spinner or shimmer (context-dependent) |
 
-### Transitions
+### Motion
+
+The single `--transition` is retired. Motion is an explicit **duration/ease
+pair**, chosen by what the motion is doing — each verb has its own curve:
+
+| Motion | Pair |
+|---|---|
+| Colour/opacity hovers, fades | `var(--duration-fade-fast) var(--ease-fade)` |
+| Things appearing (dialogs, panels, toasts in) | `var(--duration-appear-*) var(--ease-appear)` |
+| Things disappearing | `var(--duration-disappear-*) var(--ease-disappear)` |
+| Movement and size changes | `var(--duration-transform-fast) var(--ease-transform)` |
 
 ```css
---transition: 150ms ease;        /* Default: buttons, hovers, borders */
---transition-slow: 300ms ease;   /* Slower: layout shifts, visibility */
-
 /* Use throughout */
-transition: background var(--transition), color var(--transition);
+transition: background var(--duration-fade-fast) var(--ease-fade),
+            color var(--duration-fade-fast) var(--ease-fade);
 ```
+
+The `-emphasize` variants (longer, overshooting curves) exist for moments that
+should be *felt*; spend them sparingly.
 
 ### Reduced Motion
 
@@ -675,29 +734,30 @@ Build mobile layouts first, then enhance for larger screens.
 ### Breakpoint Logic
 
 **Mobile (≤640px):**
-- Page padding: 16px
-- Typography: Scales down via clamp() (no explicit media query needed)
+- Page gutter: var(--space-page-inline)
+- Typography: display/heading tiers step down inside the token file (its ≤480px block)
 - Sections stack vertically
 - Full-width images and maps
 - Single-column layout
 
 **Tablet (641–1200px):**
-- Page padding: 32px
-- Content reflows naturally (fluid typography handles scaling)
+- Page gutter: var(--space-page-inline)
+- Content reflows naturally (the token file's ≤992px block handles type)
 - Two-column layouts where applicable
-- No explicit tablet-only styles — let clamp() do the work
+- No explicit tablet-only type styles — the token breakpoints do the work
 
 **Desktop (>1200px):**
-- Page padding: 32px
+- Page gutter: var(--space-page-inline)
 - Max-width containers (var(--page-width): 1200px)
 - Two-column layouts with sidebars (future)
 
 ### Media Query Strategy
 
 ```css
-/* Avoid media queries for type scaling — use clamp() */
+/* Type never needs a media query in a component — andean.css steps
+   the display/heading sizes itself at 992px and 480px. */
 h1 {
-  font-size: clamp(32px, 3.5vw + 12px, 52px);
+  font-size: var(--font-size-heading-1);
 }
 
 /* Only use @media for layout changes */
@@ -707,15 +767,11 @@ h1 {
     flex-direction: column;
   }
 }
-
-/* Dark mode is the exception */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #111111;
-    /* ... */
-  }
-}
 ```
+
+Dark mode is **not** a media query — it is the `data-colorscheme` attribute
+(§4). `prefers-color-scheme` is deliberately ignored: the choice belongs to
+the reader, and it is remembered.
 
 ### Touch Targets
 
@@ -753,7 +809,7 @@ On mobile, ensure all interactive elements are at least 44×44px (WCAG 2.1 AAA).
 
 ```css
 :focus-visible {
-  outline: 2px solid var(--text);
+  outline: 2px solid var(--color-focus-indicator);
   outline-offset: 2px;
 }
 
@@ -763,10 +819,14 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--text);
+  outline: 2px solid var(--color-focus-indicator);
   outline-offset: 2px;
 }
 ```
+
+Focus has its own token — `--color-focus-indicator`, the andean teal in both
+schemes — so focus reads as interaction, not as ink that happens to have a box
+around it.
 
 **Never** use `outline: none` without a visible focus alternative.
 
@@ -774,11 +834,10 @@ textarea:focus-visible {
 
 All text/background combinations must meet **WCAG AA** (4.5:1 for normal text, 3:1 for large text).
 
-Tested combinations:
-- --text (#171717) on --bg (#FAFAF8): 19.1:1 ✓
-- --text-2 (#525252) on --bg (#FAFAF8): 7.5:1 ✓
-- --text-3 (#A3A3A1) on --bg (#FAFAF8): 4.6:1 ✓
-- --text (#F0F0EE) on --bg (#111111): 19.1:1 ✓ (dark mode)
+Contrast is enforced by the deploy gate, not by a list in this document:
+`npm run tokens:check` re-measures every audited foreground/surface pairing in
+both schemes on every build (§4), and the measured values are recorded in
+`scripts/tokens.audit.json`.
 
 ### Print Stylesheet
 
@@ -899,6 +958,16 @@ map is relative to the tiles under it. The engine stamps `data-map-theme` on
 (`mapbox.styleDark`, stock `dark-v11` until a designed twin exists), and the
 theme toggle triggers `map.setStyle()` + a route redraw so GL layers re-read
 their CSS custom properties.
+
+Two aliases changed with the andean adoption (2026-07-23); the exemption did
+not. The categorical ramp `--viz-1..8` now **aliases
+`--color-data-category-1..8`** — one source of categorical truth, flipping with
+the page scheme, which tracks the basemap in practice because a dark basemap is
+always configured. And the `--panel-*` furniture aliases the andean container
+tokens, so panels flip with the page like any other surface. The `--map-*`
+chrome itself stays literal on the `data-map-theme` axis (values harmonized to
+the andean neutrals): legibility on a map is still relative to the tiles under
+it.
 
 ### Performance
 
@@ -1082,94 +1151,59 @@ andean-road/
 
 ## 13. Developer Quick Start
 
-### CSS Setup
+### CSS
 
-1. Define custom properties at root:
+Tokens are never defined by hand in a component sheet. `main.css` opens with
+the import chain — order matters, tokens before consumers:
+
 ```css
-:root {
-  --font-sans: "Rethink Sans", system-ui, sans-serif;
-  --font-serif: "Source Serif 4", system-ui, serif;
-
-  --space-0: 4px;
-  --space-1: 8px;
-  --space-2: 16px;
-  /* ... */
-
-  --page-width: 1200px;
-  --content-width: 720px;
-
-  --transition: 150ms ease;
-  --transition-slow: 300ms ease;
-}
+@import url('fonts.css');             /* self-hosted Rethink Sans */
+@import url('andean.css');            /* THE token layer — hand-authored (§4) */
+@import url('andean-components.css'); /* the token vocabulary, implemented */
+@import url('map-tokens.css');        /* cartography axis — basemap-keyed (§10) */
+@import url('map-layouts.css');       /* map page furniture */
 ```
 
-2. Import Google Fonts (or host locally):
-```css
-@import url('https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;600&display=swap');
-```
+Layout constants that are measures rather than theme (`--page-width`,
+`--content-width`) live in `main.css`'s own `:root` block, with a comment
+saying why they are not tokens.
 
-3. Build components modularly:
-```css
-/* index.css */
-@import './theme.css';         /* Color variables */
-@import './type.css';          /* Typography defaults */
-@import './layout.css';        /* Page layout */
-@import './components.css';    /* Component styles */
-@import './utilities.css';     /* Helper classes */
-@import './print.css';         /* Print styles */
-```
+No Google Fonts. `assets/css/fonts.css` loads Rethink Sans from
+`/assets/fonts/` with absolute paths, so it is safe to import from any page
+depth — the Atelier shells use the same file.
 
-### Template Setup (Nunjucks)
+### Theme wiring
 
-1. Base layout:
-```nunjucks
-<!DOCTYPE html>
-<html lang="en" data-theme="light">
+`layouts/base.njk` is canonical — there is no separate `theme.js`. The shape:
+
+```html
+<html lang="en" data-theme="andean">   <!-- static theme name, never toggled -->
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Andean Road{% endblock %}</title>
-  <link rel="stylesheet" href="/assets/css/index.css">
+  <script>
+    /* blocking, before first paint: restore the saved scheme */
+    const t = localStorage.getItem('theme');
+    if (t === 'dark') document.documentElement.dataset.colorscheme = 'dark';
+  </script>
+  <link rel="stylesheet" href="/assets/css/main.css">
 </head>
-<body>
-  {% include "partials/header.njk" %}
-  <main id="main">
-    {% block content %}{% endblock %}
-  </main>
-  {% include "partials/footer.njk" %}
-  <script src="/assets/js/theme.js"></script>
-</body>
-</html>
 ```
 
-2. Place entry partial:
-```nunjucks
-{# _includes/partials/place-entry.njk #}
-<a href="{{ place.url }}" class="place-entry">
-  <span class="place-entry__overline">{{ place.type | upper }}</span>
-  <h3 class="place-entry__name">{{ place.name }}</h3>
-  <p class="place-entry__description">{{ place.description }}</p>
-  <p class="place-entry__meta">{{ place.cost_level }} | {{ place.duration }}</p>
-</a>
-```
+The global `toggleTheme()` (declared in `base.njk`, invoked from the header's
+`onclick`) flips `dataset.colorscheme`, writes `localStorage.theme`, and
+dispatches the `themechange` CustomEvent the map engine listens for. The
+localStorage key is `'theme'` and the dark value is `'dark'` — unchanged from
+the old system, deliberately, so returning visitors keep their preference.
 
-### JavaScript
+### Rules of consumption
 
-Minimal JS. Use custom elements and web standards:
-
-```javascript
-// Theme toggle
-document.querySelector('.theme-toggle').addEventListener('click', () => {
-  const html = document.documentElement;
-  const newTheme = html.dataset.theme === 'light' ? 'dark' : 'light';
-  html.dataset.theme = newTheme;
-  localStorage.setItem('theme', newTheme);
-});
-
-// Restore saved theme
-const saved = localStorage.getItem('theme') || 'light';
-document.documentElement.dataset.theme = saved;
-```
+- UI chrome consumes andean tokens only: `--color-*`, `--font-*`, `--space-*`,
+  `--radius-*`, `--elevation-*`, `--duration-*`/`--ease-*`. A raw hex in
+  chrome is a bug.
+- Elevation tokens carry no colour — always pair them:
+  `box-shadow: var(--elevation-level-2) var(--color-shadow)`.
+- The exceptions: map chrome on the `data-map-theme` axis (§10), data/content
+  palettes that *are* the thing displayed, the print block, and alpha
+  hairlines over user-picked colours (§18, 2026-07-23).
 
 No framework required. No build tool unless you need PostCSS.
 
@@ -1630,9 +1664,69 @@ did use (`--gray-100`) was broken in dark mode the whole time.
 
 ---
 
+**2026-07-23 — one token language: adopt andean.css, retire the generated palette**
+
+- **`assets/css/andean.css` is the source of truth now** — a hand-authored
+  design export carrying the full vocabulary: colour roles, five type tiers,
+  seven spacing families, radius, elevation, motion, opacity. The generated
+  `assets/css/tokens.css` and its config-driven greyscale are deleted; every
+  sheet, template and JS template-string consumes andean roles directly.
+- **The export shipped with its responsive type dead.** It emitted the desktop
+  font-size block *after* its max-width media queries — same selector, same
+  specificity, later in source, so every breakpoint override lost — and 480px
+  before 992px, so the tablet block won at phone widths. The adopted file
+  reorders the cascade base → 992 → 480; the values themselves are verbatim
+  from the export.
+- **The theme attribute split in two.** `data-theme="andean"` is the static
+  theme name; the scheme moved to `data-colorscheme="dark"` on the same
+  element. The localStorage key (`'theme'`) and value (`'dark'`) are unchanged
+  on purpose — every visitor's saved preference survives — and the
+  `themechange` event contract with the map engine is untouched.
+- **The Atelier gained live dark mode.** Its old tokens file carried dormant
+  `[data-theme="dark"]` blocks that nothing could ever activate; they died with
+  the file. All three shells now stamp `data-theme="andean"` and bootstrap
+  `data-colorscheme` from the same `'theme'` key as the site, so the editor
+  flips for real, for the first time.
+- **`scripts/build-tokens.js` changed jobs: generator → gate.** It no longer
+  writes CSS. It verifies the light and dark blocks declare the same
+  `--color-*` set, that every value parses as a colour, and that contrast over
+  the real foreground/surface pairings has not regressed — floors sit at the
+  WCAG line in `tokens.config.json`, and pairings that measured below it on
+  adoption day live in a `knownBelowFloor` allowlist with their measured
+  values, so the gate fails on regression, never on day one. The Netlify
+  command is unchanged.
+- **Ink inversion became an action idiom.** `background: var(--text);
+  color: var(--bg)` was never about text — filled buttons, the skip link,
+  selected tabs and toasts were actions or inverse surfaces in disguise.
+  Actions now take an `--color-action-*` family with
+  `--color-text-complementary`; non-action inverse chips take
+  `--color-container-background-inverse` + `--color-text-inverse`. Mapping
+  that idiom mechanically would have painted buttons as paragraphs.
+- **Sanctioned redesign deltas, not drift:** links and actions go teal; radius
+  and elevation enter the language (§1); the 600/700/800 weight ladder
+  converges on 400/500; type sizes map by semantic level, with `clamp()`
+  retired for the token file's 992/480 breakpoints; and error/warning states
+  gain hue (`--color-input-*-error`, `--color-action-negative*`) where the old
+  system could only darken. Each was chosen, none inherited by accident.
+- **Exemptions retained:** map chrome stays literal on the basemap-keyed
+  `data-map-theme` axis (values harmonized to the andean neutrals, §10);
+  content/data palettes — the Pantone blob, ColorBrewer ramps, loom threads,
+  svg-editor artwork — are the data being displayed, not styling; the print
+  block keeps literal white/black; and alpha hairlines over user-picked
+  colours stay colour-agnostic by design.
+
+**Rule this produced:** UI chrome consumes andean tokens only — `--color-*`,
+`--font-*`, `--space-*`, `--radius-*`, `--elevation-*`,
+`--duration-*`/`--ease-*` — and a raw hex in chrome is a bug, not a shortcut.
+Pick the token whose *name describes the role* and both schemes come along for
+free. The exceptions are the basemap-keyed map chrome and palettes that are
+themselves the content.
+
+---
+
 ## Summary
 
-The Andean Road design system is **type-first, editorial, and restrained**. It reflects the voice of a bilingual friend sharing personal recommendations, not a travel database. Every design choice — from monochrome color to sharp geometry to the choice of fonts — serves clarity and the reading experience.
+The Andean Road design system is **type-first, editorial, and restrained**. It reflects the voice of a bilingual friend sharing personal recommendations, not a travel database. Every design choice — from the restrained palette to the tokenized geometry to one family doing five jobs — serves clarity and the reading experience.
 
 This system is built for growth: maps, color, and interactive features are planned and structured to layer on top without breaking what works today.
 
@@ -1640,7 +1734,7 @@ This system is built for growth: maps, color, and interactive features are plann
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** March 28, 2026
+**Document Version:** 2.0 — andean token adoption
+**Last Updated:** July 23, 2026
 **Maintained By:** Design System Owner
 **Status:** Complete & ready for implementation

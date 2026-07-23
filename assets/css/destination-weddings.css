@@ -9,16 +9,16 @@
    furniture (.tool-section, .tool-toc, .tool-figures,
    .tool-table, .tool-dot, .tool-bar, .tool-entries).
 
-   No colour is declared here, and none is inherited from the
-   original standalone page. That page carried a blue accent, a
-   paper/ink palette, and green/red "opportunity vs challenge"
-   cards; all of it is gone. There is no figure on this page to
-   decode — nothing here is data with a legend — so under
-   DESIGN-SYSTEM.md §4 nothing earns hue. The old red/amber/green
-   opportunity scores are now one tabular display number plus a
-   greyscale .tool-bar, and the old coloured card borders are now
-   the position and weight of a .tool-entry. Contrast comes from
-   size, weight and tracking.
+   No colour is declared here beyond divider greys, and none is
+   inherited from the original standalone page. That page carried
+   a blue accent, a paper/ink palette, and green/red "opportunity
+   vs challenge" cards; all of it is gone. There is no figure on
+   this page to decode — nothing here is data with a legend — so
+   under DESIGN-SYSTEM.md §4 nothing earns hue. The old
+   red/amber/green opportunity scores are now one tabular display
+   number plus a hueless .tool-bar, and the old coloured card
+   borders are now the position and weight of a .tool-entry.
+   Contrast comes from size, weight and tracking.
 
    What's left below is only what neither file covers: the
    cover's dot-separated meta strip, paragraph rhythm inside a
@@ -35,16 +35,16 @@
 .dw .dw-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: var(--space-column-gap-small);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.08em; /* deliberate — wider than the overline pattern, cover-only */
   max-width: var(--content-width);
 }
 
 .dw .dw-meta span + span::before {
   content: "·";
-  margin-right: var(--space-2);
-  color: var(--border);
+  margin-right: var(--space-medium);
+  color: var(--color-divider-tertiary);
 }
 
 /* ── Multi-paragraph blocks ────────────────────────────────── */
@@ -52,26 +52,26 @@
    cards and the deep dives run to several, so they need the
    prose paragraph rhythm without the prose measure. */
 .dw .callout p {
-  font-family: var(--font-body);
-  font-size: var(--text-body);
-  line-height: var(--text-body-lh);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-2);
+  line-height: var(--line-height-body);
 }
 
-.dw .faq-item__a p + p { margin-top: var(--space-2); }
+.dw .faq-item__a p + p { margin-top: var(--space-medium); }
 
 /* ── Pull-quote attribution ────────────────────────────────── */
 /* .prose blockquote is styled site-wide; <cite> inside one isn't,
    and inline it collides with the last line of the quote. */
 .dw .prose blockquote cite {
   display: block;
-  margin-top: var(--space-2);
-  font-family: var(--font-ui);
+  margin-top: var(--space-medium);
+  font-family: var(--font-family-component);
   font-style: normal;
-  font-size: var(--text-overline);
-  font-weight: var(--text-overline-weight);
-  text-transform: var(--text-overline-tt);
-  letter-spacing: var(--text-overline-ls);
-  color: var(--text-3);
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-tertiary);
 }
 
 /* ── Persona entries ───────────────────────────────────────── */
@@ -80,13 +80,13 @@
    used for real emphasis elsewhere on the page stay inline. */
 .dw .dw-personas .tool-entry__body strong {
   display: block;
-  margin-top: var(--space-1);
-  font-family: var(--font-ui);
-  font-size: var(--text-overline);
-  font-weight: var(--text-overline-weight);
-  text-transform: var(--text-overline-tt);
-  letter-spacing: var(--text-overline-ls);
-  color: var(--text-3);
+  margin-top: var(--space-x-small);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-tertiary);
 }
 
 /* ── Opportunity score ─────────────────────────────────────── */
@@ -94,12 +94,11 @@
    the comparing. Display weight and tabular figures replace the
    red/amber/green banding the original used. */
 .dw .dw-score {
-  font-family: var(--font-display);
-  font-size: var(--text-h3);
-  font-weight: 800;
-  letter-spacing: var(--text-h3-ls);
-  line-height: 1;
-  color: var(--text);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-heading-3);
+  font-weight: var(--font-weight-heading-bold);
+  line-height: 1; /* a bare number — no leading to protect */
+  color: var(--color-text-primary);
   font-variant-numeric: tabular-nums;
 }
 
@@ -108,18 +107,20 @@
 .dw .dw-jtbd th:not(:first-child),
 .dw .dw-jtbd td:not(:first-child) { white-space: nowrap; }
 
-.dw .dw-jtbd td:first-child { font-weight: 400; color: var(--text); }
+.dw .dw-jtbd td:first-child { font-weight: var(--font-weight-body); color: var(--color-text-primary); }
 
 /* ── Feature matrix ────────────────────────────────────────── */
 /* Dots read as a grid, so centre them under their headings. */
 .dw .dw-matrix th:not(:first-child),
-.dw .dw-matrix td:not(:first-child) { text-align: center; padding-right: var(--space-1); }
+.dw .dw-matrix td:not(:first-child) { text-align: center; padding-right: var(--space-component-inline-padding-medium); }
 
 .dw .dw-matrix { min-width: 720px; }
 
 /* ── Closing rule ──────────────────────────────────────────── */
+/* 60 is the largest step on the scale — close enough to the old
+   64px-class gap that the sign-off still sits apart. */
 .dw-end {
   text-align: center;
   font-style: italic;
-  margin-top: var(--space-6);
+  margin-top: var(--space-container-padding-xxx-large);
 }

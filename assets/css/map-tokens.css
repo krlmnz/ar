@@ -1,46 +1,50 @@
 /* ══════════════════════════════════════════════════════════════════════════
    map-tokens.css — cartography layer
    ──────────────────────────────────────────────────────────────────────────
-   ADDITIVE ONLY. Every name here is new; nothing in tokens.css is redefined.
-   The site's --space-*, --radius and --text-* scales are deliberately left
-   alone — 70+ pages are built on them.
-
-   Hues are the Andean palette from the shared design system: altitude blues,
-   jungle jades, canyon earths, textile magentas. On a map they do a job the
-   greyscale system can't — telling categories apart.
+   ADDITIVE ONLY. Every name here is new; nothing in andean.css is redefined.
+   This file is the "map chrome" exemption from the semantic-token rule: a
+   marker or popup must match the BASEMAP it sits on, not the page around it,
+   so its values live under a second theme axis (data-map-theme) that the map
+   engine stamps at runtime. Panels beside the map are ordinary page furniture
+   and alias the andean semantic tokens instead.
    ══════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Brand hues ─────────────────────────────────────────────────────── */
-  --brand-teal:       #1A97A9;  /* cerulean teal       */
-  --brand-cobalt:     #2B498D;  /* mountain shadow     */
-  --brand-green:      #34935C;  /* amazon canopy       */
-  --brand-moss:       #747A4C;  /* dried moss          */
+  /* ── Brand hues ─────────────────────────────────────────────────────────
+     Once ten, now three. The categorical ramp aliases the andean data tokens
+     below; these survive only because the place-type scale in map-layouts.css
+     needs more than eight slots (volcano, town, cultural-center). */
   --brand-amber:      #A77943;  /* adobe brick         */
-  --brand-terra:      #D7561D;  /* canyon terracotta   */
   --brand-rust:       #CD351D;  /* altitude rust       */
-  --brand-fuchsia:    #D556AA;  /* textile fuchsia     */
-  --brand-orchid:     #8E558D;  /* dried orchid        */
   --brand-violet:     #5C508D;  /* altitude violet     */
 
   /* ── Categorical ramp — for typed markers and legends ───────────────────
-     Ordered for maximum hue separation between neighbours, so adjacent pins
-     never read as the same category. Eight is the practical ceiling; past
-     that, group categories rather than adding colours. */
-  --viz-1: var(--brand-terra);
-  --viz-2: var(--brand-teal);
-  --viz-3: #A87B12;   /* gold darkened: #EFB42A is 1.9:1 on white, unreadable */
-  --viz-4: var(--brand-cobalt);
-  --viz-5: var(--brand-green);
-  --viz-6: var(--brand-fuchsia);
-  --viz-7: var(--brand-moss);
-  --viz-8: var(--brand-orchid);
+     Aliased to the andean data-viz tokens: one source of categorical truth
+     for the whole site. The aliases flip with the PAGE scheme
+     (data-colorscheme), not with data-map-theme — safe in practice, because
+     a dark basemap only ever comes up when the page theme asks for it
+     (mapbox.styleDark is always configured), so the two axes agree whenever
+     these hues are on screen. Eight is the practical ceiling; past that,
+     group categories rather than adding colours. */
+  --viz-1: var(--color-data-category-1);
+  --viz-2: var(--color-data-category-2);
+  --viz-3: var(--color-data-category-3);
+  --viz-4: var(--color-data-category-4);
+  --viz-5: var(--color-data-category-5);
+  --viz-6: var(--color-data-category-6);
+  --viz-7: var(--color-data-category-7);
+  --viz-8: var(--color-data-category-8);
 
   /* ── Sequential ramp — one hue, light→dark, for density or magnitude ──── */
 
-  /* ── Route line — drawn over the basemap, needs its own casing ───────── */
-  --route-line:   var(--brand-terra);
-  --route-ink:    #A03D12;              /* darker terracotta: 5.9:1 on white  */
+  /* ── Route line — drawn over the basemap, needs its own casing ──────────
+     Andean ui-attention hues as LITERALS, not var(): the route is painted on
+     the basemap, and var(--color-ui-attention) flips with the page scheme —
+     a dark-page/light-basemap combination would put the dark-scheme orange
+     on light land. andean-map.js reads --route-line/--route-casing at draw
+     time; its fallbacks must match these values. */
+  --route-line:   #C84F00;
+  --route-ink:    #A53900;              /* darker step of the same hue        */
   --route-casing: rgba(24, 23, 22, 0.14); /* soft band, reads on light land   */
 
   /* ── Map chrome ──────────────────────────────────────────────────────────
@@ -48,39 +52,35 @@
      would vanish against a basemap of the opposite polarity. The engine
      stamps data-map-theme on <html> to say which basemap is actually up:
      it tracks the page theme only when a dark style is configured
-     (mapbox.styleDark), and stays "light" otherwise. See DESIGN-SYSTEM §10. */
+     (mapbox.styleDark), and stays "light" otherwise. Values are the andean
+     light-scheme neutrals, frozen as literals for the same reason as the
+     route hues. See DESIGN-SYSTEM §10. */
   --map-surface:     #FFFFFF;
-  --map-surface-2:   #F5F4F2;
-  --map-border:      #E2E0DC;
-  --map-text:        #181716;
-  --map-text-2:      #615F5B;
+  --map-surface-2:   #F0F4F6;
+  --map-border:      #E2E9ED;
+  --map-text:        #21262A;
+  --map-text-2:      #727E85;
   --map-shadow:      0 1px 3px rgba(0,0,0,.10), 0 4px 16px rgba(0,0,0,.08);
   --map-shadow-pop:  0 8px 32px rgba(0,0,0,.16), 0 2px 8px rgba(0,0,0,.10);
 
-  /* Panels and cards that sit BESIDE the map are page furniture, so these do
-     follow the theme. */
-  --panel-surface: var(--surface);
-  --panel-border:  var(--border);
-  --panel-text:    var(--text);
-  --panel-text-2:  var(--text-2);
-}
-
-[data-theme="dark"] {
-  --panel-surface: #1C1F22;
-  --panel-border:  #434547;
-  --panel-text:    #F0F0EE;
-  --panel-text-2:  #9CA3AF;
-
+  /* Panels and cards that sit BESIDE the map are page furniture, so these
+     alias the andean semantic tokens and flip with the page scheme on their
+     own — no dark override block needed here. */
+  --panel-surface: var(--color-container-background-primary);
+  --panel-border:  var(--color-container-border-primary);
+  --panel-text:    var(--color-text-primary);
+  --panel-text-2:  var(--color-text-secondary);
 }
 
 /* A dark basemap is up (engine stamped data-map-theme="dark"): the chrome
-   follows it. Same values as the dark page panels so popup and page agree. */
+   follows it. Andean dark-scheme neutrals, frozen as literals — same reason
+   as the light block. */
 [data-map-theme="dark"] {
-  --map-surface:     #1C1F22;
-  --map-surface-2:   #24282C;
-  --map-border:      #434547;
-  --map-text:        #F0F0EE;
-  --map-text-2:      #9CA3AF;
+  --map-surface:     #21262A;
+  --map-surface-2:   #2B3135;
+  --map-border:      #3C4348;
+  --map-text:        #FFFFFF;
+  --map-text-2:      #ADBAC2;
   --map-shadow:      0 1px 3px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.35);
   --map-shadow-pop:  0 8px 32px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.4);
   /* Route casing flips polarity: a dark halo is invisible on dark land. */

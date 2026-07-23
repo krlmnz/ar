@@ -7,7 +7,7 @@
    every caption is .tool-caption, the loom sits on a .tool-plate
    and the palette names use .tool-swatch-name. No local colour,
    type, space or radius token is declared here, so the tool
-   follows the contrast-solved palette and dark mode for free.
+   follows the andean palette and dark scheme for free.
 
    What is left below is only what the system genuinely did not
    have: the three-column workbench, the segmented loom-size
@@ -24,12 +24,14 @@
    and everything painted on the canvas carry their real hex —
    injected inline by internet-loom.js, never declared here.
    The interface wrapped around them is greyscale: toolbar,
-   buttons, rails, selvedge, active and hover states, focus.
+   buttons, rails, selvedge, active and hover states — emphasis
+   is ink (--color-text-primary), never the teal action family.
+   The one hue in the chrome is the site-wide teal focus ring.
 ============================================================ */
 
 .loom-tool {
-  font-family: var(--font-ui);
-  color: var(--text);
+  font-family: var(--font-family-component);
+  color: var(--color-text-primary);
 }
 .loom-tool * { box-sizing: border-box; }
 
@@ -38,13 +40,13 @@
 .loom-tool .btn .icon { flex: none; }
 
 /* .btn has no disabled state site-wide; undo/redo need one. */
-.loom-tool .btn:disabled { opacity: 0.4; pointer-events: none; }
+.loom-tool .btn:disabled { opacity: var(--opacity-disabled); pointer-events: none; }
 
 /* Focus contract for the affordances that aren't .btn — the
    heddles, swatches, weave drafts and the colour input. */
 .loom-tool button:focus-visible,
 .loom-tool input:focus-visible {
-  outline: 2px solid var(--text);
+  outline: 2px solid var(--color-focus-indicator);
   outline-offset: 2px;
 }
 
@@ -53,16 +55,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) 0;
-  border-bottom: 1px solid var(--border-subtle);
+  gap: var(--space-column-gap-small);
+  padding: var(--space-container-padding-small) 0;
+  border-bottom: 1px solid var(--color-divider-tertiary);
   flex-wrap: wrap;
 }
 
 .lm-toolbar-group {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
+  gap: var(--space-component-gap-medium);
   flex-wrap: wrap;
 }
 
@@ -78,42 +80,51 @@
 
 /* ── Workbench layout ─────────────────────────────────────── */
 /* Fixed rails so the loom keeps a stable centre as the reader
-   scrolls; the canvas takes whatever is left. */
+   scrolls; the canvas takes whatever is left. The old 32px gap
+   has no slot on the gap axis, so it compresses to the 24px one. */
 .lm-bench {
   display: grid;
   grid-template-columns: 200px minmax(0, 1fr) 200px;
-  gap: var(--space-4);
+  gap: var(--space-column-gap-large);
   align-items: start;
-  padding: var(--space-4) 0 var(--space-6);
+  padding: var(--space-container-padding-x-large) 0 var(--space-container-padding-xxx-large);
 }
 
-.lm-rail { position: sticky; top: var(--space-3); }
-.lm-rail-section + .lm-rail-section { margin-top: var(--space-4); }
+.lm-rail { position: sticky; top: var(--space-large); }
+/* The 32px slot lives on the container-padding axis in andean. */
+.lm-rail-section + .lm-rail-section { margin-top: var(--space-container-padding-x-large); }
 
 /* ── Weave drafts (left rail) ─────────────────────────────── */
-.lm-weaves { display: flex; flex-direction: column; gap: var(--space-1); }
+.lm-weaves { display: flex; flex-direction: column; gap: var(--space-row-gap-x-small); }
 
 /* A draft button is a thumbnail beside a name, so it reads left
-   to right rather than centred like a .btn. */
+   to right rather than centred like a .btn. A quiet grey action:
+   passive border at rest, ink emphasis on hover and selection. */
 .lm-weave-btn {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
+  gap: var(--space-component-gap-medium);
   width: 100%;
-  padding: var(--space-1);
-  border: 1px solid var(--border);
+  padding: var(--space-component-stack-padding-large) var(--space-component-inline-padding-medium);
+  border: 1px solid var(--color-action-passive-border);
   background: transparent;
-  color: var(--text);
-  font-family: var(--font-ui);
-  font-size: var(--text-caption);
-  font-weight: 600;
+  color: var(--color-text-primary);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-action-x-small);
+  font-weight: var(--font-weight-component-semibold);
   text-align: left;
   cursor: pointer;
-  transition: border-color var(--transition), background var(--transition);
+  transition: border-color var(--duration-fade-fast) var(--ease-fade),
+              background var(--duration-fade-fast) var(--ease-fade);
 }
 
-.lm-weave-btn:hover { border-color: var(--text); }
-.lm-weave-btn.lm-active { border-color: var(--text); background: var(--accent-soft); }
+.lm-weave-btn:hover { border-color: var(--color-text-primary); }
+.lm-weave-btn.lm-active {
+  border-color: var(--color-text-primary);
+  /* A persistent selected wash, not a hover state, so it takes
+     the static tertiary fill rather than the passive hover. */
+  background: var(--color-container-background-tertiary);
+}
 
 /* The preview SVG is generated by the same function that applies
    the draft, and inherits currentColor — so it is ink, not hue. */
@@ -122,9 +133,9 @@
   height: 32px;
   flex: none;
   display: block;
-  border: 1px solid var(--border-subtle);
-  color: var(--text);
-  background: var(--surface);
+  border: 1px solid var(--color-divider-tertiary);
+  color: var(--color-text-primary);
+  background: var(--color-container-background-primary);
 }
 
 .lm-weave-preview svg { display: block; width: 100%; height: 100%; }
@@ -133,14 +144,19 @@
 /* A .tool-plate, but with deeper padding: the heddle dots are
    positioned outside the canvas box and would clip at the
    plate's default inset. */
-.lm-plate { padding: var(--space-4); }
+.lm-plate { padding: var(--space-container-padding-x-large); }
 
 .lm-stage { position: relative; }
 
+/* The 2px border is literally ink chrome, and its width is
+   load-bearing: buildHeddles() in internet-loom.js offsets every
+   dot by +2 to clear it. The ground must stay
+   --color-container-background-primary — drawGrid() and both
+   exporters read that token by name at paint time. */
 .lm-stage canvas {
   display: block;
-  border: 2px solid var(--text);
-  background: var(--surface);
+  border: 2px solid var(--color-text-primary);
+  background: var(--color-container-background-primary);
   touch-action: none;
   cursor: crosshair;
 }
@@ -154,16 +170,17 @@
   width: 14px;
   height: 14px;
   padding: 0;
-  border: 1px solid var(--text-2);
+  border: 1px solid var(--color-text-secondary);
   border-radius: var(--radius-full);
-  background: var(--surface);
+  background: var(--color-container-background-primary);
   cursor: pointer;
-  transition: background var(--transition), border-color var(--transition);
+  transition: background var(--duration-fade-fast) var(--ease-fade),
+              border-color var(--duration-fade-fast) var(--ease-fade);
 }
 
 .lm-heddle:hover {
-  background: var(--text);
-  border-color: var(--text);
+  background: var(--color-text-primary);
+  border-color: var(--color-text-primary);
 }
 
 .lm-caption { text-align: center; }
@@ -172,7 +189,7 @@
 .lm-swatch-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, 24px);
-  gap: var(--space-0);
+  gap: var(--space-column-gap-xx-small);
 }
 
 /* The face is the thread colour, set inline from the palette.
@@ -181,19 +198,20 @@
   width: 24px;
   height: 24px;
   padding: 0;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-container-border-primary);
   cursor: pointer;
-  transition: transform var(--transition);
+  transition: transform var(--duration-transform-fast) var(--ease-transform);
 }
 
 .lm-swatch:hover { transform: scale(1.15); }
-.lm-swatch.lm-active { outline: 2px solid var(--text); outline-offset: 2px; }
+/* Ink, not the focus teal: selection is state, focus is a11y. */
+.lm-swatch.lm-active { outline: 2px solid var(--color-text-primary); outline-offset: 2px; }
 
-.lm-palette + .lm-palette { margin-top: var(--space-2); }
+.lm-palette + .lm-palette { margin-top: var(--space-medium); }
 
 /* .tool-swatch-name sits under its strip; here the name labels
    the grid below it. */
-.lm-palette-name { margin: 0 0 var(--space-1); }
+.lm-palette-name { margin: 0 0 var(--space-x-small); }
 
 /* ── Custom thread ────────────────────────────────────────── */
 /* The native colour input, squared off and sized to match a
@@ -201,15 +219,17 @@
 .lm-picker-row {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
-  margin-top: var(--space-2);
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--border-subtle);
+  gap: var(--space-component-gap-medium);
+  margin-top: var(--space-medium);
+  padding-top: var(--space-medium);
+  border-top: 1px solid var(--color-divider-tertiary);
 }
 
+/* It labels the colour input, so it takes the input-label trio. */
 .lm-picker-row label {
-  font-size: var(--text-caption);
-  color: var(--text-2);
+  font-size: var(--font-size-input-label);
+  font-weight: var(--font-weight-input-label);
+  color: var(--color-input-label);
   cursor: pointer;
 }
 
@@ -219,7 +239,7 @@
   width: 24px;
   height: 24px;
   padding: 0;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-input-border-primary);
   background: none;
   cursor: pointer;
 }

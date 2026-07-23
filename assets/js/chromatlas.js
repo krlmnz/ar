@@ -237,12 +237,12 @@ function drawWheel(slots){
   let out='';
   slots.forEach(sl=>{
     const [x,y]=pt(sl.h,R);
-    out+=`<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--border)" stroke-width="1.5"/>`;
+    out+=`<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--color-container-border-primary)" stroke-width="1.5"/>`;
   });
   slots.forEach(sl=>{
     const [x,y]=pt(sl.h,R);
     const big=sl.role==='base';
-    out+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${big?11:8}" fill="${sl.hex}" stroke="var(--surface)" stroke-width="3"/>`;
+    out+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${big?11:8}" fill="${sl.hex}" stroke="var(--color-container-background-primary)" stroke-width="3"/>`;
     if(big) out+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="14" fill="none" stroke="${sl.hex}" stroke-width="1.5" opacity=".55"/>`;
   });
   svg.innerHTML=out;
@@ -281,7 +281,7 @@ $('#c5sub').textContent=D.cat5.sub+'. Read the program not as taste, but as a si
 function warmChart(){
   const svg=$('#chartWarm');const W=900,Hh=240,padB=54,padT=20,mid=(Hh-padB+padT)/2+padT/2;
   const n=T.length;const bw=(W-40)/n;const maxH=(Hh-padB-padT)/2;
-  let out=`<line x1="20" y1="${mid}" x2="${W-20}" y2="${mid}" stroke="var(--border)" stroke-width="1"/>`;
+  let out=`<line x1="20" y1="${mid}" x2="${W-20}" y2="${mid}" stroke="var(--color-container-border-primary)" stroke-width="1"/>`;
   T.forEach((t,i)=>{
     const x=20+i*bw;const h=Math.abs(t.warmth)*maxH;
     const up=t.warmth>=0;
@@ -298,15 +298,15 @@ function lineChart(svgSel,key,label){
   const mn=0,mx=100;
   const ys=(v)=>Hh-pb-(v-mn)/(mx-mn)*(Hh-pt-pb);
   let grid='';
-  [0,25,50,75,100].forEach(g=>{grid+=`<line x1="${pl}" y1="${ys(g)}" x2="${W-pr}" y2="${ys(g)}" stroke="var(--border)" stroke-width=".8" opacity=".7"/><text class="cx-axis" x="${pl-6}" y="${ys(g)+3}" text-anchor="end">${g}</text>`;});
+  [0,25,50,75,100].forEach(g=>{grid+=`<line x1="${pl}" y1="${ys(g)}" x2="${W-pr}" y2="${ys(g)}" stroke="var(--color-container-border-primary)" stroke-width=".8" opacity=".7"/><text class="cx-axis" x="${pl-6}" y="${ys(g)+3}" text-anchor="end">${g}</text>`;});
   let path='';T.forEach((t,i)=>{path+=(i?'L':'M')+xs(i).toFixed(1)+' '+ys(t[key]).toFixed(1)+' ';});
   let dots='';T.forEach((t,i)=>{
-    dots+=`<circle cx="${xs(i).toFixed(1)}" cy="${ys(t[key]).toFixed(1)}" r="4" fill="${t.hex}" stroke="var(--surface)" stroke-width="1.5"><title>${t.year} ${t.name} · ${label} ${Math.round(t[key])}</title></circle>`;
+    dots+=`<circle cx="${xs(i).toFixed(1)}" cy="${ys(t[key]).toFixed(1)}" r="4" fill="${t.hex}" stroke="var(--color-container-background-primary)" stroke-width="1.5"><title>${t.year} ${t.name} · ${label} ${Math.round(t[key])}</title></circle>`;
     if(i%4===0||i===T.length-1) dots+=`<text class="cx-axis" x="${xs(i).toFixed(1)}" y="${Hh-pb+20}" text-anchor="middle">${String(t.year).slice(2)}</text>`;
   });
   /* The trend line is chrome, not data — the dots carry the hue, so the
      path stays greyscale (DESIGN-SYSTEM.md §4). */
-  svg.innerHTML=grid+`<path d="${path}" fill="none" stroke="var(--text-3)" stroke-width="2" opacity=".55"/>`+dots;
+  svg.innerHTML=grid+`<path d="${path}" fill="none" stroke="var(--color-text-tertiary)" stroke-width="2" opacity=".55"/>`+dots;
 }
 
 /* data-driven finding (guaranteed true to the numbers) */

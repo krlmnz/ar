@@ -51,7 +51,9 @@
   var FALLBACK = { light: "mapbox://styles/mapbox/light-v11", dark: "mapbox://styles/mapbox/dark-v11" };
 
   function pageTheme() {
-    return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+    // The scheme moved off data-theme (now the static token-set name) onto
+    // data-colorscheme; base.njk's toggle flips the same attribute.
+    return document.documentElement.dataset.colorscheme === "dark" ? "dark" : "light";
   }
 
   /* ---- lazy bootstrap -------------------------------------------------- */
@@ -111,9 +113,9 @@
   var sprites = document.querySelector("[data-map-sprites]");
   var status = document.getElementById("map-status");
 
-  // The basemap follows the page theme when a dark style exists. Chrome that
+  // The basemap follows the page scheme when a dark style exists. Chrome that
   // must match the basemap (markers, popups, legend) keys off data-map-theme,
-  // NOT data-theme — the two differ when no dark basemap is configured.
+  // NOT data-colorscheme — the two differ when no dark basemap is configured.
   var mapTheme = STYLE_DARK ? pageTheme() : "light";
   var usedFallback = false;
   document.documentElement.setAttribute("data-map-theme", mapTheme);
@@ -431,7 +433,7 @@
         source: "route",
         layout: { "line-cap": "round", "line-join": "round" },
         paint: {
-          "line-color": css.getPropertyValue("--route-casing").trim() || "rgba(24,23,22,.12)",
+          "line-color": css.getPropertyValue("--route-casing").trim() || "rgba(24,23,22,.14)",
           "line-width": 7,
           "line-opacity": 0.9
         }
@@ -442,7 +444,7 @@
         source: "route",
         layout: { "line-cap": "round", "line-join": "round" },
         paint: {
-          "line-color": css.getPropertyValue("--route-line").trim() || "#D7561D",
+          "line-color": css.getPropertyValue("--route-line").trim() || "#C84F00",
           "line-width": 3,
           // Dashed on purpose: these are straight segments between stops, not
           // driving geometry. A solid road-weight line would assert a road

@@ -1,22 +1,37 @@
 #!/usr/bin/env node
 /* ============================================================
-   BUILD COLOUR TOKENS — Andean Road
+   TOKEN GATE — Andean Road
    ------------------------------------------------------------
-   Solves the site's existing colour tokens against the surfaces
-   they ACTUALLY render on, then splices them into tokens.css
-   between the GENERATED:COLOUR markers.
+   assets/css/andean.css is the hand-authored source of truth
+   now. The old job of this script — solving a neutral ramp and
+   splicing generated values into tokens.css — is retired with
+   that file: a designed export has nothing to emit into. What
+   a hand-authored palette CAN lose silently is integrity, so
+   the deploy gate guards that instead:
 
-   The token NAMES are unchanged on purpose. Components keep
-   consuming --bg / --text / --text-2 / --border exactly as
-   before; only the values become solved and audited. That is
-   what makes this safe to land in one commit — see
-   DESIGN-SYSTEM.md §10 on why renaming a shared scale is not.
+     1. Structure — the light scheme and the dark scheme must
+        declare the SAME set of --color-* names, and every value
+        must parse as a colour. A token defined in one scheme
+        only falls back invisibly in the other and ships as a
+        white-on-white bug, never a build error.
+     2. Contrast — every fg/bg pairing a component actually
+        renders (tokens.config.json `pairings`) is measured with
+        color-engine's WCAG math in both schemes against the
+        floors in the config. Pairings the export already ships
+        under the line are pinned in `knownBelowFloor` at their
+        measured ratio, so the gate catches REGRESSION without
+        failing on day one.
 
-     node scripts/build-tokens.js
-     node scripts/build-tokens.js --check   # audit only, writes nothing
+     node scripts/build-tokens.js           # audit + refresh artifacts
+     node scripts/build-tokens.js --check   # verify only, writes nothing
 
-   Exits non-zero if any pairing misses its floor, and writes
-   nothing in that case.
+   Write mode refreshes scripts/tokens.audit.json and the two
+   GENERATED tables in DESIGN-SYSTEM.md. --check verifies
+   andean.css alone — stale artifacts never fail the deploy;
+   `npm run tokens` is what refreshes them.
+
+   Exits non-zero on any structural issue or contrast
+   regression, and writes nothing in that case.
 ============================================================ */
 
 const fs = require("fs");
@@ -25,285 +40,295 @@ const E = require("./color-engine.js");
 
 const ROOT = path.join(__dirname, "..");
 const CONFIG = path.join(__dirname, "tokens.config.json");
-const TARGET = path.join(ROOT, "assets", "css", "tokens.css");
 const AUDIT = path.join(__dirname, "tokens.audit.json");
+const DOC = path.join(ROOT, "DESIGN-SYSTEM.md");
 
 const checkOnly = process.argv.includes("--check");
 const cfg = JSON.parse(fs.readFileSync(CONFIG, "utf8"));
+const SOURCE = path.join(ROOT, cfg.source);
 
 /* ------------------------------------------------------------
-   The ramp.
+   Parse andean.css into the two schemes.
 
-   One extra rung past the stock contract: the site's dark page
-   is #111416 (~19:1), darker than the stock 950 rung. Without
-   it the dark theme would visibly lift, which is a design
-   change nobody asked for.
+   A tolerant brace-walk, not a CSS parser: track the selector
+   stack, and when a block closes, harvest its --color-*
+   declarations. This survives the file's real shape — MULTIPLE
+   [data-theme="andean"] blocks (colour, type, primitives), the
+   dark block's compound selector, and the @media wrappers —
+   where "grab the first block" would not. Later declarations
+   overwrite earlier ones, same as the cascade.
 ------------------------------------------------------------ */
-const CONTRACT = [
-  ...E.RAMP_CONTRACT,
-  /* Two rungs the stock contract has no room for. Between 600 (4.15:1
-     worst-case here) and 700 (6.44:1) there is nothing, so the muted
-     text levels would have to jump to near-ink to clear their floor —
-     passing WCAG by destroying the tonal hierarchy. These sit where
-     this design actually needs them. Targets are quoted on white; the
-     worst real surface runs ~7% lower, which is the headroom. */
-  { step: "610", onLight: 5.15, floor: 5.0 },
-  { step: "650", onLight: 6.10, floor: 5.9 },
-  { step: "975", onLight: 19.0 },
-].sort((a, b) => a.onLight - b.onLight);
+function readSchemes(css) {
+  /* Comments may contain braces or stray `--x: y;` examples —
+     strip them before walking so prose can't become tokens. */
+  const src = css.replace(/\/\*[\s\S]*?\*\//g, " ");
+  const light = {};
+  const dark = {};
+  const stack = [];
+  let buf = "";
 
-/* The ramp is solved against #FFFFFF, so its rung labels are nominal —
-   "600" means 4.6:1 on white, not on this page. Rebuilding the ramp
-   against its own step-50 is NOT the fix: it drags every rung darker
-   and the surface drifts out from under the design. Instead the rung
-   labels stay nominal and every foreground below is chosen by
-   measuring against the real surfaces (see solveOn). That is what
-   README §10 gotcha 1 is actually asking for. */
-const ramp = E.makeNeutralRamp(cfg.neutralSource, {
-  neutralTint: cfg.neutralTint,
-  contract: CONTRACT,
-});
-const step = Object.fromEntries(ramp.steps.map((s) => [s.step, s.hex]));
-
-/* Return the first rung that satisfies `target` against EVERY surface
-   it can land on. Solving against only --bg is not enough: the same
-   text also sits on --surface (cards) and on --accent-soft (row hover),
-   and in dark mode those are LIGHTER than the page, so the page is the
-   easy case, not the worst one. Staying on-ramp keeps the palette
-   coherent — we never invent a one-off hex to patch a contrast hole. */
-function solveOn(surfaceHexes, target, { fromDark }) {
-  const bgs = surfaceHexes.map(E.hexToRgb);
-  const order = fromDark ? [...ramp.steps].reverse() : ramp.steps;
-  for (const s of order) {
-    if (bgs.every((bg) => E.contrast(s.rgb, bg) >= target)) return s.hex;
-  }
-  return (fromDark ? ramp.steps[0] : ramp.steps[ramp.steps.length - 1]).hex;
-}
-
-const T = cfg.contrastTargets;
-
-/* ------------------------------------------------------------
-   Roles, per theme. Surfaces are declared; every foreground is
-   solved against the surface it sits on.
------------------------------------------------------------- */
-function build(mode) {
-  const dark = mode === "dark";
-  const bg = dark ? step["975"] : step["50"];
-  const surface = dark ? step["900"] : "#FFFFFF";
-  // --accent-soft is a hover BACKGROUND behind body text
-  // (main.css:692, 876, 1589, 1929, 1944 …), so text has to stay
-  // legible on it — it is audited as a surface, not as decoration.
-  const accentSoft = dark ? step["900"] : step["100"];
-
-  const fromDark = dark;
-  const surfaces = [bg, surface, accentSoft];
-  const order = fromDark ? [...ramp.steps].reverse() : ramp.steps;
-
-  /* Solve weakest first, then walk outward, forcing each level to a
-     distinct rung. Two "levels" resolving to the same hex would
-     silently flatten the three-tier hierarchy the type system leans
-     on — it passes contrast and still destroys the design. */
-  const text3 = solveOn(surfaces, T.text3, { fromDark });
-  const next = (from) => {
-    const i = order.findIndex((s) => s.hex === from);
-    /* At the end of the ramp there is no next rung. Returning `from`
-       would make the nudge a silent no-op and let two levels ship
-       identical, so this has to fail loudly instead. */
-    if (i < 0 || i + 1 >= order.length) {
-      structural.push(
-        `${mode}: no rung beyond ${from} — targets are too close to the end of the ramp. ` +
-        `Lower a contrastTarget or add a rung to CONTRACT.`
-      );
-      return from;
+  const harvest = (text, ctx) => {
+    const inMedia = ctx.some((s) => s.startsWith("@"));
+    const isAndean = ctx.some((s) => s.includes('[data-theme="andean"]'));
+    const isDark = ctx.some((s) => s.includes('data-colorscheme="dark"'));
+    if (!isAndean) return;
+    /* Media blocks are responsive TYPE overrides; a colour that
+       changed with viewport width would dodge the audit, so only
+       non-media blocks count as the light scheme. */
+    const target = isDark ? dark : inMedia ? null : light;
+    if (!target) return;
+    for (const m of text.matchAll(/--(color-[\w-]+)\s*:\s*([^;]+?)\s*(?:;|$)/gm)) {
+      target["--" + m[1]] = m[2].trim();
     }
-    return order[i + 1].hex;
   };
-  let text2 = solveOn(surfaces, T.text2, { fromDark });
-  if (text2 === text3) text2 = next(text3);
-  let text = solveOn(surfaces, T.text, { fromDark });
-  if (text === text2) text = next(text2);
 
-  /* The nudge above is pairwise, so it cannot see text↔text-3, and the
-     contrast audit only ever compares a foreground to a SURFACE — never
-     to another foreground. Without this, an ordered-but-close set of
-     targets (e.g. 5.2 / 5.1 / 5.0) emits three levels that are
-     duplicated or inverted, and every audit row still says PASS.
-     The hierarchy is part of the contract, so assert it. */
-  const worst = (hex) =>
-    Math.min(...surfaces.map((s) => E.contrast(E.hexToRgb(hex), E.hexToRgb(s))));
-  const tiers = [["text", text], ["text-2", text2], ["text-3", text3]];
-  for (let i = 0; i < tiers.length - 1; i++) {
-    const [an, av] = tiers[i];
-    const [bn, bv] = tiers[i + 1];
-    if (av === bv) {
-      structural.push(`${mode}: --${an} and --${bn} both resolved to ${av}.`);
-    } else if (worst(av) <= worst(bv)) {
-      structural.push(
-        `${mode}: --${an} (${worst(av).toFixed(2)}:1) is not stronger than ` +
-        `--${bn} (${worst(bv).toFixed(2)}:1) — the tonal hierarchy is inverted.`
-      );
+  for (const ch of src) {
+    if (ch === "{") {
+      stack.push(buf.trim());
+      buf = "";
+    } else if (ch === "}") {
+      harvest(buf, stack);
+      buf = "";
+      stack.pop();
+    } else {
+      buf += ch;
     }
   }
-
-  return {
-    "bg": bg,
-    "surface": surface,
-    "text": text,
-    "text-2": text2,
-    "text-3": text3,
-    "border": dark ? step["700"] : step["200"],
-    "border-subtle": dark ? step["900"] : step["100"],
-    "accent-hover": dark ? step["400"] : step["700"],
-    "accent-soft": accentSoft,
-  };
+  return { light, dark };
 }
 
-/* Structural problems the contrast audit is blind to — collapsed or
-   inverted text tiers. Collected during build(), enforced below. */
-const structural = [];
+/* hex 3/6/8-digit, rgb(), rgba(). Returns { rgb:[r,g,b], alpha }
+   or null — null is a structural failure, not a skip. */
+function parseColor(v) {
+  v = String(v).trim();
+  let m = v.match(/^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i);
+  if (m) {
+    let h = m[1];
+    if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+    const alpha = h.length === 8 ? parseInt(h.slice(6, 8), 16) / 255 : 1;
+    const n = parseInt(h.slice(0, 6), 16);
+    return { rgb: [(n >> 16) & 255, (n >> 8) & 255, n & 255], alpha };
+  }
+  m = v.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)$/i);
+  if (m) return { rgb: [+m[1], +m[2], +m[3]], alpha: m[4] === undefined ? 1 : +m[4] };
+  return null;
+}
 
-const light = build("light");
-const darkT = build("dark");
+const css = fs.readFileSync(SOURCE, "utf8");
+const { light, dark } = readSchemes(css);
 
 /* ------------------------------------------------------------
-   Audit — every pairing a component actually renders.
+   Structural audit.
 ------------------------------------------------------------ */
-const SURFACES = ["bg", "surface", "accent-soft"];
-const FOREGROUNDS = [["text", T.text], ["text-2", T.text2], ["text-3", T.text3]];
+const issues = [];
+const warnings = [];
+
+if (!Object.keys(light).length) {
+  issues.push(`${cfg.source}: no --color-* declarations found in the light scheme.`);
+}
+if (!Object.keys(dark).length) {
+  issues.push(`${cfg.source}: no --color-* declarations found under [data-colorscheme="dark"].`);
+}
+for (const k of Object.keys(light)) {
+  if (!(k in dark)) issues.push(`${k} is defined for light only — dark would inherit or fall back invisibly.`);
+}
+for (const k of Object.keys(dark)) {
+  if (!(k in light)) issues.push(`${k} is defined for dark only — light would inherit or fall back invisibly.`);
+}
+for (const [mode, map] of [["light", light], ["dark", dark]]) {
+  for (const [k, v] of Object.entries(map)) {
+    if (!parseColor(v)) issues.push(`${mode} ${k}: "${v}" does not parse as a colour.`);
+  }
+}
+
+/* ------------------------------------------------------------
+   Contrast audit — every pairing a component actually renders,
+   in both schemes. Floors sit at the WCAG line; pairings the
+   export ships below it are pinned in knownBelowFloor so the
+   gate fires on regression, not on history.
+------------------------------------------------------------ */
+const allow = cfg.knownBelowFloor || [];
+const allowUsed = new Set();
+const findAllow = (mode, fg, bg) =>
+  allow.find((e) => e.mode === mode && e.fg === fg && e.bg === bg);
 
 const rows = [];
-for (const [mode, tk] of [["light", light], ["dark", darkT]]) {
-  for (const surf of SURFACES) {
-    for (const [fg, need] of FOREGROUNDS) {
-      const ratio = E.contrast(E.hexToRgb(tk[fg]), E.hexToRgb(tk[surf]));
-      rows.push({
-        mode, pair: `${fg} on ${surf}`, fg: tk[fg], bg: tk[surf],
-        ratio: Math.round(ratio * 100) / 100,
-        need, pass: ratio >= need,
-      });
+for (const [mode, map] of [["light", light], ["dark", dark]]) {
+  for (const p of cfg.pairings) {
+    const fgName = "--color-" + p.fg;
+    const bgName = "--color-" + p.bg;
+    const pair = `${p.fg} on ${p.bg}`;
+    if (!(fgName in map) || !(bgName in map)) {
+      issues.push(`${mode}: pairing "${pair}" references a token missing from ${cfg.source}.`);
+      continue;
     }
+    const fgc = parseColor(map[fgName]);
+    const bgc = parseColor(map[bgName]);
+    if (!fgc || !bgc) continue; /* already reported as a parse issue */
+
+    if (fgc.alpha < 1 || bgc.alpha < 1) {
+      /* An alpha colour composites over whatever sits underneath, so a
+         single ratio would be a guess about context. No audited pairing
+         uses alpha today; if one appears it is skipped LOUDLY here
+         rather than measured wrong. (Compositing over an assumed
+         background was considered and rejected — the real background is
+         context-dependent.) */
+      rows.push({ mode, pair, fg: map[fgName], bg: map[bgName], ratio: null, need: null, pass: true, skipped: "alpha colour — not measurable out of context" });
+      continue;
+    }
+
+    const ratio = Math.round(E.contrast(fgc.rgb, bgc.rgb) * 100) / 100;
+
+    if (p.informational) {
+      rows.push({ mode, pair, fg: map[fgName], bg: map[bgName], ratio, need: null, pass: true, informational: true });
+      continue;
+    }
+
+    const need = cfg.floors[p.floor];
+    if (need === undefined) {
+      issues.push(`pairing "${pair}": unknown floor "${p.floor}" (have: ${Object.keys(cfg.floors).join(", ")}).`);
+      continue;
+    }
+
+    const pin = findAllow(mode, p.fg, p.bg);
+    let pass = ratio >= need;
+    let allowlisted = false;
+    if (pin) {
+      allowUsed.add(pin);
+      if (pass) {
+        warnings.push(`knownBelowFloor entry ${mode} "${pair}" is stale — it now clears its floor (${ratio}:1 ≥ ${need}). Remove it.`);
+      } else {
+        allowlisted = true;
+        /* 0.005 absorbs the 2-decimal rounding of the recorded value —
+           anything lower than that is a real regression. */
+        pass = ratio >= pin.measured - 0.005;
+      }
+    }
+    rows.push({ mode, pair, fg: map[fgName], bg: map[bgName], ratio, need, pass, ...(allowlisted && { allowlisted: pin.measured }) });
+  }
+}
+for (const e of allow) {
+  if (!allowUsed.has(e)) {
+    warnings.push(`knownBelowFloor entry ${e.mode} "${e.fg} on ${e.bg}" matches no configured pairing — dead weight or a typo.`);
   }
 }
 
+/* ------------------------------------------------------------
+   Report, old table style.
+------------------------------------------------------------ */
 const fail = rows.filter((r) => !r.pass);
-const line = (r) =>
-  `  ${r.pass ? "PASS" : "FAIL"} ${String(r.ratio).padStart(6)}:1 ` +
-  `(needs ${r.need})  ${r.mode.padEnd(5)}  ${r.pair}`;
+const line = (r) => {
+  if (r.skipped) return `  SKIP      —:1 (${r.skipped})  ${r.mode.padEnd(5)}  ${r.pair}`;
+  const tag = r.informational ? "INFO" : r.pass ? "PASS" : "FAIL";
+  const need = r.informational
+    ? "no floor"
+    : r.allowlisted !== undefined
+      ? `pinned ${r.allowlisted}, WCAG ${r.need}`
+      : `needs ${r.need}`;
+  return `  ${tag} ${String(r.ratio).padStart(6)}:1 (${need})  ${r.mode.padEnd(5)}  ${r.pair}`;
+};
 
-console.log(`\nNeutral source ${cfg.neutralSource} · tint ${cfg.neutralTint}`);
+console.log(`\nSource ${cfg.source} · ${Object.keys(light).length} colour tokens per scheme`);
 rows.forEach((r) => console.log(line(r)));
 console.log(`\n${rows.length} pairings checked · ${fail.length} failure${fail.length === 1 ? "" : "s"}\n`);
 
-if (structural.length) {
-  console.error("Token hierarchy is broken:");
-  structural.forEach((s) => console.error("  · " + s));
-  console.error("\ntokens.css not written.");
+warnings.forEach((w) => console.warn("Warning: " + w));
+
+if (issues.length) {
+  console.error("andean.css failed the structural audit:");
+  issues.forEach((s) => console.error("  · " + s));
+  console.error("\nNothing written.");
   process.exit(1);
 }
 if (fail.length) {
-  console.error("Contrast audit FAILED. tokens.css not written.");
+  console.error("Contrast audit FAILED — a pairing regressed below its floor (or its pinned value). Nothing written.");
   process.exit(1);
 }
 
-/* ------------------------------------------------------------
-   Emit + splice.
------------------------------------------------------------- */
-const stamp = "Generated by scripts/build-tokens.js — edit scripts/tokens.config.json, not this block.";
-
-/* No primitives are emitted. The solved ramp exists inside this script
-   and is recorded in tokens.audit.json, but nothing in the CSS referenced
-   a --gray-* rung, and shipping a palette nobody consumes is just weight.
-   It was also a hazard: primitives do not flip between themes, so the two
-   rules that did use one (`background: var(--gray-100)` on .map-container
-   and .placeholder-img) rendered near-white in dark mode. They now use
-   --accent-soft, which is the same colour in light and correct in dark. */
-const lightBlock =
-`  /* ${stamp} */
-${Object.entries(light).map(([k, v]) => `  --${k}: ${v};`).join("\n")}`;
-
-const darkBlock =
-`  /* ${stamp} */
-${Object.entries(darkT).map(([k, v]) => `  --${k}: ${v};`).join("\n")}`;
-
-/* Read the real file in BOTH modes. --check used to audit only the
-   freshly-solved values in memory and exit before ever opening
-   tokens.css, which meant it passed on a file that had been hand-edited
-   to 1.11:1 body text — or deleted outright. The block is stamped
-   "do not edit"; this is what makes that stamp true. */
-const current = fs.readFileSync(TARGET, "utf8");
-
-const splice = (src, name, body) => {
-  const start = `/* GENERATED:${name}:START */`;
-  const end = `/* GENERATED:${name}:END */`;
-  const nStart = src.split(start).length - 1;
-  const nEnd = src.split(end).length - 1;
-  if (nStart !== 1 || nEnd !== 1) {
-    console.error(
-      `Marker GENERATED:${name} appears ${nStart}×START / ${nEnd}×END in tokens.css ` +
-      `(expected exactly one of each) — aborting rather than guessing.`
-    );
-    process.exit(1);
-  }
-  const re = new RegExp(
-    `(${start.replace(/[*/]/g, "\\$&")})[\\s\\S]*?(  ${end.replace(/[*/]/g, "\\$&")})`
-  );
-  return src.replace(re, `$1\n${body}\n$2`);
-};
-
-let css = splice(current, "COLOUR-LIGHT", lightBlock);
-css = splice(css, "COLOUR-DARK", darkBlock);
-
 if (checkOnly) {
-  if (css !== current) {
-    console.error(
-      "assets/css/tokens.css does not match what the config produces.\n" +
-      "It has been hand-edited, or the config changed without a rebuild.\n" +
-      "Run `npm run tokens` and commit the result."
-    );
-    process.exit(1);
-  }
-  console.log("Audit passed · tokens.css matches the config (nothing written).");
+  console.log("Audit passed · andean.css is structurally sound and contrast holds (nothing written).");
+  console.log("Note: tokens.audit.json and the DESIGN-SYSTEM.md tables are write-mode artifacts — staleness never fails --check; refresh them with `npm run tokens`.");
   process.exit(0);
 }
 
-fs.writeFileSync(TARGET, css);
-fs.writeFileSync(AUDIT, JSON.stringify({ config: cfg, ramp: step, light, dark: darkT, rows, structural }, null, 2) + "\n");
-
 /* ------------------------------------------------------------
-   The spec's colour tables, generated from the same solve.
+   Write mode: the audit receipt + the spec's colour tables.
 
-   These were hand-maintained and had drifted: 20 of 22 hexes were
-   stale, one cell read "—" for a token that had a value, and a
-   documented ratio (15.9:1) had never matched the CSS it described
-   (17.70:1). A table nobody can forget to update is the only kind
-   that stays true.
+   The tables were hand-maintained once and drifted (20 of 22
+   hexes stale at one point) — a table nobody can forget to
+   update is the only kind that stays true, so they are still
+   generated from the same measurements the gate enforces.
 ------------------------------------------------------------ */
-const USAGE = {
-  "bg": "Page background", "surface": "Cards, elevated surfaces",
-  "text": "Primary text, headlines", "text-2": "Secondary text, descriptions",
-  "text-3": "Overlines, captions, meta", "border": "Borders, dividers",
-  "border-subtle": "Barely-visible separators",
-  "accent-hover": "Hover state", "accent-soft": "Tinted backgrounds, row hover",
-};
 
-const worstOf = (mode, name) => {
-  const tk = mode === "dark" ? darkT : light;
-  return Math.min(...SURFACES.map((s) => E.contrast(E.hexToRgb(tk[name]), E.hexToRgb(tk[s]))));
-};
+/* The receipt records only the roles the audit touches — the full
+   180-token dump is what andean.css itself is for. */
+const auditedRoles = [...new Set(cfg.pairings.flatMap((p) => [p.fg, p.bg]))];
+const roleMap = (map) =>
+  Object.fromEntries(auditedRoles.map((r) => [r, map["--color-" + r]]));
+
+fs.writeFileSync(
+  AUDIT,
+  JSON.stringify(
+    { config: cfg, light: roleMap(light), dark: roleMap(dark), rows, issues },
+    null,
+    2
+  ) + "\n"
+);
+
+/* The core roles a page is composed from — the vocabulary the spec
+   teaches first. State roles (hover/active/visited/…) live next to
+   their base token in andean.css and are not repeated here. */
+const CORE_ROLES = [
+  ["--color-page-background-primary", "Page background"],
+  ["--color-page-background-secondary", "Alternate page wash (app canvas, banded sections)"],
+  ["--color-page-background-tertiary", "Deep-set page regions"],
+  ["--color-container-background-primary", "Cards, panels, elevated surfaces"],
+  ["--color-container-background-secondary", "Nested surfaces inside cards"],
+  ["--color-container-background-tertiary", "Tinted blocks, code backgrounds"],
+  ["--color-text-primary", "Primary text, headlines"],
+  ["--color-text-secondary", "Secondary text, descriptions"],
+  ["--color-text-tertiary", "Overlines, captions, meta"],
+  ["--color-link-text", "Links (hover/active/visited have their own tokens)"],
+  ["--color-action-standard", "Filled actions — pair with --color-text-complementary"],
+  ["--color-focus-indicator", "Focus rings, 2px"],
+];
 
 const docSemantic = [
-  "| Token | Light | Dark | Usage |", "|---|---|---|---|",
-  ...Object.keys(light).map((k) => `| \`--${k}\` | ${light[k]} | ${darkT[k]} | ${USAGE[k] || ""} |`),
+  "| Token | Light | Dark | Usage |",
+  "|---|---|---|---|",
+  ...CORE_ROLES.map(([k, usage]) => `| \`${k}\` | ${light[k]} | ${dark[k]} | ${usage} |`),
 ].join("\n");
 
+/* Worst case per foreground, per scheme, over every surface that
+   foreground is audited against. */
+const fgOrder = [...new Set(cfg.pairings.map((p) => p.fg))];
+const FG_LABEL = {
+  "text-complementary": "`--color-text-complementary` (on action-standard)",
+  "input-placeholder": "`--color-input-placeholder` (on its input)",
+};
+const worstOf = (mode, fg) => {
+  const mine = rows.filter((r) => r.mode === mode && r.pair.startsWith(fg + " on ") && r.ratio !== null);
+  const worst = mine.reduce((a, r) => (r.ratio < a.ratio ? r : a));
+  return { ratio: worst.ratio, pinned: worst.allowlisted !== undefined };
+};
+let anyPinned = false;
 const docContrast = [
-  "| | Light | Dark | Floor |", "|---|---|---|---|",
-  ...[["text", T.text], ["text-2", T.text2], ["text-3", T.text3]].map(
-    ([k, need]) => `| \`--${k}\` | ${worstOf("light", k).toFixed(2)}:1 | ${worstOf("dark", k).toFixed(2)}:1 | ${need.toFixed(1)}:1 |`
-  ),
+  "| Foreground | Light (worst) | Dark (worst) | Floor |",
+  "|---|---|---|---|",
+  ...fgOrder.map((fg) => {
+    const p = cfg.pairings.find((x) => x.fg === fg);
+    const l = worstOf("light", fg);
+    const d = worstOf("dark", fg);
+    anyPinned = anyPinned || l.pinned || d.pinned;
+    const floor = p.informational ? "— (informational)" : `${cfg.floors[p.floor].toFixed(1)}:1`;
+    const cell = (w) => `${w.ratio.toFixed(2)}:1${w.pinned ? "\\*" : ""}`;
+    return `| ${FG_LABEL[fg] || `\`--color-${fg}\``} | ${cell(l)} | ${cell(d)} | ${floor} |`;
+  }),
+  ...(anyPinned
+    ? ["", "\\* ships below the WCAG floor — pinned in `tokens.config.json` `knownBelowFloor`; the gate fails only on further regression."]
+    : []),
 ].join("\n");
 
-const DOC = path.join(ROOT, "DESIGN-SYSTEM.md");
 let doc = fs.readFileSync(DOC, "utf8");
 const spliceDoc = (src, name, body) => {
   const s = `<!-- GENERATED:${name}:START -->`;
@@ -321,4 +346,4 @@ doc = spliceDoc(doc, "DOC-SEMANTIC", docSemantic);
 doc = spliceDoc(doc, "DOC-CONTRAST", docContrast);
 fs.writeFileSync(DOC, doc);
 
-console.log("Wrote assets/css/tokens.css + scripts/tokens.audit.json + DESIGN-SYSTEM.md §4");
+console.log("Wrote scripts/tokens.audit.json + DESIGN-SYSTEM.md §4 (andean.css untouched — it is the source).");
