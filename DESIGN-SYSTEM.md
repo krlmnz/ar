@@ -88,9 +88,10 @@ spacing), `--space-component-inline-padding-*`, `--space-component-stack-padding
 **Using tokens:** components reference Andean tokens only — never invent a
 custom property, never hardcode a color. The full set is present, so tokens
 the site doesn't use yet (inputs, code, messages, status UI…) are available
-API for future components. The only non-token variables allowed are ones that
-*carry* token values or structural constants: `--cat` (category → data-color
-indirection) and `--header-h` (real header height for viewport layouts).
+API for future components. **No custom property may be declared outside
+`tokens.css`** — categorical map color uses direct per-category rules in
+`map-layouts.css`, and the viewport-height layouts inline the real header
+height (67px) rather than carry a variable for it.
 
 ### Token families
 
@@ -1369,7 +1370,8 @@ assert a variable the reader has no key for.
 - **Colour on a light basemap needs checking at the glyph, not the swatch.**
   Inca gold `#EFB42A` is a beautiful brand colour and 1.9:1 on white — unusable
   as a marker glyph. `--viz-3` is a darkened gold for that reason.
-- `--header-h` must match the real header or the viewport-height layouts overrun.
+- The `calc(100vh - 67px)` in the split layouts must match the real header
+  height or the viewport-height layouts overrun.
 
 ---
 
@@ -1507,6 +1509,23 @@ responsive sizes never win — all viewports get the desktop type scale (e.g.
 72px `display-2` on phones). Fixing it means moving the base block above the
 media queries; that is an edit to the export, so it belongs upstream. Flag for
 the next export revision.
+
+**2026-07-23 — last non-Andean variables removed**
+
+The two remaining carrier variables are gone; Andean tokens are now the only
+custom properties in the codebase, verified both ways (every `var()` resolves
+to the export; no declaration exists outside `tokens.css`).
+
+- `--cat` replaced by **direct per-category rules** in `map-layouts.css`: each
+  `data-cat` key gets explicit selectors for marker glyph, card icon, legend
+  swatch, and the active-state fills/rails, all pointing straight at
+  `--color-data-*` tokens. `currentColor` carries the hue to borders, dots,
+  and swatches so the rule count stays small; base component rules keep the
+  `--color-data-category-1` default for unmatched keys. Verified in-browser:
+  swatch, marker, and active-card colors resolve per category.
+- `--header-h` inlined as `calc(100vh - 67px)` in `.mapsplit`/`.hood`. Its
+  ≤560px override (104px) was dead code — the ≤900px rule already sets those
+  layouts to `height: auto` — and was deleted rather than ported.
 
 **Known, accepted:**
 

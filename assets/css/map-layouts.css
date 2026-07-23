@@ -1,11 +1,12 @@
 /* ══════════════════════════════════════════════════════════════════════════
    map-layouts.css — the six map page types
    ──────────────────────────────────────────────────────────────────────────
-   Uses the shared Andean token set (tokens.css) throughout. Map chrome
+   Uses the shared Andean token set (tokens.css) throughout — Andean tokens
+   are the ONLY custom properties referenced anywhere in this file. Map chrome
    (markers, popups, controls, legend) carries its own token-driven surfaces,
    so it stays legible over the light basemap in both color schemes.
-   Categorical color comes from the --color-data-* tokens via the --cat
-   lookup below.
+   Categorical color comes from the --color-data-* tokens via the direct
+   per-category rules below.
    ══════════════════════════════════════════════════════════════════════════ */
 
 .bleed { width: 100%; }
@@ -16,12 +17,6 @@
 .no-map .mapstack__map, .no-map .route__map,
 .no-map .area__map, .no-map .story__map { display: none; }
 .no-map .story__steps { margin-top: 0; }
-
-/* Structural constant, not a design token: referenced by the 100vh split
-   layouts and must match the real header height or the map runs past the
-   viewport. */
-:root { --header-h: 67px; }
-@media (max-width: 560px) { :root { --header-h: 104px; } }
 
 /* ── Map surface ──────────────────────────────────────────────────────── */
 
@@ -76,25 +71,114 @@
 }
 .maplegend__swatch {
   width: 10px; height: 10px; flex: none;
-  background: var(--cat, var(--color-data-category-1));
+  color: var(--color-data-category-1);
+  background: currentColor;
   border-radius: var(--radius-full);
 }
 
-/* ── Category colour lookup ────────────────────────────────────────────────
-   One place to map a key to a hue. Anything unmatched falls back to
-   --color-data-category-1, so a new region or type is never invisible —
-   just uncoloured. */
-[data-cat="santiago"],        [data-cat="restaurant"] { --cat: var(--color-data-category-1); }
-[data-cat="casablanca-valley"], [data-cat="winery"]   { --cat: var(--color-data-category-2); }
-[data-cat="central-coast"],   [data-cat="museum"]     { --cat: var(--color-data-category-3); }
-[data-cat="central-mountains"], [data-cat="hot-springs"] { --cat: var(--color-data-category-4); }
-[data-cat="lake-district"],   [data-cat="national-park"] { --cat: var(--color-data-category-5); }
-[data-cat="pomaire"],         [data-cat="market"]     { --cat: var(--color-data-category-6); }
-[data-cat="bar"]        { --cat: var(--color-data-category-7); }
-[data-cat="hotel"]      { --cat: var(--color-data-category-8); }
-[data-cat="volcano"]    { --cat: var(--color-data-negative); }
-[data-cat="town"]       { --cat: var(--color-data-attention); }
-[data-cat="cultural-center"] { --cat: var(--color-data-tertiary); }
+/* ── Category colours ──────────────────────────────────────────────────────
+   Direct per-category rules — no intermediate variable, Andean tokens only.
+   Base component rules carry the --color-data-category-1 default, so an
+   unmatched data-cat is never invisible — just uncoloured. currentColor
+   carries the hue to borders, dots, and swatches. */
+/* santiago · restaurant */
+.mk[data-cat="santiago"], .mk[data-cat="restaurant"],
+.mapcard[data-cat="santiago"] .mapcard__icon, .mapcard[data-cat="restaurant"] .mapcard__icon,
+.maplegend__swatch[data-cat="santiago"], .maplegend__swatch[data-cat="restaurant"] { color: var(--color-data-category-1); }
+.mk--active[data-cat="santiago"], .mk--active[data-cat="restaurant"],
+.mapcard.is-active[data-cat="santiago"] .mapcard__icon, .mapcard.is-active[data-cat="restaurant"] .mapcard__icon { background: var(--color-data-category-1); }
+.mapcard.is-active[data-cat="santiago"], .mapcard.is-active[data-cat="restaurant"] { border-color: var(--color-data-category-1); box-shadow: inset 3px 0 0 var(--color-data-category-1); }
+.hoodrow.is-active[data-cat="santiago"], .hoodrow.is-active[data-cat="restaurant"] { box-shadow: inset 3px 0 0 var(--color-data-category-1); }
+
+/* casablanca-valley · winery */
+.mk[data-cat="casablanca-valley"], .mk[data-cat="winery"],
+.mapcard[data-cat="casablanca-valley"] .mapcard__icon, .mapcard[data-cat="winery"] .mapcard__icon,
+.maplegend__swatch[data-cat="casablanca-valley"], .maplegend__swatch[data-cat="winery"] { color: var(--color-data-category-2); }
+.mk--active[data-cat="casablanca-valley"], .mk--active[data-cat="winery"],
+.mapcard.is-active[data-cat="casablanca-valley"] .mapcard__icon, .mapcard.is-active[data-cat="winery"] .mapcard__icon { background: var(--color-data-category-2); }
+.mapcard.is-active[data-cat="casablanca-valley"], .mapcard.is-active[data-cat="winery"] { border-color: var(--color-data-category-2); box-shadow: inset 3px 0 0 var(--color-data-category-2); }
+.hoodrow.is-active[data-cat="casablanca-valley"], .hoodrow.is-active[data-cat="winery"] { box-shadow: inset 3px 0 0 var(--color-data-category-2); }
+
+/* central-coast · museum */
+.mk[data-cat="central-coast"], .mk[data-cat="museum"],
+.mapcard[data-cat="central-coast"] .mapcard__icon, .mapcard[data-cat="museum"] .mapcard__icon,
+.maplegend__swatch[data-cat="central-coast"], .maplegend__swatch[data-cat="museum"] { color: var(--color-data-category-3); }
+.mk--active[data-cat="central-coast"], .mk--active[data-cat="museum"],
+.mapcard.is-active[data-cat="central-coast"] .mapcard__icon, .mapcard.is-active[data-cat="museum"] .mapcard__icon { background: var(--color-data-category-3); }
+.mapcard.is-active[data-cat="central-coast"], .mapcard.is-active[data-cat="museum"] { border-color: var(--color-data-category-3); box-shadow: inset 3px 0 0 var(--color-data-category-3); }
+.hoodrow.is-active[data-cat="central-coast"], .hoodrow.is-active[data-cat="museum"] { box-shadow: inset 3px 0 0 var(--color-data-category-3); }
+
+/* central-mountains · hot-springs */
+.mk[data-cat="central-mountains"], .mk[data-cat="hot-springs"],
+.mapcard[data-cat="central-mountains"] .mapcard__icon, .mapcard[data-cat="hot-springs"] .mapcard__icon,
+.maplegend__swatch[data-cat="central-mountains"], .maplegend__swatch[data-cat="hot-springs"] { color: var(--color-data-category-4); }
+.mk--active[data-cat="central-mountains"], .mk--active[data-cat="hot-springs"],
+.mapcard.is-active[data-cat="central-mountains"] .mapcard__icon, .mapcard.is-active[data-cat="hot-springs"] .mapcard__icon { background: var(--color-data-category-4); }
+.mapcard.is-active[data-cat="central-mountains"], .mapcard.is-active[data-cat="hot-springs"] { border-color: var(--color-data-category-4); box-shadow: inset 3px 0 0 var(--color-data-category-4); }
+.hoodrow.is-active[data-cat="central-mountains"], .hoodrow.is-active[data-cat="hot-springs"] { box-shadow: inset 3px 0 0 var(--color-data-category-4); }
+
+/* lake-district · national-park */
+.mk[data-cat="lake-district"], .mk[data-cat="national-park"],
+.mapcard[data-cat="lake-district"] .mapcard__icon, .mapcard[data-cat="national-park"] .mapcard__icon,
+.maplegend__swatch[data-cat="lake-district"], .maplegend__swatch[data-cat="national-park"] { color: var(--color-data-category-5); }
+.mk--active[data-cat="lake-district"], .mk--active[data-cat="national-park"],
+.mapcard.is-active[data-cat="lake-district"] .mapcard__icon, .mapcard.is-active[data-cat="national-park"] .mapcard__icon { background: var(--color-data-category-5); }
+.mapcard.is-active[data-cat="lake-district"], .mapcard.is-active[data-cat="national-park"] { border-color: var(--color-data-category-5); box-shadow: inset 3px 0 0 var(--color-data-category-5); }
+.hoodrow.is-active[data-cat="lake-district"], .hoodrow.is-active[data-cat="national-park"] { box-shadow: inset 3px 0 0 var(--color-data-category-5); }
+
+/* pomaire · market */
+.mk[data-cat="pomaire"], .mk[data-cat="market"],
+.mapcard[data-cat="pomaire"] .mapcard__icon, .mapcard[data-cat="market"] .mapcard__icon,
+.maplegend__swatch[data-cat="pomaire"], .maplegend__swatch[data-cat="market"] { color: var(--color-data-category-6); }
+.mk--active[data-cat="pomaire"], .mk--active[data-cat="market"],
+.mapcard.is-active[data-cat="pomaire"] .mapcard__icon, .mapcard.is-active[data-cat="market"] .mapcard__icon { background: var(--color-data-category-6); }
+.mapcard.is-active[data-cat="pomaire"], .mapcard.is-active[data-cat="market"] { border-color: var(--color-data-category-6); box-shadow: inset 3px 0 0 var(--color-data-category-6); }
+.hoodrow.is-active[data-cat="pomaire"], .hoodrow.is-active[data-cat="market"] { box-shadow: inset 3px 0 0 var(--color-data-category-6); }
+
+/* bar */
+.mk[data-cat="bar"],
+.mapcard[data-cat="bar"] .mapcard__icon,
+.maplegend__swatch[data-cat="bar"] { color: var(--color-data-category-7); }
+.mk--active[data-cat="bar"],
+.mapcard.is-active[data-cat="bar"] .mapcard__icon { background: var(--color-data-category-7); }
+.mapcard.is-active[data-cat="bar"] { border-color: var(--color-data-category-7); box-shadow: inset 3px 0 0 var(--color-data-category-7); }
+.hoodrow.is-active[data-cat="bar"] { box-shadow: inset 3px 0 0 var(--color-data-category-7); }
+
+/* hotel */
+.mk[data-cat="hotel"],
+.mapcard[data-cat="hotel"] .mapcard__icon,
+.maplegend__swatch[data-cat="hotel"] { color: var(--color-data-category-8); }
+.mk--active[data-cat="hotel"],
+.mapcard.is-active[data-cat="hotel"] .mapcard__icon { background: var(--color-data-category-8); }
+.mapcard.is-active[data-cat="hotel"] { border-color: var(--color-data-category-8); box-shadow: inset 3px 0 0 var(--color-data-category-8); }
+.hoodrow.is-active[data-cat="hotel"] { box-shadow: inset 3px 0 0 var(--color-data-category-8); }
+
+/* volcano */
+.mk[data-cat="volcano"],
+.mapcard[data-cat="volcano"] .mapcard__icon,
+.maplegend__swatch[data-cat="volcano"] { color: var(--color-data-negative); }
+.mk--active[data-cat="volcano"],
+.mapcard.is-active[data-cat="volcano"] .mapcard__icon { background: var(--color-data-negative); }
+.mapcard.is-active[data-cat="volcano"] { border-color: var(--color-data-negative); box-shadow: inset 3px 0 0 var(--color-data-negative); }
+.hoodrow.is-active[data-cat="volcano"] { box-shadow: inset 3px 0 0 var(--color-data-negative); }
+
+/* town */
+.mk[data-cat="town"],
+.mapcard[data-cat="town"] .mapcard__icon,
+.maplegend__swatch[data-cat="town"] { color: var(--color-data-attention); }
+.mk--active[data-cat="town"],
+.mapcard.is-active[data-cat="town"] .mapcard__icon { background: var(--color-data-attention); }
+.mapcard.is-active[data-cat="town"] { border-color: var(--color-data-attention); box-shadow: inset 3px 0 0 var(--color-data-attention); }
+.hoodrow.is-active[data-cat="town"] { box-shadow: inset 3px 0 0 var(--color-data-attention); }
+
+/* cultural-center */
+.mk[data-cat="cultural-center"],
+.mapcard[data-cat="cultural-center"] .mapcard__icon,
+.maplegend__swatch[data-cat="cultural-center"] { color: var(--color-data-tertiary); }
+.mk--active[data-cat="cultural-center"],
+.mapcard.is-active[data-cat="cultural-center"] .mapcard__icon { background: var(--color-data-tertiary); }
+.mapcard.is-active[data-cat="cultural-center"] { border-color: var(--color-data-tertiary); box-shadow: inset 3px 0 0 var(--color-data-tertiary); }
+.hoodrow.is-active[data-cat="cultural-center"] { box-shadow: inset 3px 0 0 var(--color-data-tertiary); }
 
 /* ── Markers ──────────────────────────────────────────────────────────── */
 
@@ -105,7 +189,7 @@
   display: flex; align-items: center; justify-content: center;
   width: 30px; height: 30px; padding: 0;
   background: var(--color-container-background-primary);
-  color: var(--cat, var(--color-data-category-1));
+  color: var(--color-data-category-1);
   border: 1.5px solid currentColor;
   border-radius: 9999px;
   cursor: pointer;
@@ -115,10 +199,10 @@
 .mk:hover { box-shadow: var(--elevation-level-3) var(--color-shadow); z-index: 2; width: 34px; height: 34px; }
 .mk:focus-visible { outline: 2px solid var(--color-focus-indicator); outline-offset: 2px; }
 .mk__icon { display: flex; }
-.mk--dot { width: 14px; height: 14px; background: var(--cat, var(--color-data-category-1)); }
+.mk--dot { width: 14px; height: 14px; background: currentColor; }
 
 .mk--active {
-  background: var(--cat, var(--color-data-category-1));
+  background: var(--color-data-category-1);
   color: var(--color-container-background-primary);
   width: 38px; height: 38px;
   box-shadow: var(--elevation-level-3) var(--color-shadow);
@@ -201,7 +285,7 @@
   transition: border-color var(--duration-fade-fast) var(--ease-fade), box-shadow var(--duration-fade-fast) var(--ease-fade);
 }
 .mapcards--stack .mapcard { border-width: 0 0 1px 0; }
-.mapcard.is-active { border-color: var(--cat, var(--color-text-primary)); box-shadow: inset 3px 0 0 var(--cat, var(--color-text-primary)); }
+.mapcard.is-active { border-color: var(--color-text-primary); box-shadow: inset 3px 0 0 var(--color-text-primary); }
 
 .mapcard__hit {
   display: flex; gap: var(--space-medium); flex: 1 1 auto;
@@ -213,10 +297,10 @@
 .mapcard__icon {
   display: flex; align-items: center; justify-content: center; flex: none;
   width: 32px; height: 32px; border-radius: 9999px;
-  border: 1px solid var(--cat, var(--color-data-category-1));
-  color: var(--cat, var(--color-data-category-1));
+  border: 1px solid currentColor;
+  color: var(--color-data-category-1);
 }
-.mapcard.is-active .mapcard__icon { background: var(--cat, var(--color-data-category-1)); color: var(--color-container-background-primary); }
+.mapcard.is-active .mapcard__icon { color: var(--color-container-background-primary); background: var(--color-data-category-1); }
 .mapcard__body { display: block; min-width: 0; }
 .mapcard__overline {
   display: block; font-family: var(--font-family-component); font-size: var(--font-size-component-x-small);
@@ -245,7 +329,7 @@
 .mapsplit {
   display: grid;
   grid-template-columns: minmax(20rem, 26rem) 1fr;
-  height: calc(100vh - var(--header-h, 5rem));
+  height: calc(100vh - 67px) /* 67px = real header height */;
   min-height: 32rem;
   border-top: 1px solid var(--color-container-border-primary);
 }
@@ -398,7 +482,7 @@
 
 .hood {
   display: grid; grid-template-columns: 1fr minmax(20rem, 24rem);
-  height: calc(100vh - var(--header-h, 5rem)); min-height: 32rem;
+  height: calc(100vh - 67px) /* 67px = real header height */; min-height: 32rem;
   border-top: 1px solid var(--color-container-border-primary);
 }
 .hood__map { min-width: 0; }
@@ -419,7 +503,7 @@
 .hood__count { margin-left: auto; color: var(--color-text-tertiary); }
 .hood__list { list-style: none; margin: 0; padding: 0; }
 .hoodrow { display: flex; align-items: stretch; border-top: 1px solid var(--color-divider-tertiary); }
-.hoodrow.is-active { background: var(--color-container-background-tertiary); box-shadow: inset 3px 0 0 var(--cat, var(--color-text-primary)); }
+.hoodrow.is-active { background: var(--color-container-background-tertiary); box-shadow: inset 3px 0 0 var(--color-text-primary); }
 .hoodrow__hit {
   flex: 1 1 auto; min-width: 0; text-align: left; font: inherit; color: inherit;
   border: none; background: none; cursor: pointer; padding: var(--space-medium) var(--space-large);
