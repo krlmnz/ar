@@ -51,10 +51,11 @@ its markup disappears when omitted.
 
 ## Conventions worth knowing
 
-- **Never use a `--gray-*`, `--white` or `--black` primitive for `color` or
-  `background`.** Primitives don't flip between themes; only the semantic tokens
-  (`--text`, `--bg`, `--surface`, `--border`…) have dark-mode values. Map chrome
-  is the deliberate exception — it's keyed to the basemap, not the page.
+- **Only use the Andean design tokens** declared in `assets/css/tokens.css`
+  (`--color-text-primary`, `--color-container-background-*`, `--space-*`,
+  `--font-size-*`…). Never hardcode a color or declare a new custom property in
+  a component — every Andean token flips automatically under
+  `data-colorscheme="dark"`.
 - **Icons** come from `@phosphor-icons/core` via the `{% icon %}` shortcode —
   `{% icon "map-pin", weight="fill", size=24 %}`. Nothing to download; a bad
   name fails the build rather than rendering a gap.

@@ -33,159 +33,102 @@ Design for both map and list views. Both should feel native, not like one is a r
 
 ## 2. Typography System
 
-Complete type hierarchy with fluid scaling (clamp) for responsive scaling without breakpoints.
+> Source of truth is the Andean token set in `assets/css/tokens.css`. All type
+> is Rethink Sans (self-hosted, variable weight). Sizes are static per
+> breakpoint (≤480px, ≤992px, desktop) via the `--font-size-*` tokens — no
+> clamp() scale.
 
-### Type Scale
+### Type roles
 
-| Level | Font | Size | Weight | Line Height | Letter Spacing | Usage |
-|-------|------|------|--------|-------------|----------------|-------|
-| **Display** | Rethink Sans | clamp(42px, 5vw + 16px, 72px) | 800 | 1.0 | -0.04em | Homepage title, hero statements |
-| **H1** | Rethink Sans | clamp(32px, 3.5vw + 12px, 52px) | 800 | 1.05 | -0.035em | Page titles, major sections |
-| **H2** | Rethink Sans | clamp(22px, 2vw + 8px, 30px) | 700 | 1.15 | -0.02em | Section headers, guide entry titles |
-| **H3** | Rethink Sans | clamp(18px, 1.2vw + 8px, 22px) | 600 | 1.25 | -0.01em | Place names, subsection titles |
-| **Body** | Source Serif 4 | clamp(16px, 0.5vw + 14px, 18px) | 400 | 1.65 | normal | Editorial prose, place descriptions |
-| **Body SM** | Rethink Sans | clamp(14px, 0.3vw + 12px, 15px) | 400 | 1.55 | normal | Descriptions, metadata, helper text |
-| **Caption** | Rethink Sans | 13px | 400 | 1.4 | normal | Small labels, footnotes, timestamps |
-| **Overline** | Rethink Sans | 11px | 600 | 1.4 | 0.1em | Category labels, section markers |
+| Role | Tokens | Usage |
+|-------|--------|-------|
+| **Display** | `--font-size-display-1..4`, `--font-weight-display`, `--line-height-display` | Homepage title, hero statements (site uses display-2) |
+| **Headings** | `--font-size-heading-1..6`, `--font-weight-heading`, `--line-height-heading` | Page titles → subsection titles |
+| **Body** | `--font-size-body-1..4`, `--font-weight-body`, `--line-height-body` | Ledes (body-1), prose (body-2), secondary text (body-3), captions (body-4) |
+| **Component** | `--font-size-component-*`, `--font-weight-component[-bold]`, `--line-height-component` | UI chrome: nav, overlines, tags, meta rows |
+| **Action** | `--font-size-action-*` | Buttons |
 
-### Font Pairing Rationale
-
-**Rethink Sans** (geometric grotesque, bold at display sizes) — Says "magazine." Handles all headlines and interface text. The visual authority of the page. Geometric clarity, no serifs, professional restraint.
-
-**Source Serif 4** (optical-size variable serif) — Says "trust this voice." Handles reading-heavy content (place descriptions, guides). Optical sizing means the serif detail is fine at large sizes and robust at small sizes. Feels literary, editorial, credible.
-
-This pairing echoes the sans/serif split used throughout Condé Nast publications — bold sans for structure, elegant serif for narrative.
-
-### Implementation
-
-```css
-/* CSS Custom Properties */
---font-sans: "Rethink Sans", system-ui, sans-serif;
---font-serif: "Source Serif 4", system-ui, serif;
-
-/* Display text */
-.text-display {
-  font-family: var(--font-sans);
-  font-size: clamp(42px, 5vw + 16px, 72px);
-  font-weight: 800;
-  line-height: 1.0;
-  letter-spacing: -0.04em;
-}
-
-/* Use clamp() throughout for fluid scaling */
-h1 {
-  font-family: var(--font-sans);
-  font-size: clamp(32px, 3.5vw + 12px, 52px);
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.035em;
-}
-```
+Font families: `--font-family-display`, `--font-family-heading`,
+`--font-family-body`, `--font-family-component` (all Rethink Sans).
+Bold emphasis uses the `*-bold` weight tokens. Overlines are
+`--font-size-component-x-small` + `--font-weight-component-bold`, uppercase,
+0.1em tracked (tracking has no token; it stays literal).
 
 ---
 
 ## 3. Spacing Scale
 
-4px base unit. Geometric progression for predictable rhythm.
+The Andean spacing tokens replace the old numeric `--space-0..8` scale:
 
 ```css
---space-0: 4px;   /* Tight component internals, micro-spacing */
---space-1: 8px;   /* Element gaps, small padding */
---space-2: 16px;  /* Component padding, paragraph spacing */
---space-3: 24px;  /* Section internals, card padding */
---space-4: 32px;  /* Section padding, major spacing */
---space-5: 48px;  /* Section dividers, breathing room */
---space-6: 64px;  /* Major section breaks */
---space-7: 96px;  /* Page-level spacing, dramatic */
---space-8: 128px; /* Full-screen whitespace, visual climax */
+--space-x-small: 8px;    /* element gaps, small padding   (was --space-1) */
+--space-small: 12px;
+--space-medium: 16px;    /* component padding             (was --space-2) */
+--space-large: 24px;     /* section internals             (was --space-3) */
+--space-x-large: 40px;   /* section dividers              (was --space-5) */
 ```
 
-**Usage examples:**
-- `.place-entry` padding: var(--space-2) var(--space-3)
-- Section top margin: var(--space-6)
-- Page top padding: var(--space-7)
-- Between place listings: var(--space-4) margin-top
+Plus the purpose-specific sets: `--space-component-gap-*` (2–12px, micro
+spacing), `--space-component-inline-padding-*`, `--space-component-stack-padding-*`,
+`--space-container-padding-*` (4–60px, e.g. `-x-large: 32px`,
+`-xxx-large: 60px` for major section breaks), `--space-column-gap-*`,
+`--space-row-gap-*`, and `--space-page-inline`.
 
 ---
 
 ## 4. Color System
 
-> Source of truth is `assets/css/tokens.css`. The tables below are generated from
-> it — if they disagree, the CSS wins and this section is stale.
+> Source of truth is `assets/css/tokens.css`, which carries the **Andean theme**
+> verbatim: `[data-theme="andean"]` holds the light values and
+> `[data-theme="andean"][data-colorscheme="dark"]` the dark ones. If this
+> section disagrees with the CSS, the CSS wins.
 
-### Primitives
+### Token families
 
-Raw greyscale with a warm paper undertone. **Primitives do not flip between
-themes.** Never reference one directly for `color` or `background` in a component
-— use a semantic token, or dark mode will break.
+Components reference semantic tokens only — every token flips automatically in
+dark mode:
 
-| Token | Hex |
-|---|---|
-| `--white` | #FFFFFF |
-| `--gray-50` | #FAFAF8 |
-| `--gray-100` | #F5F5F3 |
-| `--gray-200` | #E5E5E5 |
-| `--gray-300` | #E5E5E5 *(same as 200 — collapse on next palette revision)* |
-| `--gray-400` | #A3A3A1 |
-| `--gray-500` | #737373 |
-| `--gray-600` | #6B7280 |
-| `--gray-700` | #404040 |
-| `--gray-800` | #262626 |
-| `--gray-900` | #111416 |
-| `--black` | #0A0A0A |
-
-### Semantic tokens
-
-These are what components use. Every one has a dark-mode value.
-
-| Token | Light | Dark | Usage |
-|---|---|---|---|
-| `--bg` | #FAFAF8 | #111416 | Page background |
-| `--surface` | #FFFFFF | #1C1F22 | Cards, elevated surfaces |
-| `--text` | #111416 | #F0F0EE | Primary text, headlines |
-| `--text-2` | #6B7280 | #9CA3AF | Secondary text, descriptions |
-| `--text-3` | #737373 | #8A8A88 | Overlines, captions, meta |
-| `--border` | #E5E5E5 | #434547 | Borders, dividers |
-| `--border-subtle` | #F5F5F3 | #1F1F1F | Barely-visible separators |
-| `--accent` | #111416 | #F0F0EE | Links, interactive |
-| `--accent-hover` | — | #D4D4D2 | Hover state |
-| `--accent-soft` | #F5F5F3 | #1F1F1F | Tinted backgrounds, callouts |
-| `--rule` | #E5E5E5 | #333333 | Horizontal rules |
-
-**Measured contrast** (in-browser, against the page background):
-
-| | Light | Dark |
+| Family | Examples | Usage |
 |---|---|---|
-| `--text` | 15.9:1 | 16.2:1 |
-| `--text-2` | 4.63:1 | 7.28:1 |
-| `--text-3` | 4.54:1 | 5.35:1 |
+| `--color-text-*` | `-primary`, `-secondary`, `-tertiary`, `-accent`, `-inverse`, `-complementary`, `-disabled` | Text |
+| `--color-page-background-*` | `-primary`, `-secondary`, `-tertiary`, `-accent` | Page backgrounds |
+| `--color-container-background-*` | `-primary`, `-secondary`, `-tertiary`, plus status tints | Cards, surfaces, callouts |
+| `--color-container-border-*` | `-primary`, `-secondary`, `-tertiary`, plus status borders | Borders |
+| `--color-divider-*` | `-primary`, `-secondary`, `-tertiary` | Rules and separators |
+| `--color-action-*` | `standard`, `complementary`, `passive`, `negative` + `-hover/-focus/-active/-subtle` | Buttons and controls |
+| `--color-link-*` | `text`, `text-hover`, `text-visited`, `background` | Links |
+| `--color-data-*` | `primary/secondary/tertiary` ramps, `category-1..10`, `positive/negative/attention/neutral` | Maps and data viz |
+| `--color-icon-*`, `--color-input-*`, `--color-ui-*` | — | Icons, form controls, status |
+| `--color-focus-indicator`, `--color-selection-indicator`, `--color-shadow`, `--color-overlay` | — | Focus rings, selection, elevation |
 
-All pass WCAG AA for normal text. The light-mode margin on `--text-2` and
-`--text-3` is thin — **do not lighten them.**
+Elevation pairs `--elevation-level-0..4` with `--color-shadow`
+(`box-shadow: var(--elevation-level-1) var(--color-shadow)`); motion pairs
+`--duration-*` with `--ease-*` (default UI transition:
+`var(--duration-fade-fast) var(--ease-fade)`). Radii come from `--radius-*`
+(`-none` to `-full`, `-action` for buttons).
 
 ### Color philosophy
 
-**Monochrome first.** Greyscale supports the editorial voice — the writing is the
-color. Hierarchy comes from typography and spacing.
-
-**Future color is intentional.** Map pins, audience-segment tints, and data
-visualisation are where color is earned. When it appears it should read like a
-single accent on a black-and-white photograph. No decorative color.
+Greyscale still carries the editorial voice; the Andean accent (teal
+`--color-action-standard` / `--color-link-text`) is reserved for interactive
+elements — links, buttons, focus — and the `--color-data-*` ramps for maps and
+data. No decorative color in prose.
 
 ### Implementation
 
-The theme is an **attribute on `<html>`**, not a media query — it has to be
-user-switchable and remembered.
+The theme is **attributes on `<html>`**: `data-theme="andean"` is set in the
+markup; light/dark is `data-colorscheme`, user-switchable and remembered.
 
 ```css
-:root            { --bg: var(--gray-50);  --text: var(--gray-900); /* … */ }
-[data-theme="dark"] { --bg: #111416;      --text: #F0F0EE;         /* … */ }
+[data-theme="andean"]                           { --color-text-primary: #21262A; /* … */ }
+[data-theme="andean"][data-colorscheme="dark"]  { --color-text-primary: #FFFFFF; /* … */ }
 ```
 
-The toggle writes `localStorage.theme` and sets `document.documentElement.dataset.theme`.
-The read-back runs as a **blocking inline script in `<head>`** (see
-`layouts/base.njk`) so the saved theme is applied before first paint — moving it
-to the end of `<body>` reintroduces a white flash for dark-mode users.
+The toggle writes `localStorage.theme` and sets
+`document.documentElement.dataset.colorscheme`. The read-back runs as a
+**blocking inline script in `<head>`** (see `layouts/base.njk`) so the saved
+scheme is applied before first paint — moving it to the end of `<body>`
+reintroduces a white flash for dark-mode users.
 
 ---
 
@@ -875,25 +818,18 @@ If `mapbox-gl.js` never loads, the script adds `.dirmap--nomap`, which hides the
 map and the reset control and collapses to one column. The directory stays fully
 usable — every card's "Read more" is a plain link that needs no JavaScript.
 
-### Token scoping — important
+### Tokens
 
-The map/directory is built on the **Loom token scale** (`--space-1: 12px` …
-`--space-6: 96px`, `--radius: 12px`, `--radius-sm: 6px`). Those tokens are
-declared **on `.dirmap` only**, not in `:root`.
+The map/directory uses the shared Andean token set like every other component —
+the old `.dirmap`-scoped Loom scale and the `--dm-*` chrome tokens are gone.
+Rounded chrome comes from `--radius-small`/`--radius-large`/`--radius-full`;
+shadows from `--elevation-level-*` + `--color-shadow`.
 
-This is deliberate. The site's global scale is 4px-based (`--space-1: 8px` …
-`--space-8: 128px`) and `--radius` is `0px` — the sharp-cornered, Vignelli-derived
-geometry of §3 and §5, which all 60+ other pages depend on. Redefining those
-names globally would silently reflow and round every page on the site.
-
-The same reasoning as the spacing decision elsewhere: **when two scales share
-token names but not values, scope the newer one rather than aliasing.** Aliasing
-would double every gap.
-
-Map chrome (markers, popups, controls) is keyed to `--dm-*` values that do **not**
-flip under `[data-theme="dark"]`, because legibility on a map is relative to the
-basemap, not the page. The Mapbox style is light-only today; when a dark style
-exists, swap it with `map.setStyle()` on theme toggle and let these follow.
+Map chrome (markers, popups, controls) follows the color scheme with the rest of
+the page. Each piece of chrome carries its own token-driven surface, so contrast
+is internal to the chrome and it stays legible over the light basemap in dark
+mode; when a dark Mapbox style exists, swap it with `map.setStyle()` on theme
+toggle.
 
 ### Performance
 
@@ -1395,10 +1331,13 @@ their own text sections.
 
 ### Cartographic tokens
 
-`assets/css/map-tokens.css` is **additive** — it introduces no name that already
-exists, so the rest of the site is unaffected. It holds the Andean brand hues, a
-`--viz-1..8` categorical ramp, `--seq-1..5` sequential (for choropleth), the
-`--route-*` set, `--map-*` chrome and `--panel-*` furniture.
+Cartography draws on the Andean data tokens in `tokens.css` (the former
+`map-tokens.css` layer is gone): `--color-data-category-1..10` for the
+categorical ramp, the `--color-data-primary/-secondary/-tertiary` ramps for
+sequential/route color, and `--color-data-negative/-attention/-tertiary` for
+the extra place types. Route lines use `--color-data-primary` with a
+`--color-shadow` casing. Chrome and panel furniture use the shared container/
+text tokens.
 
 **The colour rule for maps:** greyscale carries the page, hue carries the data.
 Colour on a map is only legitimate when something decodes it — a legend, or a
@@ -1499,6 +1438,47 @@ Dead code removed: `.view-toggle` (never used), `.lede` (superseded by
 
 **Not fixed — needs Mapbox Studio:** the style carries no settlement, place or
 road labels. Every map layout is downstream of that.
+
+**2026-07-23 — Andean token migration (full token-system replacement)**
+
+The bespoke token layer was replaced wholesale by the **Andean design-token
+set**, adopted verbatim into `tokens.css` under `[data-theme="andean"]` /
+`[data-colorscheme="dark"]`. Every component now references only tokens from
+that set; all other token declarations were removed.
+
+- **Removed:** the old `:root` scale (`--bg/--surface/--text-*/--border*`,
+  `--gray-*` primitives, `--space-0..8`, `--text-*` type tokens, `--transition`,
+  `--shadow*`, `--radius`, `--content-width`/`--page-width`), the
+  `.dirmap`-scoped Loom scale and `--dm-*` chrome, and the entire
+  `map-tokens.css` file (`--brand-*`, `--viz-*`, `--seq-*`, `--route-*`,
+  `--map-*`, `--panel-*`).
+- **Key mappings:** `--text` → `--color-text-primary`, `--text-2/-3` →
+  `--color-text-secondary/-tertiary`, `--bg` → `--color-page-background-primary`,
+  `--surface` → `--color-container-background-primary`, `--border` →
+  `--color-container-border-primary`, `--accent-soft` →
+  `--color-container-background-tertiary`, `--viz-1..8` →
+  `--color-data-category-1..8`, shadows → `--elevation-level-*` +
+  `--color-shadow`, `--transition` → `--duration-fade-fast` + `--ease-fade`,
+  spacing → `--space-x-small/medium/large/x-large` +
+  `--space-container-padding-*`.
+- **Typography:** Source Serif 4 removed (font-faces, preload, woff2 files) —
+  the Andean set is Rethink Sans only. The clamp() type scale gave way to the
+  breakpointed `--font-size-*` tokens; heading tracking tokens had no
+  equivalent and the declarations were dropped. Weights now come from the
+  `--font-weight-*` tokens (display 400, heading 500), which deliberately
+  flattens the old 700/800 hierarchy.
+- **Interactive color:** links use `--color-link-text(-hover)`, buttons the
+  `--color-action-standard*` set with `--radius-action`, focus rings
+  `--color-focus-indicator`, active map cards `--color-selection-indicator` —
+  the site is no longer strictly monochrome; the Andean teal marks interaction.
+- **Theme attribute split:** `<html data-theme="andean">` is fixed in markup;
+  the toggle now writes `data-colorscheme="dark"` (localStorage key unchanged).
+  All `[data-theme="dark"]` selectors became `[data-colorscheme="dark"]`, and
+  per-component dark overrides were deleted — tokens flip themselves.
+- **Still allowed, not design tokens:** `--header-h` (structural viewport
+  constant) and `--cat` (per-category indirection that always resolves to a
+  `--color-data-*` token). `andean-map.js` reads `--color-data-primary` and
+  `--color-shadow` for the route layers.
 
 **Known, accepted:**
 

@@ -298,7 +298,7 @@
         source: "route",
         layout: { "line-cap": "round", "line-join": "round" },
         paint: {
-          "line-color": css.getPropertyValue("--route-casing").trim() || "rgba(24,23,22,.12)",
+          "line-color": css.getPropertyValue("--color-shadow").trim() || "rgba(24,23,22,.12)",
           "line-width": 7,
           "line-opacity": 0.9
         }
@@ -309,7 +309,7 @@
         source: "route",
         layout: { "line-cap": "round", "line-join": "round" },
         paint: {
-          "line-color": css.getPropertyValue("--route-line").trim() || "#D7561D",
+          "line-color": css.getPropertyValue("--color-data-primary").trim() || "#3492EF",
           "line-width": 3,
           // Dashed on purpose: these are straight segments between stops, not
           // driving geometry. A solid road-weight line would assert a road
