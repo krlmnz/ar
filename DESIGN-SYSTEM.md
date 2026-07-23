@@ -33,10 +33,10 @@ Design for both map and list views. Both should feel native, not like one is a r
 
 ## 2. Typography System
 
-> Source of truth is the Andean token set in `assets/css/tokens.css` — the
-> **used subset** of the canonical Andean export (see §4). All type is Rethink
-> Sans (self-hosted, variable weight). Sizes are static per breakpoint
-> (≤480px, ≤992px, desktop) via the `--font-size-*` tokens — no clamp() scale.
+> Source of truth is the Andean token set in `assets/css/tokens.css`, carried
+> **verbatim** from the canonical Andean export (see §4). All type is Rethink
+> Sans (self-hosted, variable weight). Sizes come from the `--font-size-*`
+> tokens — no clamp() scale.
 
 ### Type roles
 
@@ -78,34 +78,36 @@ spacing), `--space-component-inline-padding-*`, `--space-component-stack-padding
 
 ## 4. Color System
 
-> Source of truth is `assets/css/tokens.css`, which carries the **used subset
-> of the canonical Andean token export**: `[data-theme="andean"]` holds the
-> light values and `[data-theme="andean"][data-colorscheme="dark"]` the dark
-> ones, with the responsive `--font-size-*` overrides in between (base block
-> first — the media queries only win through source order). Every token in the
-> file is referenced by the codebase; there are no spares. If this section
+> Source of truth is `assets/css/tokens.css`, which carries the **canonical
+> Andean token export verbatim**: `[data-theme="andean"]` holds the light
+> values and `[data-theme="andean"][data-colorscheme="dark"]` the dark ones.
+> The export is never hand-edited or regenerated in this repo — when a new
+> export is issued, replace the token blocks wholesale. If this section
 > disagrees with the CSS, the CSS wins.
 
-**Adding a token:** when a new component needs one, copy it (light + dark
-values, same name) from the canonical Andean export — never invent a custom
-property. The canonical export is the single upstream; this file only ever
-shrinks or grows relative to what components use.
+**Using tokens:** components reference Andean tokens only — never invent a
+custom property, never hardcode a color. The full set is present, so tokens
+the site doesn't use yet (inputs, code, messages, status UI…) are available
+API for future components. The only non-token variables allowed are ones that
+*carry* token values or structural constants: `--cat` (category → data-color
+indirection) and `--header-h` (real header height for viewport layouts).
 
-### Token families in use
+### Token families
 
-Components reference semantic tokens only — every color token flips
-automatically in dark mode:
+Every color token flips automatically in dark mode:
 
-| Family | Kept members | Usage |
+| Family | Examples | Usage |
 |---|---|---|
-| `--color-text-*` | `-primary`, `-secondary`, `-tertiary`, `-accent`, `-inverse`, `-complementary` | Text |
-| `--color-page-background-primary` | — | Page background |
-| `--color-container-background-*` | `-primary`, `-secondary`, `-tertiary` | Cards, surfaces, callouts |
-| `--color-container-border-primary`, `--color-divider-tertiary` | — | Borders, subtle separators |
-| `--color-action-standard*` | base + `-hover/-active/-subtle/-subtle-hover` | Buttons |
-| `--color-link-text`, `--color-link-text-hover` | — | Links |
-| `--color-data-*` | `category-1..8`, `primary`, `primary-100`, `negative`, `attention`, `tertiary` | Maps and data viz |
-| `--color-focus-indicator`, `--color-selection-indicator`, `--color-shadow` | — | Focus rings, selection, elevation |
+| `--color-text-*` | `-primary`, `-secondary`, `-tertiary`, `-accent`, `-inverse`, `-complementary`, `-disabled` | Text |
+| `--color-page-background-*` | `-primary`, `-secondary`, `-tertiary`, `-accent` | Page backgrounds |
+| `--color-container-background-*` | `-primary`, `-secondary`, `-tertiary`, plus status tints | Cards, surfaces, callouts |
+| `--color-container-border-*` | `-primary`, `-secondary`, `-tertiary`, plus status borders | Borders |
+| `--color-divider-*` | `-primary`, `-secondary`, `-tertiary` | Rules and separators |
+| `--color-action-*` | `standard`, `complementary`, `passive`, `negative` + `-hover/-focus/-active/-subtle` | Buttons and controls |
+| `--color-link-*` | `text`, `text-hover`, `text-visited`, `background` | Links |
+| `--color-data-*` | `primary/secondary/tertiary` ramps, `category-1..10`, `positive/negative/attention/neutral` | Maps and data viz |
+| `--color-icon-*`, `--color-input-*`, `--color-ui-*` | — | Icons, form controls, status |
+| `--color-focus-indicator`, `--color-selection-indicator`, `--color-shadow`, `--color-overlay` | — | Focus rings, selection, elevation |
 
 Elevation pairs `--elevation-level-0..4` with `--color-shadow`
 (`box-shadow: var(--elevation-level-1) var(--color-shadow)`); motion pairs
@@ -1486,23 +1488,25 @@ that set; all other token declarations were removed.
   `--color-data-*` token). `andean-map.js` reads `--color-data-primary` and
   `--color-shadow` for the route layers.
 
-**2026-07-23 — token pruning + responsive type-scale fix**
+**2026-07-23 — canonical export restored verbatim (supersedes the pruning
+commit before it)**
 
-`tokens.css` regenerated as the **used subset** of the canonical Andean export:
-71 of 396 tokens kept — exactly the set the codebase references, verified 1:1
-in both directions (no token used but undefined, none defined but unused).
-Values are untouched; unused families (`--color-input-*`, `--color-code-*`,
-`--color-ui-*`, `--color-message-*`, most action/data/spacing/motion variants)
-were dropped and can be re-added from the canonical export when a component
-needs them.
+A pruned "used subset" tokens.css was briefly committed, then reverted by
+decision: the canonical Andean export now lives in `tokens.css` **verbatim**
+(all 396 tokens, light + dark), with only the self-hosted `@font-face` rules
+above it. The export is intended for the map product and everything else, so
+the full set stays available; it is never hand-edited or regenerated in this
+repo — replace the blocks wholesale when a new export ships. Verified after
+restore: every `var()` in the codebase resolves to an Andean token; the only
+other custom properties are the documented carriers `--cat` (holds
+`--color-data-*` values) and `--header-h` (structural constant).
 
-While regenerating, fixed a real ordering bug inherited from the export: the
-desktop `--font-size-*` block sat **after** the two `max-width` media queries
-at equal specificity, so the responsive sizes never applied — phones rendered
-the 84px/72px desktop display scale. The base block now comes first and the
-media overrides after (992px, then 480px), reduced to the three tokens that
-actually differ per breakpoint (`display-2`, `heading-1`, `heading-4`).
-Measured: `.hero-title` at 390px viewport is now 48px (was 72px).
+**Known upstream issue, left as exported:** the desktop `--font-size-*` block
+sits *after* the two `max-width` media queries at equal specificity, so the
+responsive sizes never win — all viewports get the desktop type scale (e.g.
+72px `display-2` on phones). Fixing it means moving the base block above the
+media queries; that is an edit to the export, so it belongs upstream. Flag for
+the next export revision.
 
 **Known, accepted:**
 
