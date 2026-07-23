@@ -1,0 +1,83 @@
+{# REGION MAP — the area directory.
+   Same shape and components as /map/ (.mapsplit grid, .mapcard rows), so the
+   two read as one system: the full directory, and one region of it. What this
+   adds is the detail panel — /map/ sends you to a place page, a region page
+   lets you read the place without leaving the map.
+
+   Requires `here` (the region's collection items), `region`, and `feats`.
+   The caller sets mapConfig; map-embed is included by the caller too. #}
+
+<section class="mapsplit mapsplit--region" data-regionmap>
+  <div class="mapsplit__panel">
+    <header class="mappanel__head">
+      <div class="mappanel__overline">{{ region.description }}</div>
+      <h2 class="mappanel__title">{{ region.label }}</h2>
+      <div class="mappanel__meta">
+        <span>{{ here | length }} {{ "place" if here.length == 1 else "places" }}</span>
+        <button type="button" class="linkbtn" data-map-reset>Reset map</button>
+      </div>
+    </header>
+
+    <ul class="mapcards mapcards--stack">
+      {% for f in feats %}
+      {% include "partials/mapcard.njk" %}
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="mapsplit__map">
+    {% set mapLabel = region.label %}
+    {% include "partials/map-shell.njk" %}
+
+    {# Detail — one section per place, rendered at build time and hidden until
+       asked for. Slides over the map from the right; closing it returns to the
+       whole region. With JS off these are simply readable sections. #}
+    <div class="regionpanel regionpanel--detail" data-region-detail hidden>
+      <button type="button" class="regionpanel__close" data-region-close
+              aria-label="Close and show the whole region">
+        {% icon "x", size=16 %}
+      </button>
+
+      {% for item in here %}
+      <article class="placedetail" data-detail="{{ item.data.slug }}" hidden>
+        <div class="regionpanel__inner">
+          <div class="regionpanel__eyebrow">{{ item.data.type | replace("-", " ") }}</div>
+          <h2 class="regionpanel__title">{{ item.data.title }}</h2>
+          {% if item.data.subtitle %}
+          <p class="placedetail__standfirst">{{ item.data.subtitle }}</p>
+          {% endif %}
+
+          {% set facts = [] %}
+          {% if item.data.cost_level %}{% set facts = (facts.push(item.data.cost_level), facts) %}{% endif %}
+          {% if item.data.duration %}{% set facts = (facts.push(item.data.duration | replace("-", " ")), facts) %}{% endif %}
+          {% if item.data.reservations and item.data.reservations != "none" %}
+            {% set facts = (facts.push("reservations " + item.data.reservations), facts) %}
+          {% endif %}
+          {% if facts.length %}
+          <p class="regionpanel__meta">{{ facts | join(" · ") }}</p>
+          {% endif %}
+
+          {% if item.data.best_for %}
+          <p class="placedetail__bestfor"><strong>Best for</strong> {{ item.data.best_for }}</p>
+          {% endif %}
+
+          <div class="placedetail__body prose">
+            {{ item.templateContent | safe }}
+          </div>
+
+          {% if item.data.tip %}
+          <div class="tip"><p><strong>Pro tip —</strong> {{ item.data.tip }}</p></div>
+          {% endif %}
+
+          <div class="btn-row placedetail__actions">
+            <a href="/places/{{ item.data.slug }}/" class="btn btn--filled">Open the full page</a>
+            {% if item.data.google_maps %}
+            <a href="{{ item.data.google_maps }}" target="_blank" rel="noopener" class="btn">Directions</a>
+            {% endif %}
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>

@@ -28,14 +28,12 @@ requires:
   - car
 cover: cover.jpg
 cover_alt: "Kingston Family Vineyards tasting room in Casablanca Valley"
-images: auto
 related:
   - casa-del-bosque
   - bodegas-re
   - matetic-vineyards
 near:
   - casa-del-bosque
-status: published
 updated: 2026-03-28
 author_note: true
 ---

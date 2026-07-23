@@ -1,0 +1,259 @@
+---
+layout: layouts/base.njk
+---
+{# PAGE — the single implementation behind every prose page kind. The nine
+   layouts (article, simple, practical, reference, guide, faq, gallery,
+   manual, itinerary) are one-line aliases that set pageKind via layout
+   chaining; each kind contributes at most one optional section beneath the
+   shared breadcrumbs + masthead + prose column. #}
+
+{# guide + practical own their trail and overline; the other kinds take both
+   from front matter so one-off pages stay flexible. #}
+{% if pageKind == "guide" %}
+{% set crumbs = [
+  {label: "Guides", url: "/guides/" },
+  {label: title}
+] %}
+{% set overline = "Guide · " + duration if duration else "Guide" %}
+{% elif pageKind == "practical" %}
+{% set crumbs = [
+  {label: "Practical", url: "/practical/" },
+  {label: title}
+] %}
+{% set overline = "Practical" %}
+{% endif %}
+
+{% if crumbs %}{% include "partials/breadcrumbs.njk" %}{% endif %}
+
+{# guide + practical predate the tpl-- hooks and render unclassed — keep that
+   so existing CSS selectors keep matching. #}
+{% if pageKind in ["guide", "practical"] -%}
+<article>
+{%- else -%}
+<article class="tpl tpl--{{ pageKind }}">
+{%- endif %}
+  {% include "partials/page-header.njk" %}
+
+  {% if pageKind == "manual" %}
+  {% set headings = content | toc %}
+  {% set showToc = toc !== false and headings.length > 2 %}
+
+  <div class="manual{{ ' manual--with-toc' if showToc }}">
+    <div class="manual__body prose">
+      {{ content | safe }}
+    </div>
+
+    {% if showToc %}
+    <aside class="manual__aside" aria-labelledby="toc-heading">
+      {# A <details> on small screens so the contents don't push the text down;
+         forced open on wide screens where it sits in its own column. #}
+      <details class="toc" open>
+        <summary class="toc__heading" id="toc-heading">On this page</summary>
+        <nav>
+          <ol class="toc__list">
+            {% for h in headings %}
+            <li class="toc__item toc__item--h{{ h.level }}">
+              <a href="#{{ h.id }}">{{ h.text }}</a>
+            </li>
+            {% endfor %}
+          </ol>
+        </nav>
+      </details>
+    </aside>
+    {% endif %}
+  </div>
+  {% elif content or pageKind in ["article", "simple", "guide", "practical"] %}
+  {# reference/faq/gallery/itinerary treat the body as an optional intro. #}
+  <div class="prose content-column">
+    {{ content | safe }}
+  </div>
+  {% endif %}
+
+  {% if pageKind == "article" and further_reading and further_reading.length %}
+  <div class="section-block">
+    <hr class="rule">
+    <h2 class="subhead">Further reading</h2>
+    <div class="practical-list">
+      {% for item in further_reading %}
+      <a href="{{ item.url }}" class="practical-link">{{ item.label }}</a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if pageKind == "practical" %}
+  <div class="section-block">
+    <hr class="rule">
+    <h2 class="subhead">More practical info</h2>
+    <div class="practical-list">
+      {% for p in collections.practical %}
+        {% if p.data.slug != slug %}
+        <a href="/practical/{{ p.data.slug }}/" class="practical-link">{{ p.data.title }}</a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if pageKind == "guide" and places and places.length %}
+  <div class="section-block">
+    <hr class="rule">
+    <h2 class="subhead">Places in this guide</h2>
+    <div class="place-grid">
+      {% for placeSlug in places %}
+        {% set place = collections.places | findBySlug(placeSlug) %}
+        {% if place %}
+          {% include "partials/place-card.njk" %}
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if pageKind == "reference" and rows and rows.length %}
+  <div class="reference-list reference-list--table">
+    {% for row in rows %}
+    <div class="reference-item">
+      <div class="reference-item__label">{{ row.label }}</div>
+      <div>
+        <div class="reference-item__value">{{ row.value }}</div>
+        {% if row.note %}<div class="reference-item__annotation">{{ row.note }}</div>{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if pageKind == "faq" and faqs and faqs.length %}
+  {# <details> gives a real accordion with zero JS — keyboard operable and
+     announced correctly by screen readers. The first one opens by default. #}
+  <div class="faq-list">
+    {% for item in faqs %}
+    <details class="faq-item"{% if loop.first %} open{% endif %}>
+      <summary class="faq-item__q">{{ item.q }}</summary>
+      <div class="faq-item__a">{{ item.a }}</div>
+    </details>
+    {% endfor %}
+  </div>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {%- for item in faqs %}
+      {
+        "@type": "Question",
+        {# dump escapes quotes but not "</", which would close the <script> early #}
+        "name": {{ item.q | dump | replace("</", "<\\/") | safe }},
+        "acceptedAnswer": { "@type": "Answer", "text": {{ item.a | dump | replace("</", "<\\/") | safe }} }
+      }{% if not loop.last %},{% endif %}
+      {%- endfor %}
+    ]
+  }
+  </script>
+  {% endif %}
+
+  {% if pageKind == "gallery" and figures and figures.length %}
+  {# The first figure runs full width as the opener, the rest tile beneath it. #}
+  <div class="figure-grid figure-grid--feature">
+    {% for fig in figures %}
+    <figure class="figure{{ ' figure--feature' if loop.first }}">
+      {% if fig.src %}
+        <img src="{{ fig.src }}" alt="{{ fig.alt }}" loading="lazy" decoding="async" style="width:100%;height:auto;display:block">
+      {% else %}
+        <div class="placeholder-img" role="img" aria-label="{{ fig.alt or fig.caption }}">
+          {% icon "image", size=24 %}
+        </div>
+      {% endif %}
+      {% if fig.caption %}<figcaption>{{ fig.caption }}</figcaption>{% endif %}
+    </figure>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if pageKind == "itinerary" and steps and steps.length %}
+  {% set placeCount = 0 %}
+  {% for s in steps %}{% if s.place %}{% set placeCount = placeCount + 1 %}{% endif %}{% endfor %}
+  <div class="itin-summary">
+    <span>{{ steps | length }} {{ "stop" if steps | length == 1 else "stops" }}</span>
+    {% if placeCount %}<span>{{ placeCount }} linked {{ "place" if placeCount == 1 else "places" }}</span>{% endif %}
+  </div>
+
+  {# role="list" restores list semantics that list-style:none strips in Safari #}
+  <ol class="steps steps--timeline" role="list">
+    {% for step in steps %}
+    <li class="step">
+      <div>
+        {% if step.overline %}<div class="step__overline">{{ step.overline }}</div>{% endif %}
+        <h2 class="step__title">{{ step.title }}</h2>
+        {% if step.body %}<p class="step__body">{{ step.body }}</p>{% endif %}
+        {% if step.place %}
+          {% set linked = collections.places | findBySlug(step.place) %}
+          {% if linked %}
+          <p class="step__body">
+            <a href="/places/{{ linked.data.slug }}/">{{ linked.data.title }} →</a>
+          </p>
+          {% endif %}
+        {% endif %}
+      </div>
+    </li>
+    {% endfor %}
+  </ol>
+  {% endif %}
+
+  {% if pageKind == "manual" and (prev or next) %}
+  <nav class="manual-nav" aria-label="Section">
+    {% if prev %}
+    <a class="manual-nav__link manual-nav__link--prev" href="{{ prev.url }}">
+      <span class="manual-nav__dir">← Previous</span>
+      <span class="manual-nav__label">{{ prev.label }}</span>
+    </a>
+    {% else %}<span></span>{% endif %}
+
+    {% if next %}
+    <a class="manual-nav__link manual-nav__link--next" href="{{ next.url }}">
+      <span class="manual-nav__dir">Next →</span>
+      <span class="manual-nav__label">{{ next.label }}</span>
+    </a>
+    {% endif %}
+  </nav>
+  {% endif %}
+
+  {% if pageKind in ["article", "guide", "practical"] %}
+  {# Article schema so AI search and rich results can attribute the page.
+     Guides additionally list their linked places as the subject matter. #}
+  {% if pageKind == "guide" and places %}
+  {% set aboutPlaces = [] %}
+  {% for placeSlug in places %}
+    {% set aboutPlace = collections.places | findBySlug(placeSlug) %}
+    {% if aboutPlace %}{% set aboutPlaces = aboutPlaces.concat([aboutPlace]) %}{% endif %}
+  {% endfor %}
+  {% endif %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": {{ title | dump | replace("</", "<\\/") | safe }},
+    {%- if description or subtitle %}
+    "description": {{ (description or subtitle) | dump | replace("</", "<\\/") | safe }},
+    {%- endif %}
+    {%- if updated %}
+    "dateModified": "{{ updated | isoDate }}",
+    {%- endif %}
+    "mainEntityOfPage": "{{ site.url }}{{ page.url }}",
+    "author": { "@type": "Person", "name": {{ site.author | dump | replace("</", "<\\/") | safe }}, "url": "{{ site.url }}/about/" },
+    "publisher": { "@type": "Person", "name": {{ site.author | dump | replace("</", "<\\/") | safe }}, "url": "{{ site.url }}/about/" }
+    {%- if aboutPlaces and aboutPlaces.length %},
+    "about": [
+      {%- for aboutPlace in aboutPlaces %}
+      { "@type": "TouristAttraction",
+        "name": {{ aboutPlace.data.title | dump | replace("</", "<\\/") | safe }},
+        "url": "{{ site.url }}/places/{{ aboutPlace.data.slug }}/" }{% if not loop.last %},{% endif %}
+      {%- endfor %}
+    ]
+    {%- endif %}
+  }
+  </script>
+  {% endif %}
+</article>

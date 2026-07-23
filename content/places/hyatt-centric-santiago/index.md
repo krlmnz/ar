@@ -25,13 +25,11 @@ website: "https://www.hyatt.com/hyatt-centric/sclct-hyatt-centric-santiago-las-c
 duration: "multi-day"
 cover: cover.jpg
 cover_alt: "Hyatt Centric Santiago lobby with contemporary design"
-images: auto
 related:
   - w-santiago
   - la-cabrera-chile
 near:
   - w-santiago
-status: published
 updated: 2026-03-28
 author_note: true
 ---

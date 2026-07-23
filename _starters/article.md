@@ -2,7 +2,7 @@
 # ARTICLE — long-form editorial. Read once, start to finish.
 layout: layouts/article.njk
 title: "__TITLE__"
-subtitle: ""                   # one-sentence standfirst
+subtitle: ""                   # one-sentence standfirst — also the meta description and the search-index summary
 overline: Dispatch             # small label above the title — optional
 byline: By Karol               # optional
 updated: __DATE__              # optional, UNQUOTED

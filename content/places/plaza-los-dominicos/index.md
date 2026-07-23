@@ -30,12 +30,10 @@ bring:
 tip: "Look for the store with a large table loom — you'll see their products being made."
 cover: cover.jpg
 cover_alt: "Artisan market stalls at Plaza Los Dominicos in Santiago"
-images: auto
 related:
   - pomaire
 near:
   - la-chascona
-status: published
 updated: 2026-03-28
 author_note: true
 ---

@@ -1,0 +1,65 @@
+/* ============================================================
+   OVERLAYS — the share modal.
+   ============================================================ */
+
+/* ---------- share modal ---------- */
+#share-overlay {
+  position: fixed; inset: 0; z-index: 110; display: none;
+  /* full-viewport scrim — the one translucency that IS theme, so it
+     takes the overlay token; the blur stays */
+  background: var(--color-overlay); backdrop-filter: blur(7px);
+  align-items: center; justify-content: center; padding: var(--space-container-padding-large);
+}
+#share-overlay.open { display: flex; }
+.share-card {
+  width: 480px; max-width: 100%; background: var(--color-container-background-primary); border-radius: var(--radius-x-large);
+  box-shadow: var(--elevation-level-3) var(--color-shadow); padding: var(--space-container-padding-large); position: relative;
+}
+.share-close { position: absolute; top: 14px; right: 14px; }
+.share-kicker { font-size: var(--font-size-component-x-small); letter-spacing: .22em; text-transform: uppercase; color: var(--color-text-tertiary); font-weight: var(--font-weight-component-semibold); margin-bottom: 6px; }
+.share-title { font-family: var(--font-family-component); font-size: var(--font-size-heading-4); font-weight: var(--font-weight-heading-bold); margin-bottom: 6px; }
+.share-sub { color: var(--color-text-secondary); font-size: var(--font-size-component-small); line-height: var(--line-height-body); margin-bottom: var(--space-container-padding-small); }
+.share-stats { display: flex; gap: 8px; margin-bottom: var(--space-container-padding-small); flex-wrap: wrap; }
+.share-stat {
+  font-size: var(--font-size-component-x-small); font-weight: var(--font-weight-component-semibold); color: var(--color-text-secondary);
+  border: 1px solid var(--color-container-border-primary); border-radius: var(--radius-full); padding: 5px 11px;
+  display: inline-flex; gap: 6px; align-items: center;
+}
+.share-stat .dot { width: 8px; height: 8px; border-radius: 50%; }
+.share-link-row { display: flex; gap: 8px; margin-bottom: var(--space-component-inline-padding-large); }
+#share-link {
+  /* a readonly field in all but the attribute, so it takes the
+     readonly input pair. Mono stack stays literal — no andean token. */
+  flex: 1; font-size: var(--font-size-component-x-small); font-family: ui-monospace, Menlo, monospace;
+  border: 1px solid var(--color-input-border-primary); border-radius: var(--radius-x-small); padding: 10px 12px;
+  background: var(--color-input-background-readonly); color: var(--color-text-secondary); outline: none; min-width: 0;
+}
+.share-row2 { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ---------- palette modal ----------
+   The other seven templates live here: one click behind the dock, so
+   the choice stays available without occupying the screen. */
+#palette-overlay {
+  position: fixed; inset: 0; z-index: 115; display: none;
+  background: var(--color-overlay); backdrop-filter: blur(7px);
+  align-items: center; justify-content: center; padding: var(--space-container-padding-large);
+}
+#palette-overlay.open { display: flex; }
+.palette-modal-card {
+  width: 560px; max-width: 100%; max-height: calc(100vh - 2 * var(--space-container-padding-large)); overflow-y: auto;
+  background: var(--color-container-background-primary); border-radius: var(--radius-x-large);
+  box-shadow: var(--elevation-level-3) var(--color-shadow); padding: var(--space-container-padding-large); position: relative;
+}
+.palette-close { position: absolute; top: 14px; right: 14px; }
+/* roomier than the rail ever allowed: the thumbnail can carry the name
+   and its harmony without hyphenating anything */
+.palette-modal-card .palette-grid {
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap: var(--space-container-padding-small) var(--space-component-inline-padding-large);
+}
+.palette-modal-card .palette-thumb { width: 84px; height: 84px; }
+.palette-modal-card .palette-card-name { font-size: var(--font-size-component-small); }
+.palette-card-harmony {
+  font-size: var(--font-size-component-x-small); line-height: 1.25; text-align: center;
+  color: var(--color-text-tertiary); width: 100%;
+}

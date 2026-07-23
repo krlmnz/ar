@@ -3,11 +3,12 @@
 # Builds a sticky contents rail from your h2/h3 headings automatically.
 layout: layouts/manual.njk
 title: "__TITLE__"
-subtitle: ""
+subtitle: ""                   # one sentence — it is the meta description and the search-index summary; write it as the answer to "why go?"
 overline: Handbook
 # toc: false                   # suppress the contents rail
 # prev: { label: "Previous", url: "/somewhere/" }
 # next: { label: "Next", url: "/elsewhere/" }
+updated: __DATE__              # UNQUOTED — a quoted date breaks the build
 ---
 
 Open with what this document covers and who it's for.

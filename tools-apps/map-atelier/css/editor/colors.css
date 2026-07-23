@@ -1,0 +1,335 @@
+/* ============================================================
+   THEME SURFACES — the palette cards (shown in the palette modal),
+   the map-layer column on the right, and the Color Library flyout
+   that opens beside it.
+
+   The inset rgba(0,0,0,…) hairlines throughout are color-agnostic
+   rings drawn over arbitrary user-picked hues — they stay literal
+   on purpose, in both schemes.
+   ============================================================ */
+
+/* ---------- palette cards (curated, cartographic) ----------
+   Each card is a 54px map thumbnail with the name beneath it. Columns
+   flex so the row count follows the rail width. */
+.palette-grid {
+  display: grid; gap: var(--space-component-inline-padding-large) 6px;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  justify-items: center; align-items: start;
+}
+.palette-card {
+  border: none; background: none; padding: 0; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  min-width: 0; width: 100%;
+}
+/* fixed, not aspect-ratio: the thumb must match #cur-swatch exactly, and
+   a ratio resolves against the grid track before max-width can clamp it */
+.palette-thumb {
+  width: 54px; height: 54px; display: block; overflow: hidden; flex-shrink: 0;
+  border-radius: var(--radius-x-small); box-shadow: inset 0 0 0 1px rgba(0,0,0,.12);
+  transition: box-shadow var(--duration-fade-fast) var(--ease-fade),
+              transform var(--duration-transform-fast) var(--ease-transform);
+}
+.palette-thumb svg { display: block; width: 100%; height: 100%; }
+.palette-card:hover .palette-thumb { transform: translateY(-1px); box-shadow: inset 0 0 0 1px rgba(0,0,0,.12), var(--elevation-level-1) var(--color-shadow); }
+.palette-card.active .palette-thumb { box-shadow: inset 0 0 0 1px rgba(0,0,0,.12), 0 0 0 2px var(--color-selection-indicator); }
+/* the track is wider than the 54px thumb so names wrap at word
+   boundaries — break-word is the last-resort escape, not the default */
+.palette-card-name {
+  font-size: var(--font-size-component-x-small); font-weight: var(--font-weight-component-semibold); line-height: var(--line-height-component); text-align: center;
+  color: var(--color-text-tertiary); width: 100%;
+  overflow-wrap: break-word; hyphens: auto;
+}
+/* rest and active weigh the same on the andean scale — the ink shift
+   carries the state on its own */
+.palette-card.active .palette-card-name { color: var(--color-text-primary); font-weight: var(--font-weight-component-semibold); }
+
+/* ---------- pick a layer (chips above the color) ---------- */
+.layer-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.layer-chip {
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  padding: 6px 11px; border: 1px solid var(--color-container-border-primary); border-radius: var(--radius-full);
+  background: var(--color-container-background-primary); color: var(--color-text-secondary);
+  font-family: inherit; font-size: var(--font-size-component-x-small); font-weight: var(--font-weight-component-semibold);
+  transition: all var(--duration-fade-fast) var(--ease-fade);
+}
+.layer-chip:hover { border-color: var(--color-container-border-tertiary); color: var(--color-text-primary); }
+.layer-chip.active {
+  border-color: var(--color-selection-indicator); color: var(--color-text-primary);
+  background: var(--color-container-background-accent); box-shadow: 0 0 0 1px var(--color-selection-indicator);
+}
+.layer-chip-dot {
+  width: var(--swatch-size); height: var(--swatch-size); border-radius: var(--radius-x-small); flex-shrink: 0;
+  background-size: var(--swatch-size) var(--swatch-size); background-position: center;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.15);
+}
+
+/* ---------- layer editor: swatch + value fields ----------
+   Every control in this row is the same --swatch-size block, so the
+   swatch, the hex and the opacity read as one instrument rather than
+   three widgets. */
+.current-swatch-row { display: flex; gap: 7px; align-items: center; }
+#cur-swatch {
+  width: var(--swatch-size); height: var(--swatch-size); border-radius: var(--radius-x-small); flex-shrink: 0; cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); border: none; padding: 0;
+  background-size: var(--swatch-size) var(--swatch-size); background-position: center;
+  transition: box-shadow var(--duration-fade-fast) var(--ease-fade);
+}
+#cur-swatch:hover { box-shadow: inset 0 0 0 1px rgba(0,0,0,.12), 0 0 0 2px var(--color-action-standard); }
+
+/* a hex/percent pair that reads as one control, like a Figma field */
+.value-field {
+  display: inline-flex; align-items: center; gap: 1px; min-width: 0; flex: 1;
+  height: var(--swatch-size); padding: 0 8px;
+  border: 1px solid var(--color-input-border-primary); border-radius: var(--radius-x-small);
+  background: var(--color-input-background-primary); transition: border-color var(--duration-fade-fast) var(--ease-fade);
+}
+.value-field.compact { flex: 0 0 66px; justify-content: flex-end; padding: 0 7px; }
+.value-field:focus-within { border-color: var(--color-input-border-primary-focus); box-shadow: 0 0 0 3px var(--color-container-background-accent); }
+.value-field input {
+  border: none; outline: none; background: none; min-width: 0; width: 100%;
+  /* no andean mono family token — the stack stays literal */
+  font-family: ui-monospace, Menlo, monospace; font-size: var(--font-size-component-small); font-weight: var(--font-weight-component-semibold);
+  color: var(--color-text-primary); text-transform: uppercase; padding: 0;
+  font-variant-numeric: tabular-nums;
+}
+.value-field.compact input { text-align: right; width: 34px; flex: 0 0 34px; text-transform: none; }
+.value-prefix, .value-suffix {
+  font-family: ui-monospace, Menlo, monospace; font-size: var(--font-size-component-x-small);
+  color: var(--color-text-tertiary); flex-shrink: 0;
+}
+
+/* ---------- inline link button (opens the library) ---------- */
+.link-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  border: none; background: none; padding: 0; cursor: pointer;
+  font-family: inherit; font-size: var(--font-size-component-x-small); font-weight: var(--font-weight-component-semibold);
+  letter-spacing: 0; text-transform: none; color: var(--color-link-text);
+  transition: color var(--duration-fade-fast) var(--ease-fade);
+}
+/* a link darkens like a link now, instead of fading */
+.link-btn:hover { color: var(--color-link-text-hover); }
+.field-hint {
+  font-size: var(--font-size-component-x-small); font-weight: var(--font-weight-component); letter-spacing: 0;
+  text-transform: none; color: var(--color-text-tertiary);
+}
+
+/* ---------- swatch chips (shades, curated, harmonies) ---------- */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip-swatch {
+  width: var(--swatch-size); height: var(--swatch-size); border-radius: var(--radius-small); border: none; padding: 0;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.1);
+  transition: transform var(--duration-transform-fast) var(--ease-transform);
+  position: relative; cursor: pointer;
+}
+.chip-swatch:hover { transform: scale(1.16); z-index: 2; }
+.chip-swatch.active { box-shadow: 0 0 0 2px var(--color-selection-indicator); }
+
+/* ---------- layer stack (rail) ----------
+   Full-width rows, one per layer, top row = topmost on the map. The row
+   is the whole hit target for "style this layer"; the buttons inside it
+   are the actions that must not also open the panel. */
+.layer-stack { display: flex; flex-direction: column; gap: 4px; }
+.layer-row {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 7px 8px; border: 1px solid var(--color-container-border-primary); border-radius: var(--radius-small);
+  background: var(--color-container-background-primary); cursor: pointer; text-align: left;
+  transition: border-color var(--duration-fade-fast) var(--ease-fade),
+              background var(--duration-fade-fast) var(--ease-fade),
+              box-shadow var(--duration-fade-fast) var(--ease-fade);
+}
+.layer-row:hover { border-color: var(--color-container-border-tertiary); }
+.layer-row.active { border-color: var(--color-selection-indicator); box-shadow: 0 0 0 1px var(--color-selection-indicator); }
+.layer-row:focus-visible { outline: 2px solid var(--color-focus-indicator); outline-offset: 1px; }
+/* a drag ghost, not a disabled state — stays its own value */
+.layer-row.dragging { opacity: .45; }
+.layer-row.drop-target { border-color: var(--color-selection-indicator); border-style: dashed; }
+/* hidden layers stay legible — dimmed, not greyed into unreadability */
+.layer-row.hidden-layer .layer-row-name,
+.layer-row.hidden-layer .layer-chip-dot { opacity: var(--opacity-disabled); }
+
+.layer-grip { color: var(--color-icon-disabled); flex-shrink: 0; cursor: grab; display: flex; }
+.layer-row:hover .layer-grip { color: var(--color-icon-secondary); }
+.layer-grip:active { cursor: grabbing; }
+.layer-row .layer-chip-dot { flex-shrink: 0; }
+.layer-row-name {
+  flex: 1; min-width: 0; font-size: var(--font-size-component-small); font-weight: var(--font-weight-component-semibold); color: var(--color-text-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.layer-row-acts { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+.layer-act {
+  width: var(--swatch-size); height: var(--swatch-size); border: none; background: none; padding: 0;
+  border-radius: var(--radius-x-small); color: var(--color-text-tertiary);
+  display: grid; place-items: center; cursor: pointer; transition: all var(--duration-fade-fast) var(--ease-fade);
+}
+.layer-act:hover { background: var(--color-action-passive-subtle-hover); color: var(--color-text-primary); }
+.layer-act.danger:hover { color: var(--color-ui-negative); }
+.layer-row.hidden-layer .layer-act[data-act="vis"] { color: var(--color-text-primary); }
+.layer-stack-hint {
+  font-size: var(--font-size-component-x-small); color: var(--color-text-tertiary); margin-top: var(--space-component-inline-padding-large); line-height: var(--line-height-body);
+}
+
+/* ---------- layer panel (on the map) ----------
+   Same furniture as #place-panel — pick a thing in the rail, style it in
+   the corner — so the two never need different mental models. */
+#layer-panel {
+  position: absolute; top: var(--space-container-padding-small); right: var(--space-container-padding-small); z-index: 30;
+  /* --rail-w doubles as the standard panel width, so the library's
+     step-aside offset below can reuse it instead of a magic 332px */
+  width: min(var(--rail-w), calc(100% - 2 * var(--space-container-padding-small))); max-height: calc(100% - 90px); overflow-y: auto;
+  background: var(--color-container-background-primary); border: 1px solid var(--color-container-border-primary); border-radius: var(--radius-small);
+  box-shadow: var(--elevation-level-3) var(--color-shadow); display: none; padding: var(--space-container-padding-small);
+}
+#layer-panel.open { display: block; }
+body.guest #layer-panel, body.preview #layer-panel { display: none; }
+#lp-swatch { box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+#layer-panel .pp-block:last-child { margin-bottom: 0; }
+
+/* ---------- map pane ----------
+   The layer editor used to be a third column on the right. It is a tab
+   in the left rail now, reached from the tool strip, so it costs no
+   horizontal space when you aren't painting. */
+.mlp-name {
+  font-family: var(--font-family-component); font-size: var(--font-size-component-medium); font-weight: var(--font-weight-component-semibold);
+  line-height: 1.15; letter-spacing: 0; text-transform: none; color: var(--color-text-primary);
+}
+#layer-panel .current-swatch-row { margin-bottom: 0; }
+
+/* ---------- border swatch (small) ---------- */
+/* the same block as the fill swatch — the border row is the color
+   row's twin, so it should not be a different size */
+#border-swatch {
+  width: var(--swatch-size); height: var(--swatch-size); border-radius: var(--radius-x-small); flex-shrink: 0; cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); border: none; padding: 0;
+  transition: box-shadow var(--duration-fade-fast) var(--ease-fade);
+}
+#border-swatch:hover { box-shadow: inset 0 0 0 1px rgba(0,0,0,.12), 0 0 0 2px var(--color-action-standard); }
+
+/* ============================================================
+   COLOR LIBRARY — flyout, left of the map-layer panel
+   ============================================================ */
+/* visually hidden, still announced */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+#color-library {
+  position: absolute; top: var(--space-container-padding-small); right: var(--space-container-padding-small); z-index: 31;
+  /* The map is the middle column of three, so it can be narrower than this
+     panel's ideal width. Shrink to fit rather than overflow — the swatch
+     grid reflows on its own, and losing a column of chips beats losing the
+     right-hand edge of the panel off the side of the map. */
+  width: min(340px, calc(100% - 2 * var(--space-container-padding-small))); max-height: calc(100% - 90px);
+  display: none; flex-direction: column;
+  background: var(--color-container-background-primary); border: 1px solid var(--color-container-border-primary); border-radius: var(--radius-small);
+  box-shadow: var(--elevation-level-3) var(--color-shadow); overflow: hidden;
+}
+/* the grid is the only part allowed to give up space — otherwise a short
+   viewport squeezes the filters and clips the contrast bar off the bottom */
+.cl-head, .cl-filters, .cl-contrast { flex-shrink: 0; }
+#cl-body { min-height: 0; }
+#color-library.open { display: flex; animation: cl-in var(--duration-appear-fast) var(--ease-appear); }
+/* The library used to open beside a right-hand column. That column is the
+   layer panel now and it takes the same corner, so when the panel is open
+   the library steps left of it instead of landing on top. On a map too
+   narrow for both, it falls back to covering — losing the panel briefly
+   beats pushing the library off-screen. */
+#layer-panel.open ~ #color-library.open { right: calc(var(--space-container-padding-small) + var(--rail-w) + var(--space-component-inline-padding-large)); }
+@media (max-width: 1180px) {
+  #layer-panel.open ~ #color-library.open { right: var(--space-container-padding-small); }
+}
+@keyframes cl-in { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: none; } }
+
+.cl-head { display: flex; align-items: center; gap: 10px; padding: var(--space-container-padding-small); padding-bottom: var(--space-component-inline-padding-large); }
+#cl-cur-swatch {
+  width: 40px; height: 40px; border-radius: var(--radius-x-small);
+  flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12);
+}
+.cl-head-info { min-width: 0; flex: 1; }
+.cl-kicker {
+  font-size: var(--font-size-component-x-small); font-weight: var(--font-weight-component-semibold); letter-spacing: .1em; text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+.cl-cur-name { font-size: var(--font-size-component-small); font-weight: var(--font-weight-component-semibold); text-transform: capitalize; line-height: var(--line-height-component); }
+.cl-cur-code { font-size: var(--font-size-component-x-small); color: var(--color-text-tertiary); font-family: ui-monospace, Menlo, monospace; }
+
+/* ---------- filter rail: search, hue, tone, value ---------- */
+.cl-filters { padding: 0 var(--space-container-padding-small) var(--space-component-inline-padding-large); border-bottom: 1px solid var(--color-container-border-primary); }
+
+.cl-search-wrap { position: relative; margin-bottom: 7px; }
+.cl-search-wrap > svg {
+  position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+  color: var(--color-text-tertiary); pointer-events: none;
+}
+#cl-search { padding: 7px 28px 7px 30px; font-size: var(--font-size-component-small); }
+.cl-clear {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+  border: none; background: none; padding: 0; cursor: pointer;
+  color: var(--color-text-tertiary); border-radius: 50%;
+}
+.cl-clear:hover { color: var(--color-text-primary); background: var(--color-action-passive-subtle-hover); }
+
+/* hue families — dot-only so all eleven fit one row, wrapping rather than
+   overflowing the gutter when the All pill pushes them past the width */
+.cl-hues { display: flex; flex-wrap: wrap; gap: 4px; row-gap: 4px; align-items: center; margin-bottom: 7px; }
+.cl-hue {
+  width: 22px; height: 22px; flex-shrink: 0; padding: 0; cursor: pointer;
+  border: 1px solid transparent; border-radius: 50%; background: none;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--duration-fade-fast) var(--ease-fade);
+}
+.cl-hue-dot {
+  width: 15px; height: 15px; border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.15);
+}
+.cl-hue:hover { border-color: var(--color-container-border-tertiary); }
+.cl-hue.active { border-color: var(--color-selection-indicator); box-shadow: 0 0 0 1px var(--color-selection-indicator); }
+.cl-hue.all {
+  width: auto; padding: 0 8px; border-radius: var(--radius-full); border-color: var(--color-container-border-primary);
+  font-family: inherit; font-size: var(--font-size-component-x-small); font-weight: var(--font-weight-component-semibold); color: var(--color-text-tertiary);
+}
+.cl-hue.all.active { border-color: var(--color-selection-indicator); color: var(--color-text-accent); }
+
+/* tone + value bands, side by side */
+.cl-bands { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.cl-band {
+  display: flex; gap: 1px; padding: 2px;
+  background: var(--color-page-background-secondary); border-radius: var(--radius-x-small);
+}
+.cl-band-opt {
+  flex: 1; min-width: 0; border: none; background: none; cursor: pointer;
+  padding: 4px 2px; border-radius: var(--radius-x-small); font-family: inherit;
+  font-size: var(--font-size-component-x-small); font-weight: var(--font-weight-component-semibold); color: var(--color-text-tertiary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: all var(--duration-fade-fast) var(--ease-fade);
+}
+.cl-band-opt:hover:not(.dead) { color: var(--color-text-primary); }
+.cl-band-opt.active { background: var(--color-container-background-primary); color: var(--color-text-primary); box-shadow: var(--elevation-level-1) var(--color-shadow); }
+/* a band that would return nothing under the current filters */
+.cl-band-opt.dead { opacity: var(--opacity-disabled); cursor: not-allowed; }
+
+/* ---------- body: curated strip, then the whole library ---------- */
+.cl-body { flex: 1; overflow-y: auto; padding: var(--space-component-inline-padding-large) var(--space-container-padding-small) var(--space-container-padding-small); }
+.cl-sec + .cl-sec { margin-top: var(--space-container-padding-small); padding-top: var(--space-container-padding-small); border-top: 1px solid var(--color-container-border-primary); }
+.cl-sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; margin-bottom: 5px; }
+.cl-sec-title {
+  font-size: var(--font-size-component-x-small); font-weight: var(--font-weight-component-semibold); letter-spacing: .09em;
+  text-transform: uppercase; color: var(--color-text-tertiary);
+}
+.cl-sec-count { font-size: var(--font-size-component-x-small); color: var(--color-text-tertiary); font-variant-numeric: tabular-nums; }
+.cl-sec-note { font-size: var(--font-size-component-x-small); color: var(--color-text-tertiary); line-height: 1.45; margin-bottom: 7px; }
+.cl-empty { font-size: var(--font-size-component-small); color: var(--color-text-tertiary); padding: var(--space-container-padding-small) 2px; line-height: var(--line-height-body); }
+
+.cl-contrast {
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+  padding: 9px var(--space-container-padding-small); border-top: 1px solid var(--color-container-border-primary);
+  font-size: var(--font-size-component-x-small); color: var(--color-text-secondary); background: var(--color-page-background-secondary);
+}
+.cl-contrast-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.cl-contrast-dot.ok   { background: var(--color-ui-positive); }
+.cl-contrast-dot.weak { background: var(--color-ui-attention); }
+.cl-contrast-tip { flex-basis: 100%; color: var(--color-text-tertiary); line-height: 1.45; }
+
+/* The layer panel is a real column now, so the library simply sits at
+   the map's right edge — immediately to its left, with no arithmetic. */

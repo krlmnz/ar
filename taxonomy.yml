@@ -1,0 +1,104 @@
+# =============================================================================
+# Andean Road — content taxonomy
+# The ONE source of truth. Filters, map markers, JSON-LD, and pillar pages all
+# read from this file. A tag that isn't here should fail the build.
+#
+# Reconciles the two systems you had drifting apart:
+#   - the "Chile Guide" doc (type + context tags)
+#   - the live 11ty frontmatter (type / region / tags / vibe / audience)
+# into six facets. Place it at:  src/_data/taxonomy.yml
+#
+# Facets 1–2 are SINGLE-value (structure). Facets 3–6 are MULTI-value (discovery).
+# `deny:` lists near-misses that should auto-correct to the canonical value —
+# the quiet hero that turns a typo into a redirect instead of an orphan tag.
+# =============================================================================
+
+# --- FACET 1 · TYPE — what the place IS (exactly one) ------------------------
+# Drives the map marker and the schema.org class.
+type:
+  city:            { label: City,             schema: City,              marker: city }
+  neighborhood:    { label: Neighborhood,     schema: Place,             marker: district }
+  hotel:           { label: Hotel,            schema: LodgingBusiness,   marker: bed }
+  restaurant:      { label: Restaurant,       schema: Restaurant,        marker: fork }
+  bar:             { label: Bar,              schema: BarOrPub,          marker: glass }
+  winery:          { label: Winery,           schema: Winery,            marker: grape }
+  market:          { label: Market,           schema: Place,             marker: basket }
+  museum:          { label: Museum,           schema: Museum,            marker: art }
+  cultural-center: { label: Cultural center,  schema: PerformingArtsTheater, marker: art }
+  national-park:   { label: National park,    schema: TouristAttraction, marker: tree }
+  hot-springs:     { label: Hot springs,      schema: TouristAttraction, marker: steam }
+  beach:           { label: Beach,            schema: Beach,             marker: wave }
+  nature:          { label: Nature,           schema: TouristAttraction, marker: peak }
+  town:            { label: Town,             schema: Place,             marker: town }
+  volcano:         { label: Volcano,          schema: Mountain,          marker: volcano }
+  wine-region:     { label: Wine region,      schema: Place,             marker: grape }
+  service:         { label: Service,          schema: LocalBusiness,     marker: dot }
+
+# --- FACET 2 · REGION — where it is (exactly one) ----------------------------
+# Drives the region HUE (qualitative, unordered — never render as a gradient)
+# and "what's near what". Hues are ColorBrewer-safe and distinct in grayscale.
+region:
+  santiago:          { label: Santiago,          hue: "#3B6E8F" }
+  casablanca-valley: { label: Casablanca Valley,  hue: "#6E9440" }
+  maipo-valley:      { label: Maipo Valley,       hue: "#8CA85B" }
+  central-coast:     { label: Central Coast,      hue: "#2E8C8C" }
+  central-mountains: { label: Central Mountains,  hue: "#9A7539" }
+  lake-district:     { label: Lake District,      hue: "#6A5A8C" }
+
+# --- FACET 3 · ACTIVITY — what you DO (many) ---------------------------------
+# The verb. Your most-used browse filter and the basis of most pillar pages.
+activity:
+  wine:        { label: Wine,        deny: [wines, wine-lover, winelover, wine-tasting] }
+  dining:      { label: Dining,      deny: [food, foodie, eat, restaurant] }
+  wellness:    { label: Wellness,    deny: [spa, relax, soak] }
+  hiking:      { label: Hiking,      deny: [hike, trekking, trek] }
+  culture:     { label: Culture,     deny: [cultural, arts, art-lover] }
+  shopping:    { label: Shopping,    deny: [shop, artisan, crafts, gifts] }
+  nightlife:   { label: Nightlife,   deny: [night, bars] }
+  photography: { label: Photography, deny: [photo, photos, views] }
+  swimming:    { label: Swimming,    deny: [swim] }
+
+# --- FACET 4 · VIBE — how it FEELS (many) ------------------------------------
+# The adjective. Powers mood-based curation and look-alikes.
+vibe:
+  romantic:     { label: Romantic }
+  luxury:       { label: Luxury,       deny: [luxe, upscale, high-end] }
+  rustic:       { label: Rustic }
+  modern:       { label: Modern }
+  artsy:        { label: Artsy,        deny: [arty, bohemian] }
+  adventurous:  { label: Adventurous,  deny: [adventure, adventurous-vibe] }
+  family-friendly: { label: Family-friendly, deny: [family, kids, kid-friendly] }
+  social:       { label: Social,       deny: [lively, buzzy] }
+
+# --- FACET 5 · TRAVELER MODE — who it's FOR (many) ---------------------------
+# Your `audience` axis, FORMALIZED. Pick a reader mode; the corpus re-sorts.
+# DECISION NEEDED: keep this facet (it's a strong, cookie-free relevance lever)
+# or delete it — but do not leave it undocumented. Definitions below are a
+# starting proposal; edit the labels/definitions to match how you think.
+traveler_mode:
+  savor:      { label: Savor,      note: "Wine, food, hot springs, slow beauty, Neruda houses." }
+  thrill:     { label: Thrill,     note: "Volcano climbs, high Andes, physical adventure." }
+  wander:     { label: Wander,     note: "Walkable neighborhoods, markets, no fixed plan." }
+  first-timer:{ label: First-timer,note: "The essential, can't-miss version of a place." }
+
+# --- FACET 6 · LOGISTICS — what to know (many) -------------------------------
+# Practical filters that answer real planning questions.
+logistics:
+  day-trip-from-santiago: { label: Day trip from Santiago, deny: [daytrip, day-trip] }
+  half-day:               { label: Half day }
+  walkable:               { label: Walkable }
+  requires-car:           { label: Requires a car,   deny: [needs-car, car-required] }
+  guided-tour:            { label: Guided tour }
+  book-in-advance:        { label: Book in advance,  deny: [reservations-recommended, book-ahead] }
+  cash-only:              { label: Cash only }
+  bring-id:               { label: Bring ID }
+  year-round:             { label: Year-round }
+  summer-best:            { label: Best in summer,   deny: [summer] }
+  winter-best:            { label: Best in winter,   deny: [winter] }
+
+# --- CURATION FLAGS — not a facet, but governed ------------------------------
+# The honest-subtraction signal. Keep it explicit so the "Skip these" module
+# can query it. A `skip: true` place is included ON PURPOSE.
+flags:
+  skip:        { label: Skip,        note: "Included so you can tell people NOT to go. Trust through subtraction." }
+  author_note: { label: Author note, note: "Marks first-hand, been-there detail. Your moat." }

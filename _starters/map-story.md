@@ -3,7 +3,7 @@
 # then moves when the story does. For a journey, a craft, a history.
 layout: layouts/map-story.njk
 title: "__TITLE__"
-subtitle: ""
+subtitle: ""                   # one sentence — it is the meta description and the search-index summary; write it as the answer to "why go?"
 overline: ""
 steps:
   - id: opening
@@ -19,6 +19,7 @@ steps:
     zoom: 15
     pitch: 45                  # 0-60. Pitch buys drama more cheaply than zoom.
     bearing: -30
+updated: __DATE__              # UNQUOTED — a quoted date breaks the build
 ---
 
 Optional closing prose renders under the story.

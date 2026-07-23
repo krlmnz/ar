@@ -1,0 +1,675 @@
+---
+layout: layouts/base.njk
+permalink: /tools/destination-weddings/
+title: Destination Wedding Websites
+noindex: true
+seo:
+  title: "Destination Wedding Websites — Andean Road"
+  description: "A product and market briefing on destination wedding websites — market size, why destination weddings break a normal wedding site, customer research, the competitive matrix, jobs-to-be-done opportunity scores, and a product-market-fit hypothesis."
+---
+
+<link rel="stylesheet" href="/assets/css/tools.css">
+<link rel="stylesheet" href="/assets/css/destination-weddings.css">
+
+{% set crumbs = [{ label: "Tools", url: "/tools/" }, { label: "Destination Wedding Websites" }] %}
+{% include "partials/breadcrumbs.njk" %}
+
+<div class="tool dw">
+
+  <!-- ── Cover ── -->
+  <header class="tool-hero">
+    <div class="hero-overline">A Product &amp; Market Briefing</div>
+    <h1 class="hero-title">Destination Wedding Websites</h1>
+    <p class="hero-lede">A topic-by-topic overview of a fast-growing wedding software niche — its market, customer pain, competitive shape, the jobs guests and couples need done, and where the next product wedge likely lies.</p>
+    <p class="note-line dw-meta">
+      <span>10-min Read</span>
+      <span>Updated May 2026</span>
+      <span>Sources: The Knot, Zola, Joy, Destify, SquadTrip, Future Market Insights, Condor Ferries, WeddingWire</span>
+    </p>
+
+    <nav class="tool-toc" aria-label="Contents">
+      <a href="#summary">00 Executive Summary</a>
+      <a href="#market">01 Market Context</a>
+      <a href="#why-different">02 Why DW Breaks Normal Sites</a>
+      <a href="#customer">03 Customer Research</a>
+      <a href="#competitive">04 Competitive Landscape</a>
+      <a href="#jtbd">05 Jobs &amp; Opportunity Scores</a>
+      <a href="#pmf">06 Opportunities, Challenges, PMF</a>
+      <a href="#synthesis">07 Synthesis</a>
+    </nav>
+  </header>
+
+  <!-- ════ 00 — EXECUTIVE SUMMARY ════ -->
+  <section class="tool-section" id="summary">
+    <div class="section-label">00</div>
+    <h2 class="section-title">Executive Summary</h2>
+
+    <div class="callout">
+      <div class="callout__label">In one paragraph</div>
+      <p>Destination weddings now make up <strong>18–32% of all U.S. weddings</strong> and a $16B+ global market, but the major wedding website platforms (Zola, The Knot, Joy, Minted) were designed for hometown weddings. They handle <em>storytelling and RSVPs</em> well — and stop short of the things that actually break for traveling couples: <strong>group travel coordination, hotel block booking, multi-day itineraries, multilingual communication, real-time updates during the travel window, and group payment collection</strong>. The clearest opportunity is not a prettier wedding website — it's a website-plus-coordination-layer purpose-built for the operational reality of getting 60+ people across borders to one resort.</p>
+    </div>
+
+    <div class="prose">
+      <p>The chapters that follow lay out the evidence and the analysis. The path is: <strong>market size and behavior</strong> → <strong>why destination weddings demand different software</strong> → <strong>who the customers are and what they say</strong> → <strong>where today's competitors actually compete</strong> → <strong>the jobs to be done with opportunity scores</strong> → <strong>opportunities, challenges, and a product-market-fit hypothesis</strong>.</p>
+    </div>
+  </section>
+
+  <!-- ════ 01 — MARKET CONTEXT ════ -->
+  <section class="tool-section" id="market">
+    <div class="section-label">01</div>
+    <h2 class="section-title">Market context &amp; behavioral stats</h2>
+
+    <div class="callout">
+      <div class="callout__label">TL;DR</div>
+      <p>Destination weddings are a structurally growing, premium, millennial-and-Gen-Z-led segment with predictable economics — a smaller, wealthier guest list traveling further and spending more per attendee than a hometown wedding.</p>
+    </div>
+
+    <div class="prose">
+      <h3>The numbers worth memorizing</h3>
+    </div>
+
+    <div class="tool-figures">
+      <div class="tool-figure-cell">
+        <div class="tool-figure-cell__num">18–32%</div>
+        <div class="tool-figure-cell__label">of all U.S. weddings are destination weddings (range across The Knot, Destify, FMI)</div>
+      </div>
+      <div class="tool-figure-cell">
+        <div class="tool-figure-cell__num">$16.2B</div>
+        <div class="tool-figure-cell__label">Global destination wedding market in 2026, projected $26.8B by 2036 (FMI, 5.1% CAGR)</div>
+      </div>
+      <div class="tool-figure-cell">
+        <div class="tool-figure-cell__num">69%</div>
+        <div class="tool-figure-cell__label">of millennials prefer a destination wedding; 49% of Gen Z considering one</div>
+      </div>
+      <div class="tool-figure-cell">
+        <div class="tool-figure-cell__num">74%</div>
+        <div class="tool-figure-cell__label">of engaged couples are already creating a wedding website (Joy)</div>
+      </div>
+      <div class="tool-figure-cell">
+        <div class="tool-figure-cell__num">60–70</div>
+        <div class="tool-figure-cell__label">Average destination wedding guest count — vs. 116–141 for traditional</div>
+      </div>
+      <div class="tool-figure-cell">
+        <div class="tool-figure-cell__num">60–70%</div>
+        <div class="tool-figure-cell__label">Average destination wedding RSVP acceptance rate — vs. 80–85% for hometown</div>
+      </div>
+      <div class="tool-figure-cell">
+        <div class="tool-figure-cell__num">$1,000–$2,000</div>
+        <div class="tool-figure-cell__label">Average per-guest spend (flights + accommodation, 4–5 nights)</div>
+      </div>
+      <div class="tool-figure-cell">
+        <div class="tool-figure-cell__num">36%</div>
+        <div class="tool-figure-cell__label">of destination couples hire a wedding planner (vs. 24% hometown) — they buy help</div>
+      </div>
+    </div>
+
+    <div class="prose">
+      <h3>Geographic distribution</h3>
+      <p>Most U.S. destination weddings stay domestic. <strong>About 70% are within the U.S.</strong> — Hawaii, Florida, Colorado top the list. Internationally, <strong>Mexico captures 34%</strong> of bookings, Europe 26%, Caribbean 21%. The Dominican Republic and Costa Rica are gaining share as couples seek strong amenities at lower prices than Europe. The market splits cleanly into "fly to a domestic resort or city" and "fly internationally," with very different software needs (passport/visa, multilingual, currency, time zone) between the two.</p>
+    </div>
+
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary class="faq-item__q">Deep dive — Why this market is structurally growing, not a fad</summary>
+        <div class="faq-item__a">
+          <p><strong>1. Demographic preference.</strong> Millennials are the dominant marrying cohort, and 69% prefer destination weddings. Gen Z is following the same curve. This is a generational shift, not a trend.</p>
+          <p><strong>2. Smaller guest lists are a feature, not a bug.</strong> Modern couples increasingly want experience-driven, curated celebrations over large traditional receptions. A destination is both an aesthetic choice and a built-in guest-list filter.</p>
+          <p><strong>3. Travel infrastructure normalization.</strong> Group travel, all-inclusive resort packages, and dedicated DW specialists (Destify, Destination Weddings .com, Just Book It) have built mature supply.</p>
+          <p><strong>4. Second-marriages contribute disproportionately.</strong> 33% of destination weddings are second marriages — an older, higher-income, more travel-comfortable segment.</p>
+          <p><strong>5. Average household income of destination couples is ~$110K</strong> — willing and able to pay for tools that reduce stress.</p>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ════ 02 — WHY DESTINATION WEDDINGS BREAK NORMAL SITES ════ -->
+  <section class="tool-section" id="why-different">
+    <div class="section-label">02</div>
+    <h2 class="section-title">Why destination weddings break a normal wedding website</h2>
+
+    <div class="callout">
+      <div class="callout__label">TL;DR</div>
+      <p>A hometown wedding website's job is to share <em>information</em>. A destination wedding website's job is to coordinate <em>logistics, money, and uncertainty</em> across dozens of people, weeks of travel, and (often) multiple languages. The two are different software products.</p>
+    </div>
+
+    <div class="prose">
+      <p>Every wedding website needs three core things: a story page, RSVP collection, and a registry. Destination weddings layer on operational requirements that hometown weddings rarely surface.</p>
+    </div>
+
+    <div class="tool-table-wrap">
+      <table class="tool-table">
+        <thead>
+          <tr><th style="width: 26%">Dimension</th><th>Hometown wedding</th><th>Destination wedding</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>RSVP horizon</td><td>3–4 weeks before</td><td>3–5 months before, so guests can book flights/PTO</td></tr>
+          <tr><td>RSVP signal</td><td>Yes/No is enough</td><td>"Yes" is provisional until they've booked a room. Couples need a <em>hard</em> RSVP tied to a booking.</td></tr>
+          <tr><td>Guest info needed</td><td>Meal choice, plus-one</td><td>Arrival date, departure date, passport country, dietary, attendance per side-event, shuttle slot</td></tr>
+          <tr><td>Communication cadence</td><td>Save-the-date, invite, day-of</td><td>Continuous from save-the-date through the actual travel window — including last-minute weather/flight updates</td></tr>
+          <tr><td>Site shape</td><td>One day, one venue</td><td>Multi-day itinerary: welcome party, rehearsal, ceremony, excursions, farewell brunch</td></tr>
+          <tr><td>Accommodation</td><td>Optional hotel block</td><td>Critical — room block code, booking deadline, alternatives, transfer logistics, day-pass rules</td></tr>
+          <tr><td>Payment flows</td><td>Registry only</td><td>Group payments for excursions, shuttle, welcome party often required — wedding websites don't handle this</td></tr>
+          <tr><td>Language</td><td>One</td><td>Often two or three (couple's, partner's, and host country's)</td></tr>
+          <tr><td>Mobile use</td><td>Pre-event lookup</td><td>Live reference during travel — "what time is the shuttle to the rehearsal dinner"</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="prose">
+      <blockquote>
+        "Our guests need a clear, simple path to booking their travel. A personalized wedding website with room options, rates, flight information, and easy RSVP eliminates the confusion and makes attending feel manageable rather than complicated."
+        <cite>Bliss Honeymoons, destination wedding planner</cite>
+      </blockquote>
+
+      <p>The most concrete way to see the gap: most wedding website builders let a couple list a "Travel" page with hotel info as <em>static text</em>. They do not let the couple <strong>see which guests have actually booked a room, push an update to only guests who haven't, or collect $85/person for the welcome-night dinner.</strong> The work then falls back to spreadsheets, group texts, and a travel agent acting as the human integration layer.</p>
+    </div>
+  </section>
+
+  <!-- ════ 03 — CUSTOMER RESEARCH ════ -->
+  <section class="tool-section" id="customer">
+    <div class="section-label">03</div>
+    <h2 class="section-title">Customer research</h2>
+
+    <div class="callout">
+      <div class="callout__label">TL;DR</div>
+      <p>There are <strong>three customers</strong> in this market, not one — the couple, the guest, and the wedding planner / travel agent. Each has a sharply different definition of "the wedding website works." Most platforms optimize only for the couple.</p>
+    </div>
+
+    <div class="prose">
+      <h3>The three customers</h3>
+    </div>
+
+    <div class="tool-entries dw-personas">
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Buyer · Primary user</div>
+        <div class="tool-entry__title">The Couple</div>
+        <div class="tool-entry__body">
+          Age 28–35, household income ~$110K, planning 9–18 months out. Picks the platform.
+          <strong>Top fear</strong>
+          Looking disorganized to family, getting endless texts asking "wait, what airport?"
+          <strong>Success metric</strong>
+          Headcount confidence by the 90-day mark + zero individual "did you book yet?" texts.
+        </div>
+      </div>
+
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Heaviest user · Lowest tolerance</div>
+        <div class="tool-entry__title">The Guest</div>
+        <div class="tool-entry__body">
+          Spending $1,000–$2,000+ of their own money. Mostly mobile. Will check the site many times before and during travel.
+          <strong>Top fear</strong>
+          Showing up wrong — wrong outfit, wrong dock, missing the shuttle.
+          <strong>Success metric</strong>
+          Finding answers without texting the couple. Confidence that they've booked the right thing.
+        </div>
+      </div>
+
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Planner or travel agent</div>
+        <div class="tool-entry__title">The Coordinator</div>
+        <div class="tool-entry__body">
+          Present for 36% of destination weddings. Often the de-facto integration layer between the wedding website, the resort, and the guest list.
+          <strong>Top fear</strong>
+          Late RSVPs causing last-minute resort re-quotes, lost commissions on guests who book outside the block.
+          <strong>Success metric</strong>
+          Real-time view of who has booked, who has paid, who needs a nudge.
+        </div>
+      </div>
+    </div>
+
+    <div class="prose">
+      <h3>What couples say (themes from forums, planner blogs, and platform reviews)</h3>
+
+      <ul>
+        <li><strong>"The RSVP isn't real until they've booked."</strong> Couples consistently distinguish between a soft "Yes I'd love to come" and a hard "I have a room." Today these two signals live in different systems.</li>
+        <li><strong>"I became a travel agent for my family."</strong> Without a planner, couples answer the same five questions — flight options, airport transfer, passport, dress code for the welcome party, room block deadline — dozens of times.</li>
+        <li><strong>"I needed to text 12 people and nobody else."</strong> The ability to message <em>only</em> guests who haven't booked, or only guests arriving Friday, is consistently cited as missing from the major platforms.</li>
+        <li><strong>"Last-minute changes are inevitable."</strong> Weather, flight delays, shuttle shifts. Couples want push-notification-style updates, not "hope they check the site again."</li>
+        <li><strong>"My partner's family doesn't read English."</strong> Bilingual and multilingual support is requested constantly, especially for U.S./Mexico, U.S./India, and intra-European couples.</li>
+      </ul>
+
+      <h3>What guests complain about (themes from r/weddingshaming, r/wedding, advice columns)</h3>
+
+      <ul>
+        <li><strong>Surprise costs.</strong> Welcome party fees, day-pass costs, mandatory minimum-stay rules, higher room rates booked through the couple's agent than available on Booking.com.</li>
+        <li><strong>Opacity.</strong> Why is the rate $400/night when I can see it cheaper? Is the welcome dinner included? Do I have to attend the rehearsal? Couples are often unclear because <em>the website doesn't have a place to be clear about it</em>.</li>
+        <li><strong>Difficulty coordinating with other guests.</strong> "Who else is on my flight?" "Is anyone splitting an Airbnb?" There is no group-chat-like layer.</li>
+        <li><strong>Pressure to commit early without information.</strong> Many guests are asked to book a $2,000 trip with only a hotel link and an emailed PDF.</li>
+      </ul>
+
+      <blockquote>
+        "She hyped it up as a tropical vacation with my best people. I took unpaid leave for this trip thinking I'd get some rest."
+        <cite>Reddit guest, after arriving to find a community-service retreat surprise</cite>
+      </blockquote>
+
+      <p class="note-line">The lesson behind that quote isn't the bait-and-switch — it's that <em>the wedding website was the primary expectation-setting tool, and it failed</em>. Guests use the site to model what they're signing up for. When the model is wrong, the relationship pays for it.</p>
+
+      <h3>What the coordinator/planner says</h3>
+      <ul>
+        <li><strong>Spreadsheets are the de-facto system of record.</strong> Almost every operator interviewed by SquadTrip describes paying-guests-tracking and room-block status as living in a Google Sheet stitched to a Stripe link.</li>
+        <li><strong>The wedding website and the travel agent's booking engine are different systems.</strong> Guests are routinely confused about which to use.</li>
+        <li><strong>"Chasing payments" is the single most expensive ongoing task.</strong></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ════ 04 — COMPETITIVE LANDSCAPE ════ -->
+  <section class="tool-section" id="competitive">
+    <div class="section-label">04</div>
+    <h2 class="section-title">Competitive landscape</h2>
+
+    <div class="callout">
+      <div class="callout__label">TL;DR</div>
+      <p>The category is concentrated at the top (The Knot Worldwide, Zola, Joy), differentiated in the middle by design (Minted, Riley &amp; Grey, Appy Couple), and being attacked from the side by <strong>travel-coordination tools</strong> (SquadTrip, Destify, Destination Weddings .com) that treat the website as a feature of a larger logistics product. No single player owns "destination weddings."</p>
+    </div>
+
+    <div class="prose">
+      <h3>The strategic map</h3>
+
+      <p>Today's players cluster into four groups based on what they actually solve:</p>
+
+      <ol>
+        <li><strong>All-in-one wedding platforms</strong> — Zola, The Knot, Joy, WeddingWire. Free websites monetized via registry, vendor marketplace, or ads. Designed for the median U.S. wedding.</li>
+        <li><strong>Design-led builders</strong> — Minted, Riley &amp; Grey, Appy Couple, Paperless Post. Sell aesthetic, often paired with matched paper goods.</li>
+        <li><strong>Generic site builders adapted</strong> — Squarespace, Wix. Maximum design control but require manual stitching for RSVPs and registry.</li>
+        <li><strong>Travel-coordination tools</strong> — SquadTrip, Destify, Destination Weddings .com, Just Book It, Journeys. Treat the wedding website as one surface inside a group-travel-and-payments product. <em>This is the most credible threat to the incumbents in the destination niche.</em></li>
+      </ol>
+
+      <h3>Feature matrix — the ten things that matter for destination weddings</h3>
+    </div>
+
+    <div class="tool-legend">
+      <span class="tool-legend__item"><span class="tool-dot tool-dot--full"></span> Strong</span>
+      <span class="tool-legend__item"><span class="tool-dot tool-dot--half"></span> Partial / via integration</span>
+      <span class="tool-legend__item"><span class="tool-dot tool-dot--none"></span> Missing or weak</span>
+    </div>
+
+    <div class="tool-table-wrap">
+      <table class="tool-table dw-matrix">
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>Travel info</th>
+            <th>Room block tied to RSVP</th>
+            <th>Multi-event itinerary</th>
+            <th>Segmented messaging</th>
+            <th>Multilingual</th>
+            <th>Group payments</th>
+            <th>Native mobile app</th>
+            <th>Aesthetic ceiling</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Zola</td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+          </tr>
+          <tr>
+            <td>The Knot</td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+          </tr>
+          <tr>
+            <td>Joy</td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+          </tr>
+          <tr>
+            <td>Minted</td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+          </tr>
+          <tr>
+            <td>Appy Couple</td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+          </tr>
+          <tr>
+            <td>WedSites</td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+          </tr>
+          <tr>
+            <td>Riley &amp; Grey</td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+          </tr>
+          <tr>
+            <td>Destination Weddings .com</td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+          </tr>
+          <tr>
+            <td>SquadTrip</td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+            <td><span class="tool-dot tool-dot--full" role="img" aria-label="Strong"></span></td>
+            <td><span class="tool-dot tool-dot--none" role="img" aria-label="Missing"></span></td>
+            <td><span class="tool-dot tool-dot--half" role="img" aria-label="Partial"></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="prose">
+      <p class="note-line">Read the columns: no single platform fills every row. Joy is the strongest pure wedding-website builder for destination needs; SquadTrip is the strongest coordination tool; Destination Weddings .com is the strongest <em>integrated</em> offering but is essentially an agency selling free software to its travel customers. The visible whitespace: a product that combines Joy's design + multilingual depth with SquadTrip's group-payment and room-block coordination.</p>
+    </div>
+
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary class="faq-item__q">Deep dive — Business model snapshots</summary>
+        <div class="faq-item__a">
+          <p><strong>Zola</strong> — Free websites monetized through registry (cash funds, gift commissions) and stationery. ~225 employees, ~$44M revenue. Strength: registry depth + design library (1,000+ templates). Weakness: U.S.-only registry, no multilingual, no group travel.</p>
+          <p><strong>The Knot Worldwide</strong> — Free websites monetized through vendor marketplace (paid lead-gen to local vendors). Global reach via Bodas.net, Matrimonio.com, Hitched. Strength: brand familiarity across generations, vast vendor network. Weakness: legacy product, not destination-optimized.</p>
+          <p><strong>Joy</strong> — Genuinely free websites monetized through registry partnerships. Strength: best-in-class UX, free multilingual, free mobile app, customizable RSVPs. Weakness: smaller template library (~60), still no group payments or room-block integration.</p>
+          <p><strong>Minted / Riley &amp; Grey</strong> — Premium paper-goods companies that include a website as part of a paid stationery purchase. Strength: aesthetic ceiling. Weakness: minimal logistics tooling.</p>
+          <p><strong>Appy Couple</strong> — Paid (~$30–60) wedding website + native mobile app, marketed to "tech-savvy" couples. Strength: push notifications, app-first experience. Weakness: low brand awareness, setup complexity, no payments.</p>
+          <p><strong>WedSites</strong> — Newer entrant ($99–199 one-time) emphasizing planning dashboard + true multilingual support. Strength: best multilingual implementation, design control. Weakness: no group payments, smaller distribution.</p>
+          <p><strong>SquadTrip</strong> — Group-trip operations platform ($X/transaction). Sells to <em>planners</em>, not couples directly. Strength: payments, BNPL, installment plans, deposit collection. Weakness: not a beautiful wedding website; positioned as a complement.</p>
+          <p><strong>Destification players (Destify, Destination Weddings .com, Just Book It, Journeys)</strong> — Travel agencies that give the couple a free website as part of an end-to-end planning service. Revenue from resort commissions. Strength: integrated room blocks + RSVPs. Weakness: customers must use their travel-agent network, limited design flexibility.</p>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ════ 05 — JOBS TO BE DONE + OPPORTUNITY SCORES ════ -->
+  <section class="tool-section" id="jtbd">
+    <div class="section-label">05</div>
+    <h2 class="section-title">Jobs to be done &amp; opportunity scores</h2>
+
+    <div class="callout">
+      <div class="callout__label">TL;DR</div>
+      <p>Using Ulwick's <strong>Opportunity = Importance + max(Importance − Satisfaction, 0)</strong> on a 1–10 scale, the highest-opportunity jobs are <strong>"convert intent into a booked room,"</strong> <strong>"collect group payments without spreadsheets,"</strong> <strong>"push real-time updates during the travel window,"</strong> and <strong>"serve the site in the guest's native language."</strong> Storytelling, registry, and aesthetic are all <em>saturated</em> jobs — high satisfaction, low opportunity.</p>
+    </div>
+
+    <div class="prose">
+      <h3>How to read the table</h3>
+      <p>Importance is how critical the job is to the couple's success (1–10). Satisfaction is how well current platforms do it (1–10). Opportunity score = Importance + max(Importance − Satisfaction, 0); a score above ~12 typically signals a real opening; above 15 is rare and significant.</p>
+    </div>
+
+    <div class="tool-table-wrap">
+      <table class="tool-table tool-table--num dw-jtbd">
+        <thead>
+          <tr>
+            <th style="width: 40%">Job statement (from the couple's POV)</th>
+            <th>Imp.</th>
+            <th>Sat.</th>
+            <th>Opp.</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>When I send a save-the-date, help me convert "I plan to come" into a confirmed booked room before my resort deadline.</td>
+            <td>10</td><td>3</td>
+            <td><span class="dw-score">17</span></td>
+            <td><span class="tool-bar" style="--w:100%"></span></td>
+          </tr>
+          <tr>
+            <td>When my guests need to pay for the welcome dinner or excursions, help me collect money without spreadsheets, Venmo chains, or chasing.</td>
+            <td>9</td><td>2</td>
+            <td><span class="dw-score">16</span></td>
+            <td><span class="tool-bar" style="--w:94%"></span></td>
+          </tr>
+          <tr>
+            <td>When something changes during the travel window, help me push the update to the right guests without expecting them to refresh a website.</td>
+            <td>9</td><td>3</td>
+            <td><span class="dw-score">15</span></td>
+            <td><span class="tool-bar" style="--w:88%"></span></td>
+          </tr>
+          <tr>
+            <td>When my partner's family doesn't speak English, help me give them a fully native experience — not a Google Translate band-aid.</td>
+            <td>8</td><td>2</td>
+            <td><span class="dw-score">14</span></td>
+            <td><span class="tool-bar" style="--w:82%"></span></td>
+          </tr>
+          <tr>
+            <td>When I commit to a resort, help me show guests an honest comparison — what they pay through me vs. on their own — so they trust me.</td>
+            <td>8</td><td>2</td>
+            <td><span class="dw-score">14</span></td>
+            <td><span class="tool-bar" style="--w:82%"></span></td>
+          </tr>
+          <tr>
+            <td>When guests RSVP, capture the operational data I'll need later — arrival/departure, passport country, dietary, shuttle slot — not just yes/no.</td>
+            <td>8</td><td>4</td>
+            <td><span class="dw-score">12</span></td>
+            <td><span class="tool-bar" style="--w:70%"></span></td>
+          </tr>
+          <tr>
+            <td>When guests are on the ground, give them a mobile-first reference for itinerary, dress code, transport — so I'm not their concierge.</td>
+            <td>8</td><td>5</td>
+            <td><span class="dw-score">11</span></td>
+            <td><span class="tool-bar" style="--w:65%"></span></td>
+          </tr>
+          <tr>
+            <td>When guests want to coordinate with each other (flights, Airbnbs, rides), give them a way to find each other without me being the broker.</td>
+            <td>6</td><td>1</td>
+            <td><span class="dw-score">11</span></td>
+            <td><span class="tool-bar" style="--w:65%"></span></td>
+          </tr>
+          <tr>
+            <td>When I segment my guest list (close family, work friends, partner's family), let me message and customize the site per segment.</td>
+            <td>7</td><td>4</td>
+            <td><span class="dw-score">10</span></td>
+            <td><span class="tool-bar" style="--w:59%"></span></td>
+          </tr>
+          <tr>
+            <td>When I share our story and aesthetic, give me beautiful templates that don't look like a SaaS form.</td>
+            <td>7</td><td>7</td>
+            <td><span class="dw-score">7</span></td>
+            <td><span class="tool-bar" style="--w:41%"></span></td>
+          </tr>
+          <tr>
+            <td>When guests want to give a gift, let them browse, contribute to cash funds, and split big items.</td>
+            <td>7</td><td>8</td>
+            <td><span class="dw-score">7</span></td>
+            <td><span class="tool-bar" style="--w:41%"></span></td>
+          </tr>
+          <tr>
+            <td>When my guests get a save-the-date, give me beautiful matching paper or digital cards.</td>
+            <td>6</td><td>7</td>
+            <td><span class="dw-score">6</span></td>
+            <td><span class="tool-bar" style="--w:35%"></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="prose">
+      <p class="note-line">Method note: scores are directional, not survey-derived. They reflect synthesis of platform reviews, planner blog content, Reddit/forum patterns, and the comparison gaps identified in Chapter 04. A formal ODI study with 50+ destination-wedding couples would tighten the numbers, but the rank ordering is robust.</p>
+
+      <h3>The pattern</h3>
+      <p>The <strong>top four jobs by opportunity score are all logistics, money, communication, and language</strong> — not design or storytelling. The bottom four are all jobs the major platforms already do well. <em>This is the definition of a competitive moat that doesn't compound</em>: incumbents are competing harder and harder on saturated jobs while leaving the underserved jobs to spreadsheets and travel agents.</p>
+    </div>
+  </section>
+
+  <!-- ════ 06 — OPPORTUNITIES, CHALLENGES, PMF ════ -->
+  <section class="tool-section" id="pmf">
+    <div class="section-label">06</div>
+    <h2 class="section-title">Opportunities, challenges &amp; PMF hypothesis</h2>
+
+    <div class="callout">
+      <div class="callout__label">TL;DR</div>
+      <p>The PMF hypothesis: a destination-wedding-native platform that fuses a beautiful, multilingual wedding website with a real coordination layer (room-block booking inside the RSVP, group payments, segmented messaging, push updates) can win — but only if it solves the planner/travel-agent distribution problem and the chicken-and-egg between resort partnerships and couples.</p>
+    </div>
+
+    <div class="prose">
+      <h3>Opportunities (where to invest)</h3>
+    </div>
+
+    <div class="tool-entries">
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Opportunity 01</div>
+        <div class="tool-entry__title">Hard RSVPs tied to booked rooms</div>
+        <div class="tool-entry__body">Make the "Yes" button on the RSVP form trigger an actual room reservation. Show couples a single dashboard with two columns: said-yes and actually-booked. This requires resort partnerships but is the single highest-leverage feature in this market.</div>
+      </div>
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Opportunity 02</div>
+        <div class="tool-entry__title">Group payments as a first-class object</div>
+        <div class="tool-entry__body">Couples already collect money for excursions, welcome parties, shuttles. Today it lives in Venmo and Google Sheets. Building this natively (with installments and BNPL, à la SquadTrip) into a wedding website is uncontested.</div>
+      </div>
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Opportunity 03</div>
+        <div class="tool-entry__title">True multilingual, not "Google Translate the page"</div>
+        <div class="tool-entry__body">Multicultural couples are growing. WedSites and Joy do this well; Zola and The Knot don't do it at all. A site where each guest is tagged with a language and gets a fully native experience — including RSVP forms and email blasts — is table stakes for the global segment.</div>
+      </div>
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Opportunity 04</div>
+        <div class="tool-entry__title">Travel-window push updates</div>
+        <div class="tool-entry__body">The 72 hours before and during the wedding generate every emergency. A native mobile app with push notifications, segmented by guest tag (flight cancelled? message only Newark arrivals), turns the wedding website from static to operational.</div>
+      </div>
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Opportunity 05</div>
+        <div class="tool-entry__title">The planner / travel-agent channel</div>
+        <div class="tool-entry__body">36% of destination couples hire a planner. Most planners use spreadsheets. A product that's <em>built for the planner</em> — with the couple's website as one surface — turns the planner into a distribution channel. SquadTrip is doing exactly this; an integrated competitor could win on UX.</div>
+      </div>
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Opportunity 06</div>
+        <div class="tool-entry__title">Guest-to-guest coordination layer</div>
+        <div class="tool-entry__body">"Who else is on my flight" and "anyone splitting an Airbnb" is a real, unsolved guest need. A lightweight directory or opt-in chat feature, owned by the couple but used by guests, has no current competitor.</div>
+      </div>
+    </div>
+
+    <div class="prose">
+      <h3>Challenges (what makes this hard)</h3>
+    </div>
+
+    <div class="tool-entries">
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Challenge 01</div>
+        <div class="tool-entry__title">Resort &amp; OTA relationships</div>
+        <div class="tool-entry__body">The "hard RSVP tied to a room" feature requires integrations with Booking.com, Expedia Group, or direct contracts with all-inclusive chains. These are slow, regulated, and commission-protected — exactly why agency-led products like Destification have a moat.</div>
+      </div>
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Challenge 02</div>
+        <div class="tool-entry__title">Free-tier expectation</div>
+        <div class="tool-entry__body">Zola, The Knot, and Joy have trained couples that the website is free. Charging for a destination-specific tool means either bundling with paid stationery (Minted) or capturing money from group-payment transactions (SquadTrip). Pure SaaS pricing to couples will likely fail.</div>
+      </div>
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Challenge 03</div>
+        <div class="tool-entry__title">One-time, low-LTV customers</div>
+        <div class="tool-entry__body">A couple buys a wedding website exactly once. CAC has to be low or paid by someone else (a vendor, a registry, a resort). This is why incumbents monetize via the registry tail or vendor marketplace, not the website itself.</div>
+      </div>
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Challenge 04</div>
+        <div class="tool-entry__title">Cold-start brand trust</div>
+        <div class="tool-entry__body">Guests need to trust the link the couple sends them. Unknown brands trigger friction. The Knot and Zola benefit from name recognition; a new platform has to earn it, often through aesthetic and design-press exposure (Riley &amp; Grey's path).</div>
+      </div>
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Challenge 05</div>
+        <div class="tool-entry__title">Wedding planners are conservative buyers</div>
+        <div class="tool-entry__body">Planners have working systems (spreadsheets + Trello + Stripe + email) and switching costs are high. New tools must be dramatically better than the patchwork, not 1.2x better.</div>
+      </div>
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Challenge 06</div>
+        <div class="tool-entry__title">Seasonality &amp; cohort attrition</div>
+        <div class="tool-entry__body">Demand peaks Q1 (when couples are newly engaged from holiday proposals) and bookings deplete the resort blocks. The product has to feel "alive" 12–18 months before a wedding, which is unusual for a SaaS engagement curve.</div>
+      </div>
+    </div>
+
+    <div class="prose">
+      <h3>Product-market-fit hypothesis</h3>
+    </div>
+
+    <div class="tool-entries">
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Bet 01 · Most defensible</div>
+        <div class="tool-entry__title">Planner-led platform that exposes a beautiful couple-facing site</div>
+        <div class="tool-entry__body">Sell to wedding planners and travel agents as their operations stack (think: SquadTrip + a beautiful website builder + multilingual). The couple-facing site is a deliverable. Monetize through transaction fees on group payments and resort commissions. <strong>This is the most defensible because it stacks two revenue streams and uses a B2B channel that values quality.</strong></div>
+      </div>
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Bet 02 · Highest velocity</div>
+        <div class="tool-entry__title">Couple-direct freemium with paid coordination upgrade</div>
+        <div class="tool-entry__body">Free beautiful wedding website (Joy-quality). $99–199 unlock for "Destination Mode": room-block tracking, group payments, multilingual, push notifications, segmented messaging. Monetize the destination-specific minority of couples (~25% of weddings) at the moment they need real tools. <strong>Faster to launch, but harder to defend against an incumbent that copies the upgrade.</strong></div>
+      </div>
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Bet 03 · Wedge play</div>
+        <div class="tool-entry__title">Group-travel-payments add-on, distributed via incumbent integrations</div>
+        <div class="tool-entry__body">Build the group-payments + segmented-messaging layer as a Zapier-style add-on that plugs into Zola, The Knot, and Joy. Charge couples or planners per transaction. <strong>Lowest moat, but lowest cost to validate demand</strong> — and a natural acquisition target for an incumbent that decides to enter destination.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 07 — SYNTHESIS ════ -->
+  <section class="tool-section" id="synthesis">
+    <div class="section-label">07</div>
+    <h2 class="section-title">Synthesis</h2>
+
+    <div class="callout">
+      <div class="callout__label">The one-line takeaway</div>
+      <p>Wedding websites for destination weddings is a category in which the work has outgrown the product. The next winner won't make a prettier site — it will fold the spreadsheet, the group chat, the room block, and the payment link into the site itself.</p>
+    </div>
+
+    <div class="prose">
+      <p>If you remember nothing else from this overview, remember the three asymmetries:</p>
+
+      <ol>
+        <li><strong>Demand is concentrated in a small, high-spending, growing segment</strong> — 18–32% of all U.S. weddings, $1,000–$2,000 per guest, growing 5–7% annually, dominated by millennials and Gen Z.</li>
+        <li><strong>Software supply is concentrated on the wrong jobs</strong> — every major incumbent competes on design, registry, and storytelling (all saturated), while logistics, payments, communication, and language remain underserved.</li>
+        <li><strong>The integration layer between "wedding website" and "group travel" is unowned</strong> — the most credible new entrants (SquadTrip, agency-led platforms) approach it from the travel side; the most established players (Zola, The Knot, Joy) approach it from the website side. Neither has crossed the gap.</li>
+      </ol>
+
+      <p>The product-market-fit question is therefore less "is there demand?" — there obviously is — and more "who reaches the couple at the moment they realize their hometown wedding website won't carry the weight of a destination wedding?" Whoever wins that moment, with the operational depth to deliver, owns the category.</p>
+
+      <blockquote>
+        The wedding is the moment. The website is the system of record for everything around it. For destination weddings, the system of record needs to behave like operational software, not a digital scrapbook.
+        <cite>Synthesis</cite>
+      </blockquote>
+    </div>
+  </section>
+
+  <p class="note-line dw-end">— end of overview —</p>
+
+</div>

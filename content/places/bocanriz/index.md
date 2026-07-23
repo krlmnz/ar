@@ -27,7 +27,6 @@ website: "https://www.bocanariz.cl"
 duration: "quick-stop"
 cover: cover.jpg
 cover_alt: "Interior of Bocanáriz wine bar in Lastarria, Santiago"
-images: auto
 related:
   - ambrosia-bistro
   - la-chascona
@@ -38,7 +37,6 @@ near:
 seo:
   title: "Bocanáriz Wine Bar Santiago — Best Wine Bar in Chile"
   description: "Over 400 Chilean wines by the glass in the heart of Lastarria. The best way to explore Chile's wine regions without leaving Santiago."
-status: published
 updated: 2026-03-28
 author_note: true
 ---

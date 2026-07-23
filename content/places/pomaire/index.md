@@ -33,11 +33,9 @@ bring:
 tip: "Buy a traditional chanchito for good luck — get 10 for $1,000 pesos to give as gifts."
 cover: cover.jpg
 cover_alt: "Handmade terracotta pottery on display in Pomaire, Chile"
-images: auto
 related:
   - plaza-los-dominicos
 near: []
-status: published
 updated: 2026-03-28
 author_note: true
 ---

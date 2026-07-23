@@ -1,0 +1,59 @@
+---
+permalink: /api/places.json
+eleventyExcludeFromCollections: true
+---
+{#- Every published place as JSON, for anything that wants the data without
+    scraping HTML. Free-text fields go through `dump` so quotes and unicode
+    are escaped correctly; optional keys are simply omitted when a place
+    doesn't have them, so consumers can rely on "present means real". -#}
+[
+{%- for place in collections.places %}
+  {
+    "slug": {{ place.data.slug | dump | safe }},
+    "title": {{ place.data.title | dump | safe }},
+    "url": {{ (site.url + "/places/" + place.data.slug + "/") | dump | safe }}
+    {%- if place.data.type %},
+    "type": {{ place.data.type | dump | safe }}
+    {%- endif %}
+    {%- if place.data.subtitle %},
+    "subtitle": {{ place.data.subtitle | dump | safe }}
+    {%- endif %}
+    {%- if place.data.region %},
+    "region": {{ place.data.region | dump | safe }}
+    {%- endif %}
+    {%- if place.data.region and regions[place.data.region] %},
+    "region_label": {{ regions[place.data.region].label | dump | safe }}
+    {%- endif %}
+    {%- if place.data.coordinates %},
+    "coordinates": { "lat": {{ place.data.coordinates.lat }}, "lng": {{ place.data.coordinates.lng }} }
+    {%- endif %}
+    {%- if place.data.cost_level %},
+    "cost_level": {{ place.data.cost_level | dump | safe }}
+    {%- endif %}
+    {%- if place.data.duration %},
+    "duration": {{ place.data.duration | dump | safe }}
+    {%- endif %}
+    {%- if place.data.reservations %},
+    "reservations": {{ place.data.reservations | dump | safe }}
+    {%- endif %}
+    {%- if place.data.audience %},
+    "audience": {{ place.data.audience | dump | safe }}
+    {%- endif %}
+    {%- if place.data.tags %},
+    "tags": {{ place.data.tags | dump | safe }}
+    {%- endif %}
+    {%- if place.data.best_for %},
+    "best_for": {{ place.data.best_for | dump | safe }}
+    {%- endif %}
+    {%- if place.data.updated %},
+    "updated": {{ place.data.updated | isoDate | dump | safe }}
+    {%- endif %}
+    {%- if place.data.google_maps %},
+    "google_maps": {{ place.data.google_maps | dump | safe }}
+    {%- endif %}
+    {%- if place.data.website %},
+    "website": {{ place.data.website | dump | safe }}
+    {%- endif %}
+  }{% if not loop.last %},{% endif %}
+{%- endfor %}
+]

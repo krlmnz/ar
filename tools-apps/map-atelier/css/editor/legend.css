@@ -1,0 +1,184 @@
+/* ============================================================
+   LEGEND PANE — the cartographic-first builder.
+
+   Consumes the andean tokens directly, like every sheet now —
+   the old Meridian set this pane pioneered has been retired in
+   favour of the site-wide layer in /assets/css/andean.css.
+   ============================================================ */
+
+/* ── brand input ─────────────────────────────────────────────── */
+.lg-brand-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-component-inline-padding-large);
+  margin-bottom: var(--space-container-padding-small);
+}
+.lg-brand-row input[type="color"] {
+  inline-size: 42px;
+  block-size: 42px;
+  padding: 0;
+  border: 1px solid var(--color-input-border-primary);
+  border-radius: var(--radius-small);
+  background: none;
+  cursor: pointer;
+  flex: none;
+}
+.lg-brand-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 3px; }
+.lg-brand-row input[type="color"]::-webkit-color-swatch { border: none; border-radius: var(--radius-x-small); }
+.lg-brand-row .text-input { flex: 1; font-variant-numeric: tabular-nums; }
+
+/* ── taxonomy editor ─────────────────────────────────────────── */
+.lg-tax-group {
+  border: 1px solid var(--color-container-border-primary);
+  border-radius: var(--radius-small);
+  padding: var(--space-component-inline-padding-large);
+  margin-bottom: var(--space-component-inline-padding-large);
+  background: var(--color-container-background-primary);
+}
+.lg-tax-head { display: flex; gap: var(--space-component-inline-padding-small); align-items: center; margin-bottom: var(--space-component-inline-padding-small); }
+.lg-tax-child { display: flex; gap: var(--space-component-inline-padding-small); align-items: center; margin: 4px 0 4px var(--space-container-padding-small); }
+
+.lg-tax-name, .lg-tax-cname {
+  flex: 1; min-inline-size: 0;
+  font: inherit; color: var(--color-text-primary);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-x-small);
+  padding: 5px 7px;
+}
+.lg-tax-name { font-size: var(--font-size-component-medium); font-weight: var(--font-weight-component-semibold); }
+.lg-tax-cname { font-size: var(--font-size-component-small); color: var(--color-text-secondary); }
+.lg-tax-name:hover, .lg-tax-cname:hover { border-color: var(--color-container-border-primary); }
+.lg-tax-name:focus, .lg-tax-cname:focus {
+  outline: none;
+  border-color: var(--color-input-border-primary-focus);
+  /* the secondary page wash, not the input white — the ghost input sits
+     on a white card, so white-on-white would make focus invisible */
+  background: var(--color-page-background-secondary);
+  color: var(--color-text-primary);
+}
+
+.lg-x {
+  flex: none;
+  inline-size: 22px; block-size: 22px;
+  display: grid; place-items: center;
+  border: none; background: none; cursor: pointer;
+  color: var(--color-text-secondary); font-size: var(--font-size-component-medium); line-height: 1;
+  border-radius: var(--radius-x-small);
+}
+.lg-x:hover { background: var(--color-action-passive-subtle-hover); color: var(--color-ui-negative); }
+.lg-x:focus-visible { outline: 2px solid var(--color-focus-indicator); outline-offset: 1px; }
+
+.lg-add-child, .lg-add-group {
+  font: inherit; font-size: var(--font-size-component-small);
+  color: var(--color-text-secondary);
+  background: none;
+  border: 1px dashed var(--color-container-border-primary);
+  border-radius: var(--radius-x-small);
+  padding: 5px 9px;
+  cursor: pointer;
+  margin-left: var(--space-container-padding-small);
+}
+.lg-add-group { margin: 0; inline-size: 100%; }
+.lg-add-child:hover, .lg-add-group:hover { color: var(--color-action-standard); border-color: var(--color-container-border-accent); }
+
+/* ── audit readout ───────────────────────────────────────────── */
+.lg-audit-head {
+  display: flex; align-items: center; gap: var(--space-component-inline-padding-large);
+  margin-bottom: var(--space-component-inline-padding-large);
+}
+.lg-badge {
+  font-size: var(--font-size-component-x-small);
+  font-weight: var(--font-weight-component-semibold);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: var(--radius-full);
+  /* solid ui fills, not the pale container ones — the audit verdict is
+     the loudest thing in this pane and should stay a filled chip */
+  color: var(--color-text-inverse);
+}
+.lg-badge.pass { background: var(--color-ui-positive); }
+.lg-badge.fail { background: var(--color-ui-attention); }
+.lg-audit-sum { font-size: var(--font-size-component-small); color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+
+.lg-cvd-grid { display: grid; gap: 4px; }
+.lg-cvd {
+  display: flex; align-items: center; gap: var(--space-component-inline-padding-large);
+  inline-size: 100%;
+  font: inherit; font-size: var(--font-size-component-small);
+  text-align: left;
+  padding: 7px var(--space-component-inline-padding-large);
+  border: 1px solid transparent;
+  border-radius: var(--radius-x-small);
+  background: none; cursor: pointer;
+  color: var(--color-text-primary);
+}
+.lg-cvd:hover { background: var(--color-action-passive-subtle-hover); }
+.lg-cvd.on { border-color: var(--color-selection-indicator); background: var(--color-container-background-accent); }
+.lg-cvd:focus-visible { outline: 2px solid var(--color-focus-indicator); outline-offset: 1px; }
+.lg-cvd-dot { inline-size: 8px; block-size: 8px; border-radius: 50%; flex: none; }
+.lg-cvd-dot.ok { background: var(--color-ui-positive); }
+.lg-cvd-dot.no { background: var(--color-ui-attention); }
+.lg-cvd-label { flex: 1; }
+.lg-cvd-de { color: var(--color-text-secondary); font-variant-numeric: tabular-nums; font-size: var(--font-size-component-x-small); }
+
+.lg-warnings {
+  margin: var(--space-component-inline-padding-large) 0 0;
+  padding-left: var(--space-container-padding-small);
+  font-size: var(--font-size-component-small);
+  line-height: var(--line-height-body);
+  color: var(--color-text-secondary);
+}
+.lg-warnings li { margin-bottom: 6px; }
+
+/* ── generated swatches ──────────────────────────────────────── */
+.lg-group { margin-bottom: var(--space-container-padding-small); }
+.lg-group-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: var(--space-component-inline-padding-large);
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+  border-bottom: 1px solid var(--color-container-border-primary);
+}
+.lg-group-name { font-size: var(--font-size-component-small); font-weight: var(--font-weight-component-semibold); }
+.lg-group-meta { font-size: var(--font-size-component-x-small); color: var(--color-text-secondary); }
+
+.lg-row { display: flex; align-items: center; gap: var(--space-component-inline-padding-large); padding: 4px 0; }
+.lg-chip {
+  inline-size: 26px; block-size: 26px;
+  flex: none;
+  border-radius: var(--radius-x-small);
+  border: 1px solid var(--color-container-border-primary);
+}
+.lg-name { flex: 1; font-size: var(--font-size-component-small); }
+.lg-hex {
+  font-size: var(--font-size-component-x-small);
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+  text-transform: uppercase;
+}
+
+.lg-prompt {
+  font-size: var(--font-size-component-x-small);
+  line-height: var(--line-height-body);
+  color: var(--color-text-secondary);
+  background: var(--color-page-background-secondary);
+  border-radius: var(--radius-x-small);
+  padding: var(--space-component-inline-padding-large);
+  margin-bottom: var(--space-component-inline-padding-large);
+}
+
+.lg-empty {
+  font-size: var(--font-size-component-small);
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+  padding: var(--space-container-padding-small);
+  border: 1px dashed var(--color-container-border-primary);
+  border-radius: var(--radius-small);
+  text-align: center;
+}
+
+/* ── actions ─────────────────────────────────────────────────── */
+.lg-actions { display: flex; gap: var(--space-component-inline-padding-small); }
+.lg-actions button { flex: 1; }

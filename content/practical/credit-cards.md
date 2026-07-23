@@ -7,7 +7,6 @@ category: money
 seo:
   title: "Using Credit Cards in Chile — What 'Cuotas' Means"
   description: "When you pay with a card in Chile, you'll be asked about cuotas (installments). Here's how to navigate it."
-status: published
 updated: 2026-03-28
 ---
 

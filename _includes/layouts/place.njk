@@ -26,6 +26,52 @@ layout: layouts/base.njk
     {{ content | safe }}
   </div>
 
+  {# Key facts — the structured front matter, visible and quotable #}
+  {% set costLabels = {"budget": "$ budget", "moderate": "$$ moderate", "expensive": "$$$ expensive"} %}
+  {% if best_for or cost_level or duration or time_from or (reservations and reservations != "none") or (requires and requires.length) %}
+  <div class="content-column section-block">
+    <h2 class="subhead">Key facts</h2>
+    <div class="reference-list reference-list--table">
+      {% if best_for %}
+      <div class="reference-item">
+        <span class="reference-item__label">Best for</span>
+        <span class="reference-item__value">{{ best_for }}</span>
+      </div>
+      {% endif %}
+      {% if cost_level %}
+      <div class="reference-item">
+        <span class="reference-item__label">Cost</span>
+        <span class="reference-item__value">{{ costLabels[cost_level] or cost_level }}</span>
+      </div>
+      {% endif %}
+      {% if duration %}
+      <div class="reference-item">
+        <span class="reference-item__label">How long</span>
+        <span class="reference-item__value">{{ duration | replace("-", " ") }}</span>
+      </div>
+      {% endif %}
+      {% for origin, time in time_from %}
+      <div class="reference-item">
+        <span class="reference-item__label">From {{ origin | capitalize }}</span>
+        <span class="reference-item__value">{{ time }}</span>
+      </div>
+      {% endfor %}
+      {% if reservations and reservations != "none" %}
+      <div class="reference-item">
+        <span class="reference-item__label">Reservations</span>
+        <span class="reference-item__value">{{ reservations }}</span>
+      </div>
+      {% endif %}
+      {% if requires and requires.length %}
+      <div class="reference-item">
+        <span class="reference-item__label">You'll need</span>
+        <span class="reference-item__value">{{ requires | join(", ") }}</span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
   {% if tip %}
   <div class="tip content-column">
     <p><strong>Pro tip —</strong> {{ tip }}</p>
@@ -80,6 +126,67 @@ layout: layouts/base.njk
   </div>
   {% endif %}
 
+  {# Nearby — computed from coordinates at build time; >200 km is noise in Chile #}
+  {% set near = [] %}
+  {% for n in collections.places | nearby(slug, 3) %}
+    {% if n.distance <= 200 %}{% set near = (near.push(n), near) %}{% endif %}
+  {% endfor %}
+
+  {# Where you are, and what is around you. The map and the Nearby list are one
+     block on purpose: the same neighbour set feeds both, and the cards below
+     carry the data-feature / data-goto contract the engine binds to, so
+     clicking a card moves the map and clicking a pin highlights its card.
+     This place is its own first feature with an `anchor` category, so it reads
+     differently from its neighbours. Coordinates come from the place files via
+     toFeatures — never copied onto the page. #}
+  {% set selfFeat = collections.places | bySlugs([slug]) | toFeatures("anchor") %}
+  {% set nearFeats = near | pluck("item") | toFeatures("type") %}
+  {% set feats = selfFeat.concat(nearFeats) %}
+  {% if feats.length and coordinates %}
+  {% set mapConfig = { token: mapbox.token, style: mapbox.style, mapId: "map",
+                       mode: "pins", center: [coordinates.lng, coordinates.lat],
+                       zoom: 14, features: feats } %}
+  <div class="section-block">
+    <hr class="rule">
+    <h2 class="subhead">On the map</h2>
+    <div class="placemap">
+      {% set mapLabel = title %}
+      {% include "partials/map-shell.njk" %}
+    </div>
+    <p class="placemap__note">
+      <a href="/map/#{{ slug }}">See {{ title }} on the area map →</a>
+    </p>
+  </div>
+  {% endif %}
+
+  {% if near.length %}
+  <div class="section-block">
+    <hr class="rule">
+    <h2 class="subhead">Nearby</h2>
+    <div class="place-grid">
+      {% for n in near %}
+      {# data-feature/data-goto wire this card to its pin above. The button is
+         separate from the link so the card stays a link to the place page. #}
+      <a href="/places/{{ n.item.data.slug }}/" class="card" data-feature="{{ n.item.data.slug }}">
+        <div class="card__overline">{{ n.km }} km away · {{ n.item.data.type | replace("-", " ") }}</div>
+        <div class="card__title">{{ n.item.data.title }}</div>
+        <div class="card__description">{{ n.item.data.subtitle }}</div>
+      </a>
+      {% endfor %}
+    </div>
+    {% if feats.length %}
+    <div class="btn-row placemap__jumps">
+      {% for n in near %}
+      <button type="button" class="btn btn--ghost" data-goto="{{ n.item.data.slug }}"
+              aria-pressed="false" aria-label="Show {{ n.item.data.title }} on the map">
+        {{ n.item.data.title }}
+      </button>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
   {% if related and related.length %}
   <div class="section-block">
     <hr class="rule">
@@ -97,6 +204,12 @@ layout: layouts/base.njk
 </article>
 
 {# JSON-LD #}
+{% set coverUrl = cover | resolveCover(page) %}
+{% set updatedIso = updated | isoDate if updated %}
+{% set priceMap = {"budget": "$", "moderate": "$$", "expensive": "$$$"} %}
+{% set sameAs = [] %}
+{% if google_maps %}{% set sameAs = (sameAs.push(google_maps), sameAs) %}{% endif %}
+{% if website %}{% set sameAs = (sameAs.push(website), sameAs) %}{% endif %}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -104,7 +217,17 @@ layout: layouts/base.njk
   "name": {{ title | dump | replace("</", "<\\/") | safe }},
   "description": {{ (subtitle or description or "") | dump | replace("</", "<\\/") | safe }},
   {% if coordinates %}"geo": {"@type": "GeoCoordinates", "latitude": {{ coordinates.lat }}, "longitude": {{ coordinates.lng }}},{% endif %}
+  {% if coverUrl %}"image": {{ (site.url + coverUrl) | dump | replace("</", "<\\/") | safe }},{% endif %}
+  {% if updatedIso %}"dateModified": "{{ updatedIso }}",{% endif %}
+  {% if regionData %}"containedInPlace": {"@type": "Place", "name": {{ regionData.label | dump | replace("</", "<\\/") | safe }}},{% endif %}
+  {% if cost_level and priceMap[cost_level] %}"priceRange": "{{ priceMap[cost_level] }}",{% endif %}
+  {% if audience and audience.length %}"touristType": {{ audience | dump | replace("</", "<\\/") | safe }},{% endif %}
+  {% if sameAs.length %}"sameAs": {{ sameAs | dump | replace("</", "<\\/") | safe }},{% endif %}
   "address": {"@type": "PostalAddress", "addressCountry": "CL"},
   "url": "{{ site.url }}/places/{{ slug }}/"
 }
 </script>
+
+{# Ships the map config + sprites. Only emits a map when mapConfig is set,
+   so a place with no coordinates renders the page unchanged. #}
+{% if mapConfig %}{% include "partials/map-embed.njk" %}{% endif %}

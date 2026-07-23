@@ -7,7 +7,6 @@ category: language
 seo:
   title: "Chilean Spanish Guide — Chilenismos, Slang & Phrases for Travelers"
   description: "Chilean Spanish is different from any other dialect. Here are the words, slang, and phrases you'll actually encounter — and what Google Translate gets wrong."
-status: published
 updated: 2026-03-28
 ---
 

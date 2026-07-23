@@ -7,7 +7,6 @@ category: food
 seo:
   title: "How to Order Steak in Chile — Doneness Guide in Spanish"
   description: "Chilean steak doneness terms: poco hecho (rare), al punto (medium), punto pasado (medium well), hecho (well done). What to say at the restaurant."
-status: published
 updated: 2026-03-28
 ---
 

@@ -1,0 +1,126 @@
+/* ============================================================
+   Destination Wedding Websites — /tools/destination-weddings/
+   ------------------------------------------------------------
+   Thin by design. This page is pure editorial text, so almost
+   everything it needs already exists: main.css supplies the
+   reading layer (.hero-*, .section-label, .section-title,
+   .prose, .callout, .note-line, and the .faq-list accordion
+   with its +/− affordance), and tools.css supplies the tool
+   furniture (.tool-section, .tool-toc, .tool-figures,
+   .tool-table, .tool-dot, .tool-bar, .tool-entries).
+
+   No colour is declared here beyond divider greys, and none is
+   inherited from the original standalone page. That page carried
+   a blue accent, a paper/ink palette, and green/red "opportunity
+   vs challenge" cards; all of it is gone. There is no figure on
+   this page to decode — nothing here is data with a legend — so
+   under DESIGN-SYSTEM.md §4 nothing earns hue. The old
+   red/amber/green opportunity scores are now one tabular display
+   number plus a hueless .tool-bar, and the old coloured card
+   borders are now the position and weight of a .tool-entry.
+   Contrast comes from size, weight and tracking.
+
+   What's left below is only what neither file covers: the
+   cover's dot-separated meta strip, paragraph rhythm inside a
+   .callout and a .faq-item__a (both normally hold a single block
+   of text, here they hold several), the <cite> under a pull
+   quote, the persona label runs, the opportunity-score figure,
+   the matrix column alignment, and the closing rule.
+   Everything is scoped under .dw so none of it leaks.
+============================================================ */
+
+/* ── Cover meta strip ──────────────────────────────────────── */
+/* Read time · updated · sources, on one line, separated by
+   middots drawn in CSS so the markup stays a list of spans. */
+.dw .dw-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-column-gap-small);
+  text-transform: uppercase;
+  letter-spacing: 0.08em; /* deliberate — wider than the overline pattern, cover-only */
+  max-width: var(--content-width);
+}
+
+.dw .dw-meta span + span::before {
+  content: "·";
+  margin-right: var(--space-medium);
+  color: var(--color-divider-tertiary);
+}
+
+/* ── Multi-paragraph blocks ────────────────────────────────── */
+/* .callout and .faq-item__a are sized for one passage; the TL;DR
+   cards and the deep dives run to several, so they need the
+   prose paragraph rhythm without the prose measure. */
+.dw .callout p {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-2);
+  line-height: var(--line-height-body);
+}
+
+.dw .faq-item__a p + p { margin-top: var(--space-medium); }
+
+/* ── Pull-quote attribution ────────────────────────────────── */
+/* .prose blockquote is styled site-wide; <cite> inside one isn't,
+   and inline it collides with the last line of the quote. */
+.dw .prose blockquote cite {
+  display: block;
+  margin-top: var(--space-medium);
+  font-family: var(--font-family-component);
+  font-style: normal;
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-tertiary);
+}
+
+/* ── Persona entries ───────────────────────────────────────── */
+/* "Top fear" / "Success metric" are labels inside a running
+   block, not emphasis. Scoped to .dw-personas so the strong tags
+   used for real emphasis elsewhere on the page stay inline. */
+.dw .dw-personas .tool-entry__body strong {
+  display: block;
+  margin-top: var(--space-x-small);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-tertiary);
+}
+
+/* ── Opportunity score ─────────────────────────────────────── */
+/* The number is the headline of its row; the bar beside it does
+   the comparing. Display weight and tabular figures replace the
+   red/amber/green banding the original used. */
+.dw .dw-score {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-heading-3);
+  font-weight: var(--font-weight-heading-bold);
+  line-height: 1; /* a bare number — no leading to protect */
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Keep the three numeric columns narrow so the job statement
+   keeps the width it needs to be read. */
+.dw .dw-jtbd th:not(:first-child),
+.dw .dw-jtbd td:not(:first-child) { white-space: nowrap; }
+
+.dw .dw-jtbd td:first-child { font-weight: var(--font-weight-body); color: var(--color-text-primary); }
+
+/* ── Feature matrix ────────────────────────────────────────── */
+/* Dots read as a grid, so centre them under their headings. */
+.dw .dw-matrix th:not(:first-child),
+.dw .dw-matrix td:not(:first-child) { text-align: center; padding-right: var(--space-component-inline-padding-medium); }
+
+.dw .dw-matrix { min-width: 720px; }
+
+/* ── Closing rule ──────────────────────────────────────────── */
+/* 60 is the largest step on the scale — close enough to the old
+   64px-class gap that the sign-off still sits apart. */
+.dw-end {
+  text-align: center;
+  font-style: italic;
+  margin-top: var(--space-container-padding-xxx-large);
+}

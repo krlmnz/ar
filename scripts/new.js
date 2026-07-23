@@ -16,7 +16,11 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const STARTERS = path.join(ROOT, '_starters');
 
-// kind -> where it goes. `dir: true` means content/<folder>/<slug>/index.md
+// kind -> where it goes. `dir: true` means content/<folder>/<slug>/index.md.
+// `ext` overrides the default .md — landings are .njk files in pages/, because
+// a landing is all front matter and the layout reads the body as a demo slot.
+// `url` overrides the previewed URL for kinds whose permalink comes from a
+// directory data file rather than from the folder name.
 const KINDS = {
   place:        { starter: 'place.md',            out: 'content/places',    dir: true },
   guide:        { starter: 'guide.md',            out: 'content/guides' },
@@ -32,7 +36,15 @@ const KINDS = {
   route:        { starter: 'map-route.md',        out: 'content' },
   neighborhood: { starter: 'map-neighborhood.md', out: 'content' },
   area:         { starter: 'map-area.md',         out: 'content' },
-  browse:       { starter: 'map-split.md',        out: 'content' }
+  browse:       { starter: 'map-split.md',        out: 'content' },
+
+  // Learn — the three tracks. Each folder's data file owns the permalink,
+  // layout, section and track, so the starters stay short.
+  'how-to':     { starter: 'how-to.md',           out: 'content/learn/editor',      url: '/learn/editor/' },
+  topic:        { starter: 'topic.md',            out: 'content/learn/cartography', url: '/learn/cartography/' },
+  'build-story':{ starter: 'build-story.md',      out: 'content/learn/notes',       url: '/learn/notes/' },
+
+  landing:      { starter: 'landing.njk',         out: 'pages', ext: 'njk' }
 };
 
 const slugify = (s) => s
@@ -70,7 +82,7 @@ if (!fs.existsSync(starterPath)) {
 
 const target = spec.dir
   ? path.join(ROOT, spec.out, slug, 'index.md')
-  : path.join(ROOT, spec.out, `${slug}.md`);
+  : path.join(ROOT, spec.out, `${slug}.${spec.ext || 'md'}`);
 
 if (fs.existsSync(target)) {
   console.error(`\n  Already exists: ${path.relative(ROOT, target)}\n  Nothing written.\n`);
@@ -86,7 +98,9 @@ const body = fs.readFileSync(starterPath, 'utf8')
 fs.mkdirSync(path.dirname(target), { recursive: true });
 fs.writeFileSync(target, body);
 
-const url = spec.dir ? `/${path.basename(spec.out)}/${slug}/` : `/${slug}/`;
+const url = spec.dir ? `/${path.basename(spec.out)}/${slug}/`
+  : spec.url ? `${spec.url}${slug}/`
+  : `/${slug}/`;
 console.log(`
   Created  ${path.relative(ROOT, target)}
   Preview  http://localhost:8080${url}   (npm start)

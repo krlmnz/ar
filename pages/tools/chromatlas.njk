@@ -1,0 +1,223 @@
+---
+layout: layouts/base.njk
+permalink: /tools/chromatlas/
+title: Chromatlas
+description: "A browsable atlas of Pantone’s Colours of the Year and seasonal reports, plus a harmony engine that turns any Pantone colour into complementary, triadic and analogous palettes."
+seo:
+  title: "Chromatlas — Andean Road"
+  description: "A working atlas of Pantone's colour choices — 27 Colours of the Year, the seasonal runway reports, hue families across the 2,310-colour library, and a live harmony engine that snaps every computed hue to the nearest real Pantone chip."
+---
+
+<link rel="stylesheet" href="/assets/css/tools.css">
+<link rel="stylesheet" href="/assets/css/chromatlas.css">
+
+{% set crumbs = [{ label: "Tools", url: "/tools/" }, { label: "Chromatlas" }] %}
+{% include "partials/breadcrumbs.njk" %}
+
+<div class="tool chromatlas">
+
+  <!-- ── Hero ─────────────────────────────────────────────── -->
+  <header class="tool-hero">
+    <div class="hero-overline">A colour-data field guide · Pantone FHI</div>
+    <h1 class="hero-title">How Pantone turns culture into <em>colour</em>, and colour into harmony.</h1>
+    <p class="hero-lede">Every year, one company distils the global mood into a single named hue — then a whole season of them. This is a working atlas of those choices, plus a live engine that turns <strong>any</strong> Pantone colour into its harmonies using the same geometry designers have used for a century.</p>
+
+    <div class="cx-hero-strip" id="heroStrip" aria-hidden="true"></div>
+    <p class="note-line">27 Colours of the Year, 2000 → 2026 · hover to inspect</p>
+
+    <nav class="tool-toc" aria-label="On this page">
+      <a href="#framework">Framework</a>
+      <a href="#coty">01 · Colour of the Year</a>
+      <a href="#runway">02 · Runway Report</a>
+      <a href="#engine">03 · Harmony Engine</a>
+      <a href="#families">04 · Chromatic Families</a>
+      <a href="#signals">05 · Trend Signals</a>
+      <a href="#method">Method</a>
+    </nav>
+  </header>
+
+  <!-- ── Framework band ───────────────────────────────────── -->
+  <!-- Greyscale by rule: this band is structure, not data. The
+       three layers used to carry decorative gradient bars; the
+       hue on this page belongs to the swatches only. -->
+  <section id="framework" class="tool-section">
+    <div class="section-label">The framework</div>
+    <h2 class="section-title">Culture → Curation → Harmony</h2>
+    <p class="section-description">Three layers turn a mood into a palette. Everything below sits in one of them.</p>
+
+    <div class="tool-cols tool-cols--3">
+      <div class="tool-panel">
+        <div class="tool-panel__label">Layer 01</div>
+        <h3 class="subhead">Culture</h3>
+        <p class="tool-entry__body">Pantone reads the zeitgeist — economics, runways, technology, mood — and names it. Evidence: the Colour of the Year, running since 2000, and seasonal Fashion Colour Trend Reports.</p>
+      </div>
+      <div class="tool-panel">
+        <div class="tool-panel__label">Layer 02</div>
+        <h3 class="subhead">Curation</h3>
+        <p class="tool-entry__body">Colours are grouped into sets that carry meaning: a single annual hue, ten runway standouts, seasonless neutrals, and the classic harmony families. These are the categories below.</p>
+      </div>
+      <div class="tool-panel">
+        <div class="tool-panel__label">Layer 03</div>
+        <h3 class="subhead">Harmony</h3>
+        <p class="tool-entry__body">Any one colour becomes a palette through geometry — fixed angles on the hue wheel. The engine computes those angles, then snaps each result to the nearest real Pantone chip.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 01 · Colour of the Year ──────────────────────────── -->
+  <section id="coty" class="tool-section">
+    <div class="section-label">Category 01</div>
+    <h2 class="section-title" id="c1title"></h2>
+    <p class="section-description" id="c1sub"></p>
+    <div id="c1groups"></div>
+  </section>
+
+  <!-- ── 02 · Runway report ───────────────────────────────── -->
+  <section id="runway" class="tool-section">
+    <div class="section-label">Category 02</div>
+    <h2 class="section-title" id="c2title"></h2>
+    <p class="section-description" id="c2sub"></p>
+    <div id="c2groups"></div>
+  </section>
+
+  <!-- ── 03 · Harmony engine ──────────────────────────────── -->
+  <section id="engine" class="tool-section">
+    <div class="section-label">Category 03 · Interactive</div>
+    <h2 class="section-title">The Harmony Engine</h2>
+    <p class="section-description">Six harmony types, computed live from a base colour, then matched to the closest of Pantone's <span id="engLibN">2,310</span> Fashion, Home + Interiors colours. Tap any chip anywhere on this page to load it here.</p>
+
+    <div class="tool-panel cx-engine">
+      <div class="cx-engine__grid">
+
+        <div class="cx-wheelwrap">
+          <div class="cx-wheel">
+            <div class="cx-wheel__ring" aria-hidden="true"></div>
+            <svg id="wheelSvg" viewBox="0 0 264 264" aria-hidden="true"></svg>
+            <div class="cx-hub">
+              <div>
+                <div class="cx-hub__swatch" id="hubSwatch"></div>
+                <div class="cx-hub__name" id="hubName">Classic Blue</div>
+                <div class="cx-hub__code" id="hubCode">19-4052</div>
+              </div>
+            </div>
+          </div>
+          <div class="cx-basepick">
+            <label for="basePick">Base</label>
+            <input type="color" id="basePick" value="#0F4C81">
+            <button class="btn" type="button" id="randBtn">Random Pantone</button>
+          </div>
+        </div>
+
+        <div class="cx-engine__controls">
+          <div class="cx-tabs" id="htabs" role="group" aria-label="Harmony type"></div>
+          <div class="tool-code cx-formula" id="formula"></div>
+          <p class="cx-harmdesc" id="harmdesc"></p>
+          <div class="cx-results" id="result"></div>
+          <p class="note-line">Each result shows the <strong>ideal</strong> computed swatch (left) beside the nearest real Pantone chip it snaps to, with its ΔE colour distance.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 04 · Chromatic families ──────────────────────────── -->
+  <section id="families" class="tool-section">
+    <div class="section-label">Category 04</div>
+    <h2 class="section-title" id="c4title"></h2>
+    <p class="section-description" id="c4sub"></p>
+    <div class="cx-fams" id="c4grid"></div>
+  </section>
+
+  <!-- ── 05 · Trend signals ───────────────────────────────── -->
+  <section id="signals" class="tool-section">
+    <div class="section-label">Category 05 · Data</div>
+    <h2 class="section-title" id="c5title"></h2>
+    <p class="section-description" id="c5sub"></p>
+
+    <div class="cx-charts">
+      <div class="tool-panel cx-chart cx-chart--wide">
+        <div class="tool-panel__label">Warm vs cool, 2000–2026</div>
+        <p class="tool-caption">Each bar is that year's Colour of the Year, drawn in its own hue. Up = warm (red · orange · yellow), down = cool (green · blue · violet).</p>
+        <svg id="chartWarm" viewBox="0 0 900 240" role="img" aria-label="Warm versus cool Colour of the Year, 2000 to 2026"></svg>
+      </div>
+      <div class="tool-panel cx-chart">
+        <div class="tool-panel__label">Lightness over time</div>
+        <p class="tool-caption">How light or dark each annual hue sits (HSL lightness).</p>
+        <svg id="chartLight" viewBox="0 0 440 240" role="img" aria-label="HSL lightness of each Colour of the Year over time"></svg>
+      </div>
+      <div class="tool-panel cx-chart">
+        <div class="tool-panel__label">Saturation over time</div>
+        <p class="tool-caption">Chromatic intensity of each annual hue (HSL saturation).</p>
+        <svg id="chartSat" viewBox="0 0 440 240" role="img" aria-label="HSL saturation of each Colour of the Year over time"></svg>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout__label">Finding</div>
+      <p id="finding"></p>
+    </div>
+  </section>
+
+  <!-- ── Method ───────────────────────────────────────────── -->
+  <section id="method" class="tool-section">
+    <div class="section-label">Method</div>
+    <h2 class="section-title">Framework &amp; method</h2>
+
+    <div class="tool-entries">
+      <div class="tool-entry">
+        <div class="tool-entry__overline">The harmony formulas</div>
+        <p class="tool-entry__body">Working in HSL, hold saturation and lightness and rotate hue H by fixed angles. Complementary: H, H+180°. Analogous: H±30°. Triadic: H+120°, +240°. Split-complementary: H+150°, +210°. Tetradic: H+60°, +180°, +240°. Monochromatic: H fixed, lightness stepped ±15° and ±30°.</p>
+      </div>
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Nearest-Pantone snapping</div>
+        <p class="tool-entry__body">A rotated hue is an abstract point, not a real swatch. To keep every palette Pantone-real, each computed colour is converted sRGB → XYZ → CIELAB and matched to the minimum-ΔE colour across the full library. ΔE is the reported perceptual distance; lower means a closer match.</p>
+      </div>
+      <div class="tool-entry">
+        <div class="tool-entry__overline">Curation, not generation</div>
+        <p class="tool-entry__body">Categories mirror how Pantone itself groups colour: one annual hue, ten runway standouts per season, seasonless neutrals, and hue families. Groupings within the Colour of the Year archive are editorial, sorted by chromatic mood.</p>
+      </div>
+      <div class="tool-entry">
+        <div class="tool-entry__overline">On the data</div>
+        <p class="tool-entry__body">Colour of the Year and Fashion Colour Trend Report hues are the published Pantone selections; swatch hex values come from the 2,310-colour Fashion, Home + Interiors reference set. Trend readings are computed from those values — screens can only approximate a dyed Pantone standard.</p>
+      </div>
+    </div>
+
+    <p class="note-line" id="srcs"></p>
+    <p class="note-line">Colour selections © Pantone LLC, cited for reference. Built as an interactive reading experience.</p>
+  </section>
+
+  <div class="cx-toast" id="cxToast" role="status" aria-live="polite"></div>
+</div>
+
+<script src="/assets/js/chromatlas.js" defer></script>
+
+{# Every tool page owes the reader a next step below the fold (_plans/03). #}
+<hr class="rule rule--section">
+
+<section class="section">
+  <div class="section-label">Next</div>
+  <div class="section-title">Take a palette somewhere</div>
+  <div class="section-description">Found a hue worth keeping? The Atelier turns a starting colour into a full map palette, and Color Scales turns two of them into a data scale.</div>
+
+  <div class="btn-row" style="margin-top: var(--space-large)">
+    <a href="/atelier/" class="btn btn--filled">Open the Atelier</a>
+    <a href="/tools/" class="btn">All tools</a>
+  </div>
+</section>
+
+{# SoftwareApplication — how AI search and rich results learn this is a free
+   browser tool rather than an article about one. #}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Chromatlas",
+  "description": {{ description | dump | replace("</", "<\\/") | safe }},
+  "url": "{{ site.url }}{{ page.url }}",
+  "applicationCategory": "DesignApplication",
+  "operatingSystem": "Any (web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": {{ site.author | dump | safe }}, "url": "{{ site.url }}/about/" },
+  "publisher": { "@type": "Person", "name": {{ site.author | dump | safe }}, "url": "{{ site.url }}/about/" }
+}
+</script>

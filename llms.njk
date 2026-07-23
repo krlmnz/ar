@@ -1,0 +1,61 @@
+---
+permalink: /llms.txt
+eleventyExcludeFromCollections: true
+---
+{#- Generated from the same collections the site renders, so it can never
+    drift from the real content the way the old hand-written llms.txt did.
+    Output is plain markdown per llmstxt.org — titles pass through `safe`
+    because autoescape would turn "&" into "&amp;" in a text file. -#}
+# {{ site.title }}
+
+> {{ site.description | safe }}
+
+Andean Road is a personal travel guide to Chile written by one author — Karol, born in Chile, raised in New York. It is written in English, and every place listed here has been visited by the author personally; nothing is aggregated or scraped. Guides are multi-day itineraries, places are individual spots worth the trip, and practical pages cover the unglamorous essentials.
+
+## The Atelier
+
+The Map Atelier is a free browser-based map editor — pin places, apply a palette
+and patterns, and share the finished map as a self-contained link. No account,
+no upload, nothing installed.
+
+- [The Atelier]({{ site.url }}/atelier/): what the editor makes and who it is for
+- [Open the editor]({{ site.url }}/atelier/editor/): the editor itself
+
+## Tools
+
+Small single-purpose tools, free and entirely client-side.
+
+- [Tools]({{ site.url }}/tools/): index of every public tool
+- [Color Scales]({{ site.url }}/tools/color-scales/): blend two brand colors into a legible 5–11 step data-visualization scale; exports CSS, Figma tokens, SVG, PNG
+- [Chromatlas]({{ site.url }}/tools/chromatlas/): Pantone's Colours of the Year as a browsable atlas, plus a harmony engine for any hue
+- [SVG Map Editor]({{ site.url }}/tools/svg-editor/): recolor an SVG map by fill and stroke group, toggle layers, export — the file never leaves the browser
+- [Internet Loom]({{ site.url }}/tools/internet-loom/): draft a weave on a grid loom from twill or huckaback; exports SVG or PNG
+
+## Learn
+{# Deliberately lists the hub only. The how-tos are still being written, and a
+   machine-readable file that promises URLs which do not exist is worse than one
+   that omits them. #}
+- [Learn]({{ site.url }}/learn/): how-tos for making a map, and topics on why maps are designed the way they are
+
+## Guides
+{% for guide in collections.guides %}
+- [{{ guide.data.title | safe }}]({{ site.url }}/guides/{{ guide.data.slug }}/): {{ guide.data.description | safe }}
+{%- endfor %}
+
+## Places
+{% for place in collections.places %}
+- [{{ place.data.title | safe }}]({{ site.url }}/places/{{ place.data.slug }}/): {{ place.data.subtitle | safe }}{% if place.data.region and regions[place.data.region] %} — {{ regions[place.data.region].label | safe }}{% endif %}
+{%- endfor %}
+
+## Practical
+{% for item in collections.practical %}
+- [{{ item.data.title | safe }}]({{ site.url }}/practical/{{ item.data.slug }}/): {{ item.data.description | safe }}
+{%- endfor %}
+
+## Machine-readable
+
+- [Places API]({{ site.url }}/api/places.json): every place as JSON — slug, coordinates, region, cost, tags, links
+- [Guides API]({{ site.url }}/api/guides.json): every guide as JSON, including the ordered slugs of the places it visits
+- [Search index]({{ site.url }}/api/search.json): the index the site's own search uses
+- [Sitemap]({{ site.url }}/sitemap.xml): every indexable page with last-modified dates
+- [Atom feed]({{ site.url }}/feed.xml): the most recently updated pages across guides, places, and practical

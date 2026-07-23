@@ -1,0 +1,28 @@
+---
+permalink: /404.html
+eleventyExcludeFromCollections: true
+noindex: true
+layout: layouts/base.njk
+title: "Lost"
+---
+{# Netlify serves /404.html for any missing route automatically.
+   Reuses hero + section from main.css — a dead end doesn't earn new CSS. #}
+<div class="hero">
+  <div class="hero-overline">404</div>
+  <h1 class="hero-title">This road doesn't go anywhere</h1>
+  <p class="hero-lede">Whatever was here has washed out, moved, or never existed. It happens on mountain roads all the time.</p>
+</div>
+
+<hr class="rule rule--heavy">
+
+<section class="section">
+  <div class="section-label">Detour</div>
+  <div class="section-title">Back on route</div>
+  <p class="section-description">
+    <a href="/places/">Places</a> ·
+    <a href="/guides/">Guides</a> ·
+    <a href="/map/">The map</a> ·
+    <a href="/practical/">Practical stuff</a>
+  </p>
+  <p class="section-description">Or press <kbd>/</kbd> — search works from anywhere on the site.</p>
+</section>

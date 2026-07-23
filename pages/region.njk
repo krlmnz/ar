@@ -1,6 +1,13 @@
 ---
 layout: layouts/base.njk
+# The map runs edge to edge, so <main> must not wrap. Every text block below
+# carries its own .wrap: nav, header, map, keep exploring.
+fullBleed: true
+mapPage: true
 pagination:
+  # Without this, only the first generated page joins collections.all — the
+  # sitemap and search index would silently miss every other region page.
+  addAllPagesToCollections: true
   data: regions
   size: 1
   alias: regionSlug
@@ -8,6 +15,7 @@ pagination:
 permalink: "/regions/{{ regionSlug }}/"
 eleventyComputed:
   title: "{{ regions[regionSlug].label | safe }}"
+  searchContext: "region:{{ regionSlug }}"
   seo:
     title: "{{ regions[regionSlug].label | safe }} — Andean Road"
     description: "{{ regions[regionSlug].description | safe }}. Where to eat, stay and go."
@@ -15,33 +23,61 @@ eleventyComputed:
 
 {% set region = regions[regionSlug] %}
 
-<div class="hero">
-  <div class="hero-overline">Region</div>
-  <h1 class="hero-title">{{ region.label }}</h1>
-  <p class="hero-lede">{{ region.description }}.</p>
+{% set here = [] %}
+{% for item in collections.places %}
+  {% if item.data.region == regionSlug %}{% set here = (here.push(item), here) %}{% endif %}
+{% endfor %}
+{% set feats = here | toFeatures("type") %}
+
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-overline">Region</div>
+    <h1 class="hero-title">{{ region.label }}</h1>
+    <p class="hero-lede">{{ region.description }}.</p>
+  </div>
 </div>
 
-<hr class="rule rule--heavy">
+{# The area map. _data/regions.json has carried a lat/lng/zoom per region since
+   it was written and nothing ever read it — this is the camera it was for.
+   Coloured by place type, because within one region the useful distinction is
+   what a place IS, not where it is.
 
-<section class="section">
-  {% for item in collections.places %}
-    {% if item.data.region == regionSlug %}
+   `popup: false` — this map answers with a panel, not a bubble. #}
+{% if feats.length and region.lat and region.lng %}
+{% set mapConfig = { token: mapbox.token, style: mapbox.style, mapId: "map",
+                     mode: "pins", center: [region.lng, region.lat],
+                     zoom: region.zoom or 11, popup: false, features: feats } %}
+{% include "partials/region-map.njk" %}
+{% else %}
+{# No coordinates, no token, or no places — the editorial list is the fallback,
+   and it is also what every reader gets with JS disabled below. #}
+<div class="wrap">
+  <section class="section">
+    {% for item in here %}
       {% include "partials/place-entry.njk" %}
-    {% endif %}
-  {% endfor %}
-</section>
-
-<hr class="rule rule--section">
-
-<section class="section">
-  <div class="section-label">Keep exploring</div>
-  <div class="section-title">Other regions</div>
-
-  <div class="practical-list">
-    {% for slug, r in regions %}
-      {% if slug != regionSlug %}
-      <a href="/regions/{{ slug }}/" class="practical-link">{{ r.label }}</a>
-      {% endif %}
     {% endfor %}
-  </div>
-</section>
+  </section>
+</div>
+{% endif %}
+
+<div class="wrap">
+  <section class="section">
+    <div class="section-label">Keep exploring</div>
+    <div class="section-title">Other regions</div>
+
+    <div class="practical-list">
+      {% for slug, r in regions %}
+        {% if slug != regionSlug %}
+        <a href="/regions/{{ slug }}/" class="practical-link">{{ r.label }}</a>
+        {% endif %}
+      {% endfor %}
+      {# Back up a level: this region is one part of the whole directory. #}
+      <a href="/map/" class="practical-link">Every region on one map</a>
+    </div>
+  </section>
+</div>
+
+{% if mapConfig %}
+{% include "partials/map-embed.njk" %}
+<script src="/assets/js/region-map.js" defer></script>
+{% endif %}

@@ -24,7 +24,6 @@ reservations: none
 duration: "quick-stop"
 cover: cover.jpg
 cover_alt: "Exterior of La Chascona, Pablo Neruda's house in Santiago's Bellavista neighborhood"
-images: auto
 related:
   - isla-negra
   - gam
@@ -34,7 +33,6 @@ near:
 seo:
   title: "La Chascona — Pablo Neruda's Santiago House Museum"
   description: "Visit La Chascona, Pablo Neruda's intimate Santiago home built for his lover Matilde. Ship-shaped rooms, eccentric collections, and a window into Chile's most famous poet."
-status: published
 updated: 2026-03-28
 author_note: true
 ---

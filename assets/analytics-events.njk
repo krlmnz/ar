@@ -1,0 +1,92 @@
+---
+permalink: /assets/js/analytics.js
+eleventyExcludeFromCollections: true
+---
+{#- Event helper. Templated rather than static because the provider is a
+    build-time decision (see _data/analytics.js), and the four supported
+    providers have four different custom-event APIs — or, in Cloudflare's
+    case, none at all.
+
+    Lives in assets/ as a .njk with an explicit permalink rather than in
+    assets/js/, because .eleventy.js passthrough-copies that whole directory
+    and would ship this file's raw Nunjucks source alongside the rendered one.
+    Same pattern as api/*.njk. -#}
+// GENERATED from assets/analytics-events.njk — do not edit.
+//
+// window.arEvent(name, props) — fire a custom analytics event.
+//
+// Safe to call unconditionally: with analytics off this file is a no-op, and
+// with analytics on it queues events fired before the vendor script finishes
+// loading (both tags are async/defer, so a page-load event beats them).
+// Never throws, never sets a cookie, never sends anything but the event name.
+(function () {
+  'use strict';
+
+{%- if not analytics.enabled %}
+
+  // Analytics is off in this build — ANALYTICS_PROVIDER / ANALYTICS_ID unset.
+  // The helper still exists so callers need no feature check.
+  window.arEvent = function () {};
+{%- elif analytics.provider == "cloudflare" %}
+
+  // Cloudflare Web Analytics has no custom-event API. Rather than pretend,
+  // this no-ops and says so once, so a silent dashboard is never mistaken for
+  // "nobody used the editor".
+  var warned = false;
+  window.arEvent = function (name) {
+    if (!warned) {
+      warned = true;
+      console.info('[andean-road] Custom events are not supported by Cloudflare Web Analytics. Ignoring "' + name + '".');
+    }
+  };
+{%- else %}
+
+  var queue = [];
+  var FLUSH_LIMIT = 20;
+
+  function deliver(name, props) {
+  {%- if analytics.provider == "plausible" %}
+    if (typeof window.plausible !== 'function') return false;
+    window.plausible(name, props ? { props: props } : undefined);
+    return true;
+  {%- elif analytics.provider == "goatcounter" %}
+    if (!window.goatcounter || typeof window.goatcounter.count !== 'function') return false;
+    // GoatCounter models events as paths with event:true, so the event name is
+    // the path. Props have nowhere to go here — they are dropped, not faked.
+    window.goatcounter.count({ path: name, title: name, event: true });
+    return true;
+  {%- elif analytics.provider == "umami" %}
+    if (!window.umami || typeof window.umami.track !== 'function') return false;
+    window.umami.track(name, props || undefined);
+    return true;
+  {%- endif %}
+  }
+
+  function flush() {
+    while (queue.length) {
+      var item = queue[0];
+      if (!deliver(item.name, item.props)) return false;
+      queue.shift();
+    }
+    return true;
+  }
+
+  window.arEvent = function (name, props) {
+    if (!name) return;
+    try {
+      if (deliver(name, props)) return;
+      // Vendor script has not executed yet. Hold the event and retry — bounded,
+      // so a provider that never loads cannot grow this array without limit.
+      if (queue.length < FLUSH_LIMIT) queue.push({ name: name, props: props });
+    } catch (e) {
+      // An analytics helper must never break the page it measures.
+    }
+  };
+
+  // Retry on the two moments the vendor script is most likely to have arrived,
+  // then give up rather than poll forever.
+  window.addEventListener('load', flush);
+  setTimeout(flush, 2000);
+  setTimeout(flush, 6000);
+{%- endif %}
+})();

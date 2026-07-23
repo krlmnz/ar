@@ -25,14 +25,12 @@ reservations: none
 duration: "quick-stop"
 cover: cover.jpg
 cover_alt: "Modern architecture of Centro Gabriela Mistral in Santiago"
-images: auto
 related:
   - la-chascona
   - bocanriz
 near:
   - ambrosia-bistro
   - bocanriz
-status: published
 updated: 2026-03-28
 author_note: true
 ---

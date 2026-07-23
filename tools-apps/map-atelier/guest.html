@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="andean">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Map Atelier — Andean Road</title>
+<!-- colorscheme bootstrap: runs before first paint so a saved dark
+     preference never flashes light -->
+<script>const t=localStorage.getItem('theme');if(t==='dark')document.documentElement.dataset.colorscheme='dark';</script>
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<link rel="stylesheet" href="/assets/css/andean.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/editor/shell.css">
+<link rel="stylesheet" href="css/editor/places.css">
+<link rel="stylesheet" href="css/editor/colors.css">
+<link rel="stylesheet" href="css/editor/patterns.css">
+<link rel="stylesheet" href="css/editor/legend.css">
+<link rel="stylesheet" href="css/editor/overlays.css">
+<link rel="stylesheet" href="css/editor/guest.css">
+</head>
+<!-- The published face. Everything it needs arrives in the URL hash,
+     so this page reads nothing from local storage and works for a
+     visitor who has never opened the atelier. -->
+<body class="guest">
+
+<!-- the map surface is injected by js/views/stage.js -->
+<div id="stage"></div>
+
+<script type="module" src="js/pages/guest.js"></script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 ---
 layout: layouts/base.njk
 fullBleed: true
+mapPage: true
 ---
 {# MAP-STACK — full-width map under the header, cards UNDERNEATH in a grid.
    Use when the places are the content and the map is the orientation device.
@@ -30,23 +31,7 @@ fullBleed: true
 
     <ul class="mapcards mapcards--grid">
       {% for f in feats %}
-      <li>
-        <article class="mapcard" data-feature="{{ f.id }}" >
-          <button type="button" class="mapcard__hit" data-goto="{{ f.id }}" aria-pressed="false"
-                  aria-label="Show {{ f.title }} on the map">
-            <span class="mapcard__icon">
-              {% set iconName = placeIcons[f.type] or placeIcons._default %}
-              {% icon iconName, weight="fill", size=18 %}
-            </span>
-            <span class="mapcard__body">
-              <span class="mapcard__overline">{{ f.type | replace("-", " ") }}</span>
-              <span class="mapcard__title">{{ f.title }}</span>
-              <span class="mapcard__sub">{{ f.subtitle }}</span>
-            </span>
-          </button>
-          <a class="mapcard__link" href="{{ f.url }}">Read more <span aria-hidden="true">→</span></a>
-        </article>
-      </li>
+      {% include "partials/mapcard.njk" %}
       {% endfor %}
     </ul>
   </div>

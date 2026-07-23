@@ -1,0 +1,427 @@
+/* ============================================================
+   Tool pages — the shared chrome for /tools/*
+   ------------------------------------------------------------
+   These pages are templates in the Andean Road system, not
+   guests inside it. So: no local colour tokens, no local type
+   scale. Everything below is built from the andean token layer
+   (assets/css/andean.css) — container/divider colours, the
+   component/body type scale, the space families, the radius
+   scale — exactly like main.css.
+
+   Editorial text on a tool page uses the SITE classes — .prose,
+   .hero-*, .section-label, .section-title, .callout, .subhead,
+   .btn, .tag, .note-line. This file adds only what the site
+   didn't already have: the furniture interactive pages need
+   (control panels, figure plates, legends, code blocks, stat
+   readouts, data tables, swatch strips).
+
+   THE COLOUR RULE (DESIGN-SYSTEM.md §4, §10): the chrome stays
+   hueless — neutral and action-passive tokens only (the
+   container/divider greys, --color-ui-neutral, inverse fills for
+   filled glyphs). Hue is legitimate only inside a figure or
+   swatch that something decodes — a legend, a palette name, a
+   labelled scale — plus the input-matrix teal on live controls.
+   Never for chrome, never for emphasis, never for a heading.
+============================================================ */
+
+/* ── Page wrapper ──────────────────────────────────────────── */
+/* The space scale tops out at 40; doubling it keeps the old
+   96px-class breathing room at the end of the page. */
+.tool { padding-bottom: calc(var(--space-x-large) * 2); }
+
+.tool-section { padding: var(--space-container-padding-xxx-large) 0 var(--space-x-large); }
+.tool-section + .tool-section { border-top: 1px solid var(--color-divider-tertiary); }
+
+/* The masthead block. .hero already carries the type; this only
+   adds the two-column split for a hero-side definition panel. */
+.tool-hero { padding: var(--space-container-padding-xxx-large) 0 var(--space-x-large); }
+
+/* ── Jump links ────────────────────────────────────────────── */
+/* An in-page contents row. The site header owns the top of the
+   viewport, so a tool page must not add a second sticky bar. */
+.tool-toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-column-gap-x-small);
+  margin-top: var(--space-container-padding-x-large);
+}
+
+.tool-toc a {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  text-decoration: none;
+  padding: var(--space-component-stack-padding-large) var(--space-component-inline-padding-xx-large);
+  border: 1px solid var(--color-action-passive-border);
+  border-radius: var(--radius-action);
+  transition: color var(--duration-fade-fast) var(--ease-fade),
+              border-color var(--duration-fade-fast) var(--ease-fade);
+}
+
+.tool-toc a:hover,
+.tool-toc a:focus-visible {
+  color: var(--color-text-primary);
+  border-color: var(--color-ui-neutral);
+}
+
+/* ── Column layouts ────────────────────────────────────────── */
+.tool-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-column-gap-x-large);
+  align-items: start;
+}
+
+.tool-cols--3 { grid-template-columns: repeat(3, 1fr); }
+.tool-cols--wide { grid-template-columns: 1.3fr 1fr; }
+.tool-cols--center { align-items: center; }
+
+/* ── Panel — a bordered block, same corner as .card. ───────── */
+.tool-panel {
+  border: 1px solid var(--color-container-border-primary);
+  background: var(--color-container-background-primary);
+  border-radius: var(--radius-medium);
+  padding: var(--space-container-padding-large);
+}
+
+.tool-panel--flat { background: transparent; }
+
+.tool-panel__label {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-x-small);
+}
+
+/* ── Plate — the mount for a canvas or generated figure ────── */
+/* Data-viz colour lives inside a plate. The plate itself is a
+   surface, so a figure sits in the page instead of glowing out
+   of it in dark mode. */
+.tool-plate {
+  border: 1px solid var(--color-container-border-primary);
+  background: var(--color-container-background-primary);
+  border-radius: var(--radius-medium);
+  padding: var(--space-container-padding-small);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tool-plate canvas { max-width: 100%; height: auto; display: block; }
+
+.tool-caption {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-3);
+  color: var(--color-text-tertiary);
+  margin-top: var(--space-x-small);
+}
+
+/* ── Controls ──────────────────────────────────────────────── */
+.tool-controls { display: flex; flex-direction: column; gap: var(--space-row-gap-large); }
+
+.tool-control { display: flex; flex-direction: column; gap: var(--space-row-gap-x-small); }
+
+.tool-control label {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-column-gap-small);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-3);
+  font-weight: var(--font-weight-component-semibold);
+  color: var(--color-text-primary);
+}
+
+/* The live value. Tabular figures so the row doesn't jitter as
+   the reader drags. */
+.tool-control label span {
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-component);
+}
+
+/* Live controls follow the andean input matrix: the element box
+   is the track at this height, and accent-color carries the
+   filled portion + thumb. */
+.tool-control input[type="range"] {
+  width: 100%;
+  height: 4px;
+  background: var(--color-track-primary);
+  border-radius: var(--radius-full);
+  accent-color: var(--color-progress-indicator);
+}
+
+.tool-control__hint {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-3);
+  color: var(--color-text-tertiary);
+}
+
+/* ── Stat readout ──────────────────────────────────────────── */
+.tool-stats { display: flex; flex-wrap: wrap; gap: var(--space-column-gap-small); }
+
+.tool-stat {
+  background: var(--color-container-background-tertiary);
+  border-radius: var(--radius-small);
+  padding: var(--space-component-stack-padding-large) var(--space-component-inline-padding-xx-large);
+  min-width: 8ch;
+}
+
+.tool-stat__label {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-tertiary);
+}
+
+.tool-stat__value {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-heading-3);
+  font-weight: var(--font-weight-heading-bold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--line-height-heading);
+}
+
+.tool-stat__value--text { font-size: var(--font-size-body-3); font-weight: var(--font-weight-component-semibold); }
+
+/* A big editorial number — the "18–32%" figure block. */
+.tool-figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--color-divider-tertiary);
+  margin: var(--space-container-padding-x-large) 0;
+}
+
+.tool-figure-cell {
+  padding: var(--space-container-padding-large) var(--space-container-padding-large) var(--space-container-padding-large) 0;
+  border-bottom: 1px solid var(--color-divider-tertiary);
+}
+
+.tool-figure-cell__num {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-heading-2);
+  font-weight: var(--font-weight-heading-bold);
+  line-height: 1.1; /* tighter than the heading token — a bare number has no ascenders to protect */
+  font-variant-numeric: tabular-nums;
+  margin-bottom: var(--space-component-gap-small);
+}
+
+.tool-figure-cell__label {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-3);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-body);
+}
+
+/* ── Legend — the decoder for any coloured figure ──────────── */
+.tool-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-column-gap-small);
+  margin: var(--space-medium) 0;
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  color: var(--color-text-secondary);
+}
+
+.tool-legend__item { display: flex; align-items: center; gap: var(--space-component-gap-medium); }
+
+.tool-legend__swatch {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--color-container-border-primary);
+  flex: none;
+}
+
+/* ── Swatch strip — a palette rendered as data ─────────────── */
+/* Square on purpose: swatches are the data, not chrome, so they
+   don't take the radius scale. */
+.tool-swatches {
+  display: flex;
+  height: 32px;
+  border: 1px solid var(--color-container-border-primary);
+  overflow: hidden;
+}
+
+.tool-swatches > * { flex: 1; }
+
+.tool-swatch-group { margin-bottom: var(--space-large); }
+
+.tool-swatch-name {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  color: var(--color-text-tertiary);
+  margin-top: var(--space-component-gap-small);
+}
+
+/* ── Code block ────────────────────────────────────────────── */
+.tool-code {
+  position: relative;
+  background: var(--color-container-background-tertiary);
+  border: 1px solid var(--color-container-border-primary);
+  border-radius: var(--radius-medium);
+  padding: var(--space-container-padding-large);
+  margin: var(--space-large) 0;
+  /* Literal stack — the andean export has no monospace family token. */
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: var(--font-size-body-3);
+  line-height: var(--line-height-body);
+  color: var(--color-code-text);
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+.tool-copy {
+  position: absolute;
+  top: var(--space-x-small);
+  right: var(--space-x-small);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-tertiary);
+  background: var(--color-container-background-primary);
+  border: 1px solid var(--color-container-border-primary);
+  border-radius: var(--radius-action);
+  padding: var(--space-component-stack-padding-small) var(--space-component-inline-padding-medium);
+  cursor: pointer;
+  transition: color var(--duration-fade-fast) var(--ease-fade),
+              border-color var(--duration-fade-fast) var(--ease-fade);
+}
+
+.tool-copy:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-ui-neutral);
+}
+
+/* ── Tables ────────────────────────────────────────────────── */
+/* .prose table exists but assumes markdown inside a reading
+   column; tool tables are wider and often need to scroll. */
+.tool-table-wrap { overflow-x: auto; margin: var(--space-large) 0; }
+
+.tool-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-3);
+}
+
+/* Three divider tiers do the table's structure: primary under the
+   head, tertiary between rows, secondary to close the body. */
+.tool-table th {
+  text-align: left;
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-tertiary);
+  padding: var(--space-container-padding-xx-small) var(--space-container-padding-small) var(--space-container-padding-xx-small) 0;
+  border-bottom: 1px solid var(--color-divider-primary);
+  vertical-align: bottom;
+}
+
+.tool-table td {
+  padding: var(--space-container-padding-small) var(--space-container-padding-small) var(--space-container-padding-small) 0;
+  border-bottom: 1px solid var(--color-divider-tertiary);
+  color: var(--color-text-secondary);
+  vertical-align: top;
+}
+
+.tool-table tbody tr:last-child td { border-bottom: 1px solid var(--color-divider-secondary); }
+
+.tool-table td:first-child { color: var(--color-text-primary); font-weight: var(--font-weight-component-semibold); }
+
+.tool-table--num td { font-variant-numeric: tabular-nums; }
+
+/* Support dot for a feature matrix — filled / half / empty.
+   Hueless: a matrix is structure, not data with a legend. The
+   filled state is an inverse fill, not a text colour. */
+.tool-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--color-ui-neutral);
+  vertical-align: middle;
+}
+
+.tool-dot--full {
+  background: var(--color-container-background-inverse);
+  border-color: var(--color-container-background-inverse);
+}
+.tool-dot--half {
+  background: linear-gradient(90deg, var(--color-container-background-inverse) 50%, transparent 50%);
+  border-color: var(--color-ui-neutral);
+}
+.tool-dot--none { background: transparent; }
+
+/* A proportion bar — same reasoning: an inverse fill on the
+   track token, no hue. */
+.tool-bar {
+  display: inline-block;
+  width: 80px;
+  height: 4px;
+  background: var(--color-track-primary);
+  position: relative;
+  vertical-align: middle;
+  overflow: hidden;
+}
+
+.tool-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: var(--w, 50%);
+  background: var(--color-container-background-inverse);
+}
+
+/* ── Editorial list of definitions/personas ────────────────── */
+.tool-entries { border-top: 1px solid var(--color-divider-tertiary); margin: var(--space-large) 0; }
+
+.tool-entry {
+  padding: var(--space-container-padding-large) 0;
+  border-bottom: 1px solid var(--color-divider-tertiary);
+}
+
+.tool-entry__overline {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-component-gap-small);
+}
+
+.tool-entry__title {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-heading-3);
+  font-weight: var(--font-weight-heading-bold);
+  line-height: var(--line-height-heading);
+  margin-bottom: var(--space-x-small);
+}
+
+.tool-entry__body {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3);
+  color: var(--color-text-secondary);
+  max-width: 62ch;
+}
+
+.tool-entry__body strong { color: var(--color-text-primary); font-weight: var(--font-weight-body-bold); }
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .tool-cols,
+  .tool-cols--3,
+  .tool-cols--wide { grid-template-columns: 1fr; gap: var(--space-row-gap-x-large); }
+}

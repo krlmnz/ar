@@ -1,0 +1,784 @@
+/* ============================================================
+   Color Scales — /tools/color-scales/
+   ------------------------------------------------------------
+   Scoped under .scale-tool so nothing here escapes into the
+   site. Everything this page could borrow, it borrows: the
+   chrome comes from tools.css (.tool, .tool-panel,
+   .tool-panel__label) and the editorial type and controls from
+   main.css (.section-label, .section-title, .btn, .btn--filled,
+   .btn--ghost). No local colour token, no local space or type
+   scale — the andean tokens carry all of it, so this page
+   follows the colour scheme for free.
+
+   What the previous version declared and this one does not:
+   a private six-step space ramp, private corner radii, a
+   private accent (#2592C2 light / #4FB3E0 dark, deleted as dead
+   in 651ee42), private shadows, and a private xs–2xl type
+   scale — every one of them a second design system running
+   beside the real one.
+   Radius and elevation are back now, but from the andean tokens:
+   chrome takes the system radius, and the two floating surfaces
+   (popover, About dialog) carry the elevation pair — the old
+   border-only separation rule retired with the token migration.
+
+   THE COLOUR EXCEPTION (DESIGN-SYSTEM.md §4): generating colour
+   is this page's entire subject, so every user colour keeps its
+   real value — palette swatches, scale steps, the picker grid,
+   the colour dots, the chart and heatmap previews. All of those
+   are painted inline from the JS. Everything wrapped around
+   them — buttons, labels, the segmented step control, the lock,
+   the export row, the toast, the About panel, and every hover
+   and active state — is greyscale. The one sanctioned hue is
+   the error state: the andean system spends red on errors, so
+   the add-colour input does too.
+============================================================ */
+
+.scale-tool {
+  font-family: var(--font-family-component);
+  color: var(--color-text-primary);
+}
+
+.scale-tool * { box-sizing: border-box; }
+
+/* ── Layout ────────────────────────────────────────────────── */
+.sc-page-layout {
+  display: grid;
+  grid-template-columns: 276px 1fr;
+  gap: var(--space-row-gap-large) var(--space-column-gap-large);
+  padding: var(--space-large) 0 var(--space-container-padding-xxx-large);
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .sc-page-layout { grid-template-columns: 1fr; }
+  .sc-sidebar { position: static !important; }
+}
+
+/* The palette follows the reader down a long list of scales, so
+   it sticks — but below the site header, which owns the top of
+   the viewport. */
+.sc-sidebar {
+  position: sticky;
+  top: var(--space-large);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-row-gap-large);
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.sc-sidebar::-webkit-scrollbar { width: 4px; }
+/* A scrollbar is a track control, so the thumb borrows the
+   track family. */
+.sc-sidebar::-webkit-scrollbar-thumb { background: var(--color-track-secondary); }
+
+.sc-palette-helper {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-3);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-body);
+  margin-bottom: var(--space-medium);
+}
+
+/* ── Brand palette ─────────────────────────────────────────── */
+/* The swatch face is the user's colour; the frame around it is
+   the container border, so a near-white brand colour still
+   reads as a swatch on the container and a near-black one on
+   the page. */
+.sc-palette-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-row-gap-x-small) var(--space-column-gap-x-small);
+  margin-bottom: var(--space-medium);
+}
+
+.sc-pal-swatch {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  cursor: pointer;
+  border: 1px solid var(--color-container-border-primary);
+  flex-shrink: 0;
+  flex: none;
+  transition: border-color var(--duration-fade-fast) var(--ease-fade);
+}
+
+/* Hover flips keep their full contrast throughout: ui-secondary
+   is the ink-strength interactive neutral, so borders can go to
+   ink without borrowing a text token. */
+.sc-pal-swatch:hover { border-color: var(--color-ui-secondary-hover); }
+
+/* The remove affordance is a genuine circle sitting on the
+   swatch corner. An inverse chip, not a hue — red stays
+   reserved for errors even here. */
+.sc-pal-swatch .sc-x-btn {
+  display: none;
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-full);
+  background: var(--color-container-background-inverse);
+  color: var(--color-text-inverse);
+  border: none;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.sc-pal-swatch .sc-x-btn svg { width: 9px; height: 9px; }
+.sc-pal-swatch:hover .sc-x-btn,
+.sc-pal-swatch:focus-within .sc-x-btn { display: flex; }
+
+.sc-pal-empty {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  color: var(--color-text-tertiary);
+  font-style: italic;
+}
+
+/* ── Add-a-colour input ────────────────────────────────────── */
+.sc-color-add-input {
+  width: 100%;
+  padding: var(--space-component-stack-padding-large) var(--space-component-inline-padding-medium);
+  background: var(--color-input-background-primary);
+  border: 1px solid var(--color-input-border-primary);
+  border-radius: var(--radius-small);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-input-text);
+  color: var(--color-text-primary);
+  outline: none;
+  transition: border-color var(--duration-fade-fast) var(--ease-fade);
+}
+
+.sc-color-add-input:focus { border-color: var(--color-input-border-primary-focus); }
+
+/* "That isn't a colour" is a real error now. The old rule spent
+   ink on it because red was a hue the reader might be typing —
+   but the andean system sanctions hue for error states, so the
+   input takes the error tokens and the width bump goes. */
+.sc-color-add-input.sc-err {
+  border-color: var(--color-input-border-error);
+  background: var(--color-input-background-error);
+}
+.sc-color-add-input.sc-err:focus {
+  border-color: var(--color-input-border-error);
+  background: var(--color-input-background-error-focus);
+}
+.sc-color-add-input::placeholder { color: var(--color-input-placeholder); }
+
+/* ── Image drop bar ────────────────────────────────────────── */
+/* Dashed border is the one place a non-solid rule earns its
+   keep: it reads as "a target", not as a panel edge. It wraps a
+   file input, so it takes the input border. */
+.sc-upload-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-component-gap-medium);
+  padding: var(--space-component-stack-padding-large) var(--space-component-inline-padding-xx-large);
+  margin-top: var(--space-x-small);
+  border: 1px dashed var(--color-input-border-primary);
+  border-radius: var(--radius-action);
+  cursor: pointer;
+  transition: border-color var(--duration-fade-fast) var(--ease-fade),
+              background var(--duration-fade-fast) var(--ease-fade);
+  overflow: hidden;
+}
+
+.sc-upload-bar:hover,
+.sc-upload-bar.sc-drag-over {
+  border-color: var(--color-ui-secondary-hover);
+  background: var(--color-action-passive-subtle-hover);
+}
+
+.sc-upload-bar input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.sc-upload-bar-icon { color: var(--color-text-tertiary); flex-shrink: 0; }
+
+.sc-upload-bar-text {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-3);
+  color: var(--color-text-secondary);
+}
+
+/* Error text takes the negative ui colour — same sanction as
+   the input above. */
+.sc-upload-bar-text.sc-err-msg { color: var(--color-ui-negative); font-weight: var(--font-weight-component-semibold); }
+
+/* ── Masthead row ──────────────────────────────────────────── */
+.sc-lib-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-column-gap-small);
+  flex-wrap: wrap;
+  margin-top: var(--space-container-padding-x-large);
+}
+
+.sc-lib-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-column-gap-x-small);
+}
+
+/* The one sentence that explains the tool to someone arriving cold. */
+.sc-lede {
+  max-width: var(--content-width);
+  margin-top: var(--space-x-small);
+  color: var(--color-text-secondary);
+}
+
+/* ── Utility bar ───────────────────────────────────────────── */
+.sc-utility-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-column-gap-small);
+  padding: var(--space-medium) 0;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--color-divider-tertiary);
+  margin-bottom: var(--space-large);
+}
+
+.sc-util-group { display: flex; align-items: center; gap: var(--space-column-gap-x-small); }
+
+.sc-util-sep {
+  width: 1px;
+  height: 22px;
+  background: var(--color-divider-tertiary);
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) { .sc-util-sep { display: none; } }
+
+/* The overline pattern — transform and tracking have no andean
+   axis, so those two stay literal. */
+.sc-util-label,
+.sc-card-step-label,
+.sc-ctrl-label {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+}
+
+.sc-ctrl-arrow { font-size: var(--font-size-body-3); color: var(--color-text-tertiary); user-select: none; }
+
+/* ── Segmented step control ────────────────────────────────── */
+/* The selected step count is an inverse chip — a state marker,
+   not an action, so it takes the inverse container pair rather
+   than the teal action fill. The frame clips so the fill honours
+   the radius. */
+.sc-step-opts {
+  display: flex;
+  border: 1px solid var(--color-action-passive-border);
+  border-radius: var(--radius-action);
+  overflow: hidden;
+}
+
+.sc-step-opt {
+  padding: 3px var(--space-component-inline-padding-medium);
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-action-x-small);
+  font-weight: var(--font-weight-component-semibold);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  line-height: var(--line-height-component);
+  transition: color var(--duration-fade-fast) var(--ease-fade),
+              background var(--duration-fade-fast) var(--ease-fade);
+}
+
+.sc-step-opt + .sc-step-opt { border-left: 1px solid var(--color-action-passive-border); }
+.sc-step-opt:hover { color: var(--color-text-primary); }
+.sc-step-opt.sc-active { background: var(--color-container-background-inverse); color: var(--color-text-inverse); }
+
+/* ── Lock ──────────────────────────────────────────────────── */
+/* Locked is the default and the loud state, so it takes the
+   inverse fill; unlocked is an outline. */
+.sc-lock-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--color-action-passive-border);
+  border-radius: var(--radius-action);
+  background: transparent;
+  cursor: pointer;
+  color: var(--color-text-tertiary);
+  transition: color var(--duration-fade-fast) var(--ease-fade),
+              background var(--duration-fade-fast) var(--ease-fade),
+              border-color var(--duration-fade-fast) var(--ease-fade);
+}
+
+.sc-lock-btn:hover { border-color: var(--color-ui-secondary-hover); color: var(--color-text-primary); }
+.sc-lock-btn.sc-locked {
+  background: var(--color-container-background-inverse);
+  color: var(--color-text-inverse);
+  border-color: var(--color-container-background-inverse);
+}
+.sc-lock-icon-unlocked { display: none; }
+.sc-lock-btn:not(.sc-locked) .sc-lock-icon-locked { display: none; }
+.sc-lock-btn:not(.sc-locked) .sc-lock-icon-unlocked { display: block; }
+
+/* ── Export row ────────────────────────────────────────────── */
+/* Same shape as .btn but one notch quieter, because five of them
+   sit in a row and none of them is the page's primary action —
+   so they take the passive action family. */
+.sc-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-component-gap-small);
+  padding: var(--space-component-stack-padding-small) var(--space-component-inline-padding-medium);
+  border: 1px solid var(--color-action-passive-border);
+  border-radius: var(--radius-action);
+  background: var(--color-action-passive-subtle);
+  color: var(--color-text-tertiary);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-action-x-small);
+  font-weight: var(--font-weight-component-semibold);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  cursor: pointer;
+  line-height: var(--line-height-component);
+  white-space: nowrap;
+  transition: color var(--duration-fade-fast) var(--ease-fade),
+              background var(--duration-fade-fast) var(--ease-fade),
+              border-color var(--duration-fade-fast) var(--ease-fade);
+}
+
+.sc-export-btn:hover { border-color: var(--color-ui-secondary-hover); color: var(--color-text-primary); }
+.sc-export-btn:focus-visible { outline: 2px solid var(--color-focus-indicator); outline-offset: 2px; }
+
+/* Confirmation is an inverse chip: it says "done" without
+   spending a hue the scales need. */
+.sc-export-btn.sc-copied {
+  background: var(--color-container-background-inverse);
+  border-color: var(--color-container-background-inverse);
+  color: var(--color-text-inverse);
+}
+
+/* ── Scale cards ───────────────────────────────────────────── */
+.sc-scales-list { display: flex; flex-direction: column; gap: var(--space-row-gap-large); }
+
+.sc-scale-card { animation: scCardIn var(--duration-appear-moderate) var(--ease-appear); }
+.sc-scale-card + .sc-scale-card { border-top: 1px solid var(--color-divider-tertiary); padding-top: var(--space-large); }
+
+@keyframes scCardIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+.sc-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-column-gap-x-small);
+  margin-bottom: var(--space-medium);
+  flex-wrap: wrap;
+}
+
+.sc-card-top-left,
+.sc-card-top-right { display: flex; align-items: center; gap: var(--space-column-gap-x-small); }
+
+/* The endpoint dots are genuine circles: a circle is what marks
+   them as colour pickers rather than as steps of the scale
+   below. Their fill is the user's colour. */
+.sc-color-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-container-border-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color var(--duration-fade-fast) var(--ease-fade);
+}
+
+.sc-color-dot:hover { border-color: var(--color-ui-secondary-hover); }
+.sc-color-dot:focus-visible { outline: 2px solid var(--color-focus-indicator); outline-offset: 2px; }
+
+.sc-card-step-pills { display: none; }
+.sc-card-step-pills.sc-visible { display: flex; align-items: center; gap: var(--space-column-gap-x-small); }
+
+.sc-remove-card-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  color: var(--color-text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--duration-fade-fast) var(--ease-fade);
+  flex-shrink: 0;
+}
+
+.sc-remove-card-btn:hover { color: var(--color-text-primary); }
+
+/* ── The scale itself ──────────────────────────────────────── */
+/* Steps stay square-cut: the row is a ramp, and rounding each
+   step would break it into beads. */
+.sc-scale-row {
+  display: flex;
+  gap: 3px;
+  align-items: stretch;
+  margin-bottom: var(--space-medium);
+}
+
+.sc-scale-step {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-component-gap-small);
+}
+
+.sc-swatch {
+  width: 100%;
+  aspect-ratio: 1 / 1.08;
+  min-height: 44px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--color-container-border-primary);
+}
+
+/* The copy confirmation sits ON a user colour, so it cannot use
+   a token — it has to be legible over anything from #FFF to
+   #000. A black scrim with white type is the only pair that is.  */
+.sc-copy-flash {
+  display: none;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.sc-swatch.sc-flash .sc-copy-flash { display: flex; }
+
+.sc-swatch-hex {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+@media (max-width: 760px) { .sc-swatch-hex { display: none; } }
+@media (max-width: 480px) {
+  .sc-swatch { min-height: 32px; }
+  .sc-scale-row { gap: 2px; }
+}
+
+/* ── Previews ──────────────────────────────────────────────── */
+/* Two figures per card. Both are data through and through, so
+   they keep every colour the scale gives them; only the frame
+   and the label are chrome. */
+.sc-preview-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-row-gap-small) var(--space-column-gap-small);
+  padding-top: var(--space-medium);
+  border-top: 1px solid var(--color-divider-tertiary);
+}
+
+@media (max-width: 640px) { .sc-preview-section { grid-template-columns: 1fr; } }
+
+.sc-preview-pane { display: flex; flex-direction: column; gap: var(--space-component-gap-small); }
+
+.sc-preview-pane-label {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-tertiary);
+}
+
+.sc-preview-svg {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--color-container-border-primary);
+}
+
+/* ── Colour picker popover ─────────────────────────────────── */
+/* A floating surface, so it separates with the elevation pair
+   plus an ordinary container border — the old full-ink border
+   was standing in for the shadow this site used to refuse.
+   The 196px width is mirrored by popW in color-scales.js:
+   change both or neither. */
+.sc-color-pop {
+  position: fixed;
+  z-index: 999;
+  display: none;
+  background: var(--color-container-background-primary);
+  border: 1px solid var(--color-container-border-primary);
+  border-radius: var(--radius-medium);
+  box-shadow: var(--elevation-level-2) var(--color-shadow);
+  padding: var(--space-container-padding-small);
+  width: 196px;
+}
+
+.sc-color-pop.sc-is-open { display: block; }
+
+.sc-pop-specials { display: flex; gap: var(--space-column-gap-xx-small); margin-bottom: var(--space-x-small); }
+
+.sc-pop-spec-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: 1px solid var(--color-action-passive-border);
+  border-radius: var(--radius-action);
+  padding: var(--space-container-padding-xxx-small);
+  cursor: pointer;
+  transition: border-color var(--duration-fade-fast) var(--ease-fade);
+}
+
+.sc-pop-spec-btn:hover { border-color: var(--color-ui-secondary-hover); }
+
+.sc-pop-spec-swatch { width: 100%; height: 22px; border: 1px solid var(--color-container-border-primary); }
+
+.sc-pop-spec-label {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-component-x-small);
+  font-weight: var(--font-weight-component-semibold);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.sc-pop-divider { height: 1px; background: var(--color-divider-tertiary); margin: var(--space-x-small) 0; }
+
+.sc-pop-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-column-gap-xx-small); }
+
+.sc-pop-swatch {
+  aspect-ratio: 1;
+  cursor: pointer;
+  border: 1px solid var(--color-container-border-primary);
+  transition: border-color var(--duration-fade-fast) var(--ease-fade);
+}
+
+.sc-pop-swatch:hover { border-color: var(--color-ui-secondary-hover); }
+
+/* The current endpoint. An inset ink ring reads on top of any
+   swatch colour without covering it — a hue token here could
+   vanish over a same-hue swatch, so it stays ink. */
+.sc-pop-swatch.sc-selected {
+  border-color: var(--color-text-primary);
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: -4px;
+}
+
+/* ── Empty state ───────────────────────────────────────────── */
+.sc-empty-state {
+  padding: var(--space-x-large) var(--space-container-padding-large);
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.sc-empty-state h3 {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-heading-3);
+  font-weight: var(--font-weight-heading-bold);
+  line-height: var(--line-height-heading);
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-component-gap-small);
+}
+
+.sc-empty-state p { font-family: var(--font-family-component); font-size: var(--font-size-body-3); }
+
+/* ── Toast ─────────────────────────────────────────────────── */
+/* An inverse chip, not an action — and a floating surface, so it
+   carries level-2 elevation. */
+.sc-toast {
+  position: fixed;
+  bottom: var(--space-large);
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--color-container-background-inverse);
+  color: var(--color-text-inverse);
+  padding: var(--space-component-stack-padding-large) var(--space-component-inline-padding-xxx-large);
+  border-radius: var(--radius-medium);
+  box-shadow: var(--elevation-level-2) var(--color-shadow);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-3);
+  font-weight: var(--font-weight-component-semibold);
+  opacity: 0;
+  z-index: 2000;
+  pointer-events: none;
+  transition: transform var(--duration-appear-moderate) var(--ease-appear),
+              opacity var(--duration-appear-moderate) var(--ease-appear);
+  white-space: nowrap;
+}
+
+.sc-toast.sc-show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── Shuffle ───────────────────────────────────────────────── */
+@keyframes scSpin { to { transform: rotate(360deg); } }
+.sc-shuffle-icon.sc-spinning { animation: scSpin var(--duration-transform-slow) var(--ease-transform); }
+
+/* ── About overlay ─────────────────────────────────────────── */
+.sc-about-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--duration-appear-moderate) var(--ease-appear),
+              visibility var(--duration-appear-moderate);
+}
+
+.sc-about-overlay.sc-is-open { opacity: 1; visibility: visible; }
+
+/* A full-viewport scrim — the one dimming layer the token set
+   does own. */
+.sc-about-backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--color-overlay);
+}
+
+/* A dialog, so it floats at level 3. */
+.sc-about-panel {
+  position: relative;
+  z-index: 1;
+  background: var(--color-container-background-primary);
+  border: 1px solid var(--color-container-border-primary);
+  border-radius: var(--radius-large);
+  box-shadow: var(--elevation-level-3) var(--color-shadow);
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  padding: var(--space-container-padding-x-large) var(--space-container-padding-large);
+}
+
+/* Opaque on purpose: the panel scrolls and content passes
+   beneath the button. */
+.sc-about-close {
+  position: absolute;
+  top: var(--space-medium);
+  right: var(--space-medium);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-container-background-primary);
+  border: 1px solid var(--color-action-passive-border);
+  border-radius: var(--radius-action);
+  cursor: pointer;
+  color: var(--color-text-primary);
+  transition: border-color var(--duration-fade-fast) var(--ease-fade),
+              background var(--duration-fade-fast) var(--ease-fade);
+  z-index: 2;
+}
+
+.sc-about-close:hover { border-color: var(--color-ui-secondary-hover); background: var(--color-action-passive-subtle-hover); }
+
+@media (max-width: 480px) {
+  .sc-about-panel { padding: var(--space-container-padding-large) var(--space-container-padding-small); }
+  .sc-about-close { top: var(--space-x-small); right: var(--space-x-small); }
+}
+
+.sc-about-desc {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3);
+  line-height: var(--line-height-body);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-large);
+}
+
+.sc-about-features {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-row-gap-x-small) var(--space-column-gap-x-small);
+  margin-bottom: var(--space-large);
+}
+
+@media (max-width: 420px) { .sc-about-features { grid-template-columns: 1fr; } }
+
+.sc-about-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-component-gap-medium);
+  padding: var(--space-container-padding-xx-small);
+  border: 1px solid var(--color-container-border-primary);
+  border-radius: var(--radius-medium);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-3);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-body);
+}
+
+.sc-about-feature-icon { flex-shrink: 0; margin-top: 1px; color: var(--color-text-tertiary); }
+
+.sc-about-divider { height: 1px; background: var(--color-divider-tertiary); margin: var(--space-large) 0; }
+
+.sc-feedback-area {
+  width: 100%;
+  min-height: 72px;
+  max-height: 160px;
+  resize: vertical;
+  padding: var(--space-component-stack-padding-large) var(--space-component-inline-padding-medium);
+  background: var(--color-input-background-primary);
+  border: 1px solid var(--color-input-border-primary);
+  border-radius: var(--radius-small);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-input-text);
+  color: var(--color-text-primary);
+  outline: none;
+  transition: border-color var(--duration-fade-fast) var(--ease-fade);
+  margin-bottom: var(--space-x-small);
+}
+
+.sc-feedback-area:focus { border-color: var(--color-input-border-primary-focus); }
+.sc-feedback-area::placeholder { color: var(--color-input-placeholder); }
+
+.sc-feedback-actions { display: flex; align-items: center; gap: var(--space-column-gap-x-small); }
+
+.sc-feedback-status {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  color: var(--color-text-tertiary);
+  margin-left: auto;
+}
+
+/* "Sent" stays ink — only errors earn a hue on this page. */
+.sc-feedback-status.sc-sent { color: var(--color-text-primary); font-weight: var(--font-weight-component-semibold); }
+
+#scImgCanvas, #scExportCanvas { display: none; }

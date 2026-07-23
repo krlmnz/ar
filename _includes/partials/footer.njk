@@ -1,6 +1,12 @@
 <footer class="site-footer">
-  <div class="wrap" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:var(--space-2)">
+  <div class="wrap" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:var(--space-medium)">
     <p>{{ site.title }}</p>
+    <nav aria-label="Footer" style="display:flex;gap:var(--space-medium);flex-wrap:wrap">
+      <a href="/about/">About</a>
+      <a href="/map/">Map</a>
+      <a href="/templates/">Templates</a>
+      <a href="/feed.xml">Feed</a>
+    </nav>
     <p>By {{ site.author }}. Born in Chile, raised in New York.</p>
   </div>
 </footer>

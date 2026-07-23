@@ -1,0 +1,142 @@
+/* ============================================================
+   EDITOR SHELL — topbar, tool strip, rail + map layout
+   The information architecture of the editor lives here: the
+   fixed header, the tool strip, the rail it drives, and the map.
+   Feature panes style their own contents in their own sheets.
+   ============================================================ */
+
+html, body.editor, body.guest, body.preview { height: 100%; width: auto; }
+html, body.editor { height: 100%; }
+body.editor { overflow: hidden; }
+
+
+/* ---------- header ---------- */
+header#topbar {
+  position: fixed; inset: 0 0 auto 0; height: var(--nav-h); z-index: 60;
+  display: flex; align-items: center; gap: var(--space-container-padding-small);
+  padding: 0 var(--space-container-padding-large);
+  background: var(--color-container-background-primary);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  border-bottom: 1px solid var(--color-container-border-primary);
+}
+.save-dot { font-size: var(--font-size-component-x-small); color: var(--color-text-tertiary); white-space: nowrap; opacity: 0; transition: opacity var(--duration-fade-slow) var(--ease-fade); }
+.save-dot.on { opacity: 1; }
+.header-spacer { flex: 1; }
+
+/* ---------- stage: tool strip + rail + map ----------
+   Two fixed columns instead of the old three. Moving the layer editor into
+   the rail gave the map back ~340px, so the stage no longer needs to scroll
+   sideways to keep every control reachable. */
+#stage { position: fixed; inset: var(--nav-h) 0 0 0; display: flex; overflow: hidden; }
+
+/* ---------- tool strip ----------
+   A Photoshop-style tool rail: icon-first, always visible, no ordering
+   implied. Story / Places / Map are three places to stand, not three
+   steps to finish, so nothing here is numbered or checked off. */
+#tool-nav {
+  width: var(--tool-w, 62px); flex-shrink: 0; z-index: 45;
+  background: var(--color-container-background-primary); border-right: 1px solid var(--color-container-border-primary);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px; padding: var(--space-component-inline-padding-large) 0;
+}
+.tool-btn {
+  width: 46px; height: 46px; border-radius: var(--radius-x-small);
+  border: 1px solid transparent; background: transparent; color: var(--color-text-tertiary);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; cursor: pointer;
+  transition: background var(--duration-fade-fast) var(--ease-fade),
+              color var(--duration-fade-fast) var(--ease-fade),
+              border-color var(--duration-fade-fast) var(--ease-fade);
+}
+.tool-btn svg { display: block; }
+.tool-tip {
+  /* 9px stays literal: "PLACES" must fit the 42px button below 900px,
+     and the smallest andean size (12px) overflows it */
+  font-size: 9px; font-weight: var(--font-weight-component-semibold); letter-spacing: .05em; text-transform: uppercase;
+  line-height: 1;
+}
+.tool-btn:hover { color: var(--color-text-primary); background: var(--color-action-passive-subtle-hover); }
+.tool-btn.active {
+  color: var(--color-text-primary); background: var(--color-container-background-primary);
+  border-color: var(--color-container-border-primary); box-shadow: var(--elevation-level-1) var(--color-shadow);
+}
+.tool-btn:focus-visible { outline: 2px solid var(--color-focus-indicator); outline-offset: 1px; }
+
+#rail {
+  width: var(--rail-w); flex-shrink: 0; background: var(--color-container-background-primary);
+  border-right: 1px solid var(--color-container-border-primary); display: flex; flex-direction: column;
+  z-index: 40;
+}
+/* One scroller for the whole rail. Every pane starts at its top — there is
+   no longer a story block pinned above eating the first 140px. */
+.rail-body { flex: 1; overflow-y: auto; padding: var(--space-container-padding-small) var(--space-container-padding-small) var(--space-container-padding-xxx-large); }
+.rail-pane { display: none; }
+.rail-pane.active { display: block; }
+
+/* the rail is editor furniture; preview and guest are just the map */
+body.guest #tool-nav, body.preview #tool-nav,
+body.guest #rail, body.preview #rail { display: none; }
+.rail-section { margin-bottom: var(--space-container-padding-large); }
+.rail-section-title {
+  font-size: var(--font-size-component-x-small); font-weight: var(--font-weight-component-semibold); letter-spacing: .14em; text-transform: uppercase;
+  color: var(--color-text-tertiary); margin-bottom: var(--space-component-inline-padding-large);
+  display: flex; align-items: center; justify-content: space-between;
+}
+/* small round + / shuffle button that hangs on the right of a section title */
+.section-add {
+  border: 1px solid var(--color-container-border-primary); background: var(--color-container-background-primary); color: var(--color-text-secondary);
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  display: grid; place-items: center; transition: all var(--duration-fade-fast) var(--ease-fade);
+}
+.section-add:hover { border-color: var(--color-container-border-tertiary); color: var(--color-text-primary); box-shadow: var(--elevation-level-1) var(--color-shadow); }
+.section-add:active { transform: translateY(1px); }
+
+#map { flex: 1; position: relative; min-width: 320px; }
+#mapbox { position: absolute; inset: 0; }
+
+/* ---------- palette dock (floats on the map, bottom-left) ----------
+   The one piece of the theme system that stays visible. Bottom-left
+   keeps it clear of the map's own zoom controls in the opposite
+   corner, and it sits beside the rail the layer editor now lives in. */
+#palette-dock {
+  position: absolute; left: var(--space-container-padding-small); bottom: var(--space-container-padding-small); z-index: 25;
+  max-width: calc(100% - 2 * var(--space-container-padding-small));
+  display: flex; align-items: center; gap: var(--space-component-inline-padding-large);
+  padding: 8px 10px 8px 8px;
+  background: var(--color-container-background-primary); border: 1px solid var(--color-container-border-primary);
+  border-radius: var(--radius-small); box-shadow: var(--elevation-level-3) var(--color-shadow);
+}
+#palette-dock-thumb {
+  width: 44px; height: 44px; flex-shrink: 0; padding: 0; cursor: pointer;
+  border: none; border-radius: var(--radius-x-small); overflow: hidden; display: block;
+  /* color-agnostic hairline over an arbitrary palette thumbnail —
+     deliberately literal so it survives both schemes */
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.12);
+  transition: box-shadow var(--duration-fade-fast) var(--ease-fade),
+              transform var(--duration-transform-fast) var(--ease-transform);
+}
+#palette-dock-thumb svg { display: block; width: 100%; height: 100%; }
+#palette-dock-thumb:hover { transform: translateY(-1px); box-shadow: inset 0 0 0 1px rgba(0,0,0,.12), 0 0 0 2px var(--color-action-standard); }
+.pd-meta { min-width: 0; }
+.pd-kicker {
+  font-size: var(--font-size-component-x-small); font-weight: var(--font-weight-component-semibold); letter-spacing: .12em;
+  text-transform: uppercase; color: var(--color-text-tertiary);
+}
+.pd-meta { min-width: 0; overflow: hidden; }
+.pd-name { font-size: var(--font-size-component-small); font-weight: var(--font-weight-component-semibold); line-height: var(--line-height-component);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pd-shuffle {
+  width: 28px; height: 28px; flex-shrink: 0; cursor: pointer;
+  border: 1px solid var(--color-container-border-primary); background: var(--color-container-background-primary); color: var(--color-text-secondary);
+  border-radius: 50%; display: grid; place-items: center; transition: all var(--duration-fade-fast) var(--ease-fade);
+}
+.pd-shuffle:hover { border-color: var(--color-action-standard); color: var(--color-action-standard); }
+.pd-shuffle:active { transform: translateY(1px); }
+body.guest #palette-dock, body.preview #palette-dock { display: none; }
+.mapboxgl-ctrl-bottom-left, .mapboxgl-ctrl-logo, .mapboxgl-ctrl-attrib { display: none !important; }
+
+@media (max-width: 900px) {
+  :root { --rail-w: 290px; --tool-w: 54px; }
+  .tool-btn { width: 42px; height: 42px; }
+}

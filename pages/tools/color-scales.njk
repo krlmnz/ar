@@ -1,0 +1,192 @@
+---
+layout: layouts/base.njk
+permalink: /tools/color-scales/
+title: Color Scales
+description: "Blend two brand colors into a legible 5–11 step data-visualization scale, preview it in a chart and heatmap, and export as CSS, Figma tokens, SVG, or PNG."
+seo:
+  title: "Color Scales — Andean Road"
+  description: "Blend two brand colors into a data visualization scale, preview it in a chart and heatmap, and export as CSS, Figma tokens, SVG, or PNG."
+---
+
+<link rel="stylesheet" href="/assets/css/tools.css">
+<link rel="stylesheet" href="/assets/css/color-scales.css">
+
+{% set crumbs = [{ label: "Tools", url: "/tools/" }, { label: "Color Scales" }] %}
+{% include "partials/breadcrumbs.njk" %}
+
+<div class="tool scale-tool">
+  <canvas id="scImgCanvas" hidden></canvas>
+  <canvas id="scExportCanvas" hidden></canvas>
+  <div class="sc-toast" id="scToast"></div>
+
+  <!-- ── About overlay ─────────────────────────────────────────────────── -->
+  <div class="sc-about-overlay" id="scAboutOverlay">
+    <div class="sc-about-backdrop" id="scAboutBackdrop"></div>
+    <div class="sc-about-panel">
+      <button class="sc-about-close" id="scAboutClose" aria-label="Close">
+        {% icon "x", size=16 %}
+      </button>
+      <h2 class="section-title">Color Scales</h2>
+      <p class="sc-about-desc">Blend two brand colors into an 11-step scale, sample it down to 5–11 steps, and preview how it reads in a bar chart and a heatmap before you ship it.</p>
+      <div class="section-label">What you can do</div>
+      <div class="sc-about-features">
+        <div class="sc-about-feature">{% icon "palette", size=14, class="sc-about-feature-icon" %}<span>Add brand colors by hand or extract them from an image</span></div>
+        <div class="sc-about-feature">{% icon "sliders-horizontal", size=14, class="sc-about-feature-icon" %}<span>Blend any two colors into a 5–11 step scale</span></div>
+        <div class="sc-about-feature">{% icon "chart-bar", size=14, class="sc-about-feature-icon" %}<span>Preview scales against a bar chart and a heatmap</span></div>
+        <div class="sc-about-feature">{% icon "export", size=14, class="sc-about-feature-icon" %}<span>Export as CSS, Figma tokens, SVG, PNG, or prompt text</span></div>
+      </div>
+      <div class="sc-about-divider"></div>
+      <div class="section-label">Share feedback</div>
+      <p class="sc-about-desc">Ideas, bugs, feature requests — all welcome.</p>
+      <textarea class="sc-feedback-area" id="scFeedbackText" placeholder="What's on your mind?"></textarea>
+      <div class="sc-feedback-actions">
+        <button class="btn btn--filled" id="scSendFeedback">
+          {% icon "paper-plane-tilt", size=12 %}
+          Send via email
+        </button>
+        <span class="sc-feedback-status" id="scFeedbackStatus"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sc-lib-header">
+    <div>
+      <div class="section-label">Brand → Data visualization</div>
+      <h1 class="section-title">Color Scales</h1>
+      {# The page's only standalone sentence. Without it the visible copy opens
+         on the word "Scales" and everything explaining the tool sits inside the
+         About modal — invisible to a reader arriving cold, and to anything
+         quoting the page. #}
+      <p class="sc-lede">Give it two brand colors and it builds a 5–11 step scale that stays legible all the way across — then shows you the scale in a real chart and heatmap before you commit, and exports it as CSS, Figma tokens, SVG or PNG.</p>
+    </div>
+    <div class="sc-lib-actions">
+      <button class="btn btn--ghost" id="scAboutBtn" title="About this tool">
+        {% icon "info", size=14 %}
+        About
+      </button>
+      <button class="btn btn--ghost" id="scShuffleBtn" title="Re-roll every scale's colors">
+        {% icon "shuffle", size=13, class="sc-shuffle-icon" %}
+        Shuffle
+      </button>
+      <button class="btn" id="scAddScaleBtn" title="Add a scale from two random colors">
+        {% icon "plus", size=13 %}
+        New scale
+      </button>
+    </div>
+  </div>
+
+  <div class="sc-page-layout">
+    <aside class="sc-sidebar">
+      <div class="tool-panel">
+        <div class="tool-panel__label">Brand colors</div>
+        <p class="sc-palette-helper">Add hex, rgb, or CSS color names below. Each scale blends two of these together.</p>
+
+        <div class="sc-palette-grid" id="scPaletteGrid">
+          <span class="sc-pal-empty" id="scPalEmpty">No colors yet</span>
+        </div>
+
+        <input type="text" class="sc-color-add-input" id="scColorAddInput" placeholder="Add color — hex, rgb, or name" autocomplete="off" spellcheck="false">
+
+        <label class="sc-upload-bar" id="scUploadBar">
+          <input type="file" accept="image/*" id="scImageInput">
+          {% icon "upload-simple", size=14, class="sc-upload-bar-icon" %}
+          <span class="sc-upload-bar-text" id="scUploadBarText">Or drop an image to extract colors</span>
+        </label>
+      </div>
+    </aside>
+
+    <main>
+      <div class="sc-utility-bar" id="scUtilityBar">
+        <div class="sc-util-group">
+          <span class="sc-util-label">Steps</span>
+          <div class="sc-step-opts" id="scGlobalStepOpts">
+            <button class="sc-step-opt" data-n="5">5</button>
+            <button class="sc-step-opt" data-n="7">7</button>
+            <button class="sc-step-opt" data-n="9">9</button>
+            <button class="sc-step-opt sc-active" data-n="11">11</button>
+          </div>
+          <button class="sc-lock-btn sc-locked" id="scLockBtn" title="Locked — steps apply to every scale">
+            {% icon "lock-simple", size=14, class="sc-lock-icon-locked" %}
+            {% icon "lock-simple-open", size=14, class="sc-lock-icon-unlocked" %}
+          </button>
+        </div>
+
+        <div class="sc-util-sep"></div>
+
+        <div class="sc-util-group" style="flex-wrap:wrap">
+          <button class="sc-export-btn" data-key="svg" id="scExportSvg" title="Copy all scales as SVG — paste into Figma or any editor">
+            {% icon "copy", size=11 %}
+            SVG
+          </button>
+          <button class="sc-export-btn" data-key="css" id="scExportCss" title="Copy all scales as CSS custom properties">
+            {% icon "copy", size=11 %}
+            CSS
+          </button>
+          <button class="sc-export-btn" data-key="figma" id="scExportFigma" title="Copy Figma-compatible token JSON">
+            {% icon "figma-logo", size=11 %}
+            Figma
+          </button>
+          <button class="sc-export-btn" data-key="prompt" id="scExportPrompt" title="Copy all scales as prompt-ready text">
+            {% icon "sparkle", size=11 %}
+            Prompt
+          </button>
+          <button class="sc-export-btn" data-key="png" id="scExportPng" title="Download all scales as one PNG">
+            {% icon "image", size=11 %}
+            PNG
+          </button>
+        </div>
+      </div>
+
+      <div class="sc-scales-list" id="scScalesList"></div>
+    </main>
+  </div>
+
+  <div id="scColorPop" class="sc-color-pop">
+    <div class="section-label">Pick color</div>
+    <div class="sc-pop-specials" id="scPopSpecials">
+      <button class="sc-pop-spec-btn" data-hex="#FFFFFF">
+        <div class="sc-pop-spec-swatch" style="background:#FFFFFF"></div>
+        <span class="sc-pop-spec-label">White</span>
+      </button>
+      <button class="sc-pop-spec-btn" data-hex="#1D1C1B">
+        <div class="sc-pop-spec-swatch" style="background:#1D1C1B"></div>
+        <span class="sc-pop-spec-label">Black</span>
+      </button>
+    </div>
+    <div class="sc-pop-divider"></div>
+    <div class="sc-pop-grid" id="scPopGrid"></div>
+  </div>
+</div>
+
+<script src="/assets/js/color-scales.js" defer></script>
+
+{# Every tool page owes the reader a next step below the fold (_plans/03). #}
+<hr class="rule rule--section">
+
+<section class="section">
+  <div class="section-label">Next</div>
+  <div class="section-title">Put a scale on a map</div>
+  <div class="section-description">A scale that works in a chart usually works on a map too. The Atelier applies palettes to land, water and labels, and checks the contrast for you.</div>
+
+  <div class="btn-row" style="margin-top: var(--space-large)">
+    <a href="/atelier/" class="btn btn--filled">Open the Atelier</a>
+    <a href="/tools/" class="btn">All tools</a>
+  </div>
+</section>
+
+{# SoftwareApplication — how AI search and rich results learn this is a free
+   browser tool rather than an article about one. #}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Color Scales",
+  "description": {{ description | dump | replace("</", "<\\/") | safe }},
+  "url": "{{ site.url }}{{ page.url }}",
+  "applicationCategory": "DesignApplication",
+  "operatingSystem": "Any (web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": {{ site.author | dump | safe }}, "url": "{{ site.url }}/about/" },
+  "publisher": { "@type": "Person", "name": {{ site.author | dump | safe }}, "url": "{{ site.url }}/about/" }
+}
+</script>

@@ -12,7 +12,8 @@
    back to a plain single-column list instead of framing an empty box. */
 .no-map .mapsplit, .no-map .hood { grid-template-columns: 1fr; height: auto; }
 .no-map .mapstack__map, .no-map .route__map,
-.no-map .area__map, .no-map .story__map { display: none; }
+.no-map .area__map, .no-map .story__map,
+.no-map .placemap, .no-map .placemap__note { display: none; }
 .no-map .story__steps { margin-top: 0; }
 
 /* Referenced by the 100vh split layouts. Must match the real header height or
@@ -28,8 +29,8 @@
 
 .mapctl {
   position: absolute;
-  top: var(--space-2);
-  right: var(--space-2);
+  top: var(--space-medium);
+  right: var(--space-medium);
   z-index: 2;
   display: flex;
   flex-direction: column;
@@ -43,7 +44,8 @@
   display: flex; align-items: center; justify-content: center;
   border: none; background: transparent; cursor: pointer;
   color: var(--map-text-2);
-  transition: color var(--transition), background var(--transition);
+  transition: color var(--duration-fade-fast) var(--ease-fade),
+              background var(--duration-fade-fast) var(--ease-fade);
 }
 .mapctl__btn + .mapctl__btn { border-top: 1px solid var(--map-border); }
 .mapctl__btn:hover { color: var(--map-text); background: var(--map-surface-2); }
@@ -51,46 +53,67 @@
 /* Legend — bottom left, out of the way of the controls */
 .maplegend {
   position: absolute;
-  left: var(--space-2);
-  bottom: var(--space-4);
+  left: var(--space-medium);
+  bottom: var(--space-container-padding-x-large);
   z-index: 2;
   max-width: 15rem;
-  padding: var(--space-2);
+  padding: var(--space-container-padding-small);
   background: var(--map-surface);
   border: 1px solid var(--map-border);
   box-shadow: var(--map-shadow);
 }
 .maplegend__title {
-  font-family: var(--font-ui); font-size: var(--text-overline);
-  font-weight: var(--text-overline-weight); text-transform: var(--text-overline-tt);
-  letter-spacing: var(--text-overline-ls); color: var(--map-text-2);
-  margin-bottom: var(--space-1);
+  font-family: var(--font-family-component); font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold); text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--map-text-2);
+  margin-bottom: var(--space-x-small);
 }
-.maplegend__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.maplegend__list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-component-gap-small); }
 .maplegend__item {
-  display: flex; align-items: center; gap: var(--space-1);
-  font-family: var(--font-ui); font-size: var(--text-caption); color: var(--map-text);
+  display: flex; align-items: center; gap: var(--space-component-gap-medium);
+  font-family: var(--font-family-component); font-size: var(--font-size-body-4); color: var(--map-text);
 }
 .maplegend__swatch {
   width: 10px; height: 10px; flex: none;
   background: var(--cat, var(--viz-1));
-  border-radius: var(--radius-full, 9999px);
+  border-radius: var(--radius-full);
 }
 
 /* ── Category colour lookup ────────────────────────────────────────────────
    One place to map a key to a hue. Anything unmatched falls back to --viz-1,
-   so a new region or type is never invisible — just uncoloured. */
-[data-cat="santiago"],        [data-cat="restaurant"] { --cat: var(--viz-1); }
-[data-cat="casablanca-valley"], [data-cat="winery"]   { --cat: var(--viz-2); }
-[data-cat="central-coast"],   [data-cat="museum"]     { --cat: var(--viz-3); }
-[data-cat="central-mountains"], [data-cat="hot-springs"] { --cat: var(--viz-4); }
-[data-cat="lake-district"],   [data-cat="national-park"] { --cat: var(--viz-5); }
-[data-cat="pomaire"],         [data-cat="market"]     { --cat: var(--viz-6); }
-[data-cat="bar"]        { --cat: var(--viz-7); }
-[data-cat="hotel"]      { --cat: var(--viz-8); }
-[data-cat="volcano"]    { --cat: var(--brand-rust); }
-[data-cat="town"]       { --cat: var(--brand-amber); }
+   so a new region or type is never invisible — just uncoloured.
+
+   Two scales, one rule: a map colours ONE variable. Regions/areas colour
+   area maps; place types colour neighbourhood maps. The two scales are never
+   co-present on one map, so a shared --viz-* slot never collides. */
+
+/* REGION/AREA scale */
+[data-cat="santiago"]          { --cat: var(--viz-1); }
+[data-cat="casablanca-valley"] { --cat: var(--viz-2); }
+[data-cat="central-coast"]     { --cat: var(--viz-3); }
+[data-cat="central-mountains"] { --cat: var(--viz-4); }
+[data-cat="lake-district"]     { --cat: var(--viz-5); }
+[data-cat="pomaire"]           { --cat: var(--viz-6); }
+
+/* PLACE-TYPE scale */
+[data-cat="restaurant"]      { --cat: var(--viz-1); }
+[data-cat="winery"]          { --cat: var(--viz-2); }
+[data-cat="museum"]          { --cat: var(--viz-3); }
+[data-cat="hot-springs"]     { --cat: var(--viz-4); }
+[data-cat="national-park"]   { --cat: var(--viz-5); }
+[data-cat="market"]          { --cat: var(--viz-6); }
+[data-cat="bar"]             { --cat: var(--viz-7); }
+[data-cat="hotel"]           { --cat: var(--viz-8); }
+[data-cat="volcano"]         { --cat: var(--brand-rust); }
+[data-cat="town"]            { --cat: var(--brand-amber); }
 [data-cat="cultural-center"] { --cat: var(--brand-violet); }
+
+/* "You are here" on a place page. Deliberately outside both scales above: the
+   subject of the page is not one category among its neighbours, it is the
+   fixed point they are measured from. Basemap-keyed (--map-text), not page
+   text — the anchor is a marker on the map, and a page-scheme colour would
+   vanish against a basemap of the opposite polarity. */
+[data-cat="anchor"] { --cat: var(--map-text); }
 
 /* ── Markers ──────────────────────────────────────────────────────────── */
 
@@ -103,10 +126,16 @@
   background: var(--map-surface);
   color: var(--cat, var(--viz-1));
   border: 1.5px solid currentColor;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   cursor: pointer;
   box-shadow: var(--map-shadow);
-  transition: box-shadow .18s, background .18s, color .18s, width .18s, height .18s;
+  /* One clock for all five properties — the grow and the recolour have to
+     land together, and the transform pair reads laggy for a 4px hover grow. */
+  transition: box-shadow var(--duration-fade-fast) var(--ease-fade),
+              background var(--duration-fade-fast) var(--ease-fade),
+              color var(--duration-fade-fast) var(--ease-fade),
+              width var(--duration-fade-fast) var(--ease-fade),
+              height var(--duration-fade-fast) var(--ease-fade);
 }
 .mk:hover { box-shadow: var(--map-shadow-pop); z-index: 2; width: 34px; height: 34px; }
 .mk:focus-visible { outline: 2px solid var(--map-text); outline-offset: 2px; }
@@ -123,118 +152,130 @@
 
 /* ── Popup ────────────────────────────────────────────────────────────── */
 
-.mappopup .mapboxgl-popup-content {
-  padding: var(--space-2);
+.map-popup .mapboxgl-popup-content {
+  padding: var(--space-container-padding-small);
   background: var(--map-surface);
   border: 1px solid var(--map-border);
   box-shadow: var(--map-shadow-pop);
   border-radius: 0;
   max-width: 15rem;
 }
-.mappopup .mapboxgl-popup-tip {
+.map-popup .mapboxgl-popup-tip {
   border-top-color: var(--map-surface) !important;
   border-bottom-color: var(--map-surface) !important;
 }
 .map-popup__overline {
-  display: block; font-family: var(--font-ui); font-size: var(--text-overline);
-  font-weight: var(--text-overline-weight); text-transform: var(--text-overline-tt);
-  letter-spacing: var(--text-overline-ls); color: var(--map-text-2); margin-bottom: 2px;
+  display: block; font-family: var(--font-family-component); font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold); text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--map-text-2); margin-bottom: 2px;
 }
 .map-popup__title {
-  display: block; font-family: var(--font-display); font-size: var(--text-h3);
-  font-weight: var(--text-h3-weight); letter-spacing: var(--text-h3-ls);
+  /* heading-6, not heading-3: the popup measures 15rem, and the document-level
+     h3 size would give it six-character lines. Same rule for every compact
+     card/row title below. */
+  display: block; font-family: var(--font-family-display); font-size: var(--font-size-heading-6);
+  font-weight: var(--font-weight-heading-bold); letter-spacing: -0.01em;
   color: var(--map-text); text-decoration: none;
 }
 .map-popup__title:hover { text-decoration: underline; text-underline-offset: 3px; }
 .map-popup__sub {
-  display: block; margin-top: var(--space-0);
-  font-family: var(--font-body); font-size: var(--text-body-sm);
+  display: block; margin-top: var(--space-component-gap-small);
+  font-family: var(--font-family-body); font-size: var(--font-size-body-3);
   color: var(--map-text-2); line-height: 1.45;
 }
 
 /* ── Shared panel + card furniture ────────────────────────────────────── */
 
-.mappanel__head { padding: var(--space-3); border-bottom: 1px solid var(--panel-border); }
+.mappanel__head { padding: var(--space-container-padding-large); border-bottom: 1px solid var(--panel-border); }
 .mappanel__overline {
-  font-family: var(--font-ui); font-size: var(--text-overline);
-  font-weight: var(--text-overline-weight); text-transform: var(--text-overline-tt);
-  letter-spacing: var(--text-overline-ls); color: var(--text-3);
+  font-family: var(--font-family-component); font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold); text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--color-text-tertiary);
 }
 .mappanel__title {
-  font-family: var(--font-display); font-size: var(--text-h1);
-  font-weight: var(--text-h1-weight); letter-spacing: var(--text-h1-ls);
-  line-height: var(--text-h1-lh); margin-top: var(--space-0);
+  font-family: var(--font-family-display); font-size: var(--font-size-heading-1);
+  font-weight: var(--font-weight-heading-bold);
+  line-height: var(--line-height-heading); margin-top: var(--space-component-gap-small);
 }
 .mappanel__sub {
-  font-family: var(--font-body); font-size: var(--text-body-sm);
-  color: var(--text-2); margin-top: var(--space-1); max-width: 44ch;
+  font-family: var(--font-family-body); font-size: var(--font-size-body-3);
+  color: var(--color-text-secondary); margin-top: var(--space-x-small); max-width: 44ch;
 }
 .mappanel__meta {
   display: flex; align-items: center; justify-content: space-between;
-  gap: var(--space-2); margin-top: var(--space-2);
-  font-family: var(--font-ui); font-size: var(--text-overline);
-  font-weight: var(--text-overline-weight); text-transform: var(--text-overline-tt);
-  letter-spacing: var(--text-overline-ls); color: var(--text-3);
+  gap: var(--space-column-gap-small); margin-top: var(--space-medium);
+  font-family: var(--font-family-component); font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold); text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--color-text-tertiary);
 }
 .linkbtn {
   border: none; background: none; padding: 0; cursor: pointer;
-  font: inherit; color: var(--text-3); text-decoration: underline;
+  font: inherit; color: var(--color-text-tertiary); text-decoration: underline;
   text-underline-offset: 3px;
 }
-.linkbtn:hover { color: var(--text); }
+.linkbtn:hover { color: var(--color-text-primary); }
 
 .mapcards { list-style: none; margin: 0; padding: 0; }
 .mapcards--stack { display: flex; flex-direction: column; }
 .mapcards--grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-  gap: var(--space-2); margin: var(--space-3) 0 var(--space-5);
+  gap: var(--space-row-gap-small) var(--space-column-gap-small);
+  margin: var(--space-large) 0 var(--space-x-large);
 }
 
 .mapcard {
   display: flex; flex-direction: column; height: 100%;
   background: var(--panel-surface);
   border: 1px solid var(--panel-border);
-  transition: border-color var(--transition), box-shadow var(--transition);
+  transition: border-color var(--duration-fade-fast) var(--ease-fade),
+              box-shadow var(--duration-fade-fast) var(--ease-fade);
 }
 .mapcards--stack .mapcard { border-width: 0 0 1px 0; }
-.mapcard.is-active { border-color: var(--cat, var(--text)); box-shadow: inset 3px 0 0 var(--cat, var(--text)); }
+.mapcard.is-active { border-color: var(--cat, var(--color-text-primary)); box-shadow: inset 3px 0 0 var(--cat, var(--color-text-primary)); }
 
 .mapcard__hit {
-  display: flex; gap: var(--space-2); flex: 1 1 auto;
-  width: 100%; padding: var(--space-2);
+  display: flex; gap: var(--space-column-gap-small); flex: 1 1 auto;
+  width: 100%; padding: var(--space-container-padding-small);
   border: none; background: none; text-align: left; font: inherit;
   color: inherit; cursor: pointer;
 }
-.mapcard__hit:focus-visible { outline: 2px solid var(--text); outline-offset: -2px; }
+.mapcard__hit:focus-visible { outline: 2px solid var(--color-focus-indicator); outline-offset: -2px; }
 .mapcard__icon {
   display: flex; align-items: center; justify-content: center; flex: none;
-  width: 32px; height: 32px; border-radius: 9999px;
+  width: 32px; height: 32px; border-radius: var(--radius-full);
   border: 1px solid var(--cat, var(--viz-1));
   color: var(--cat, var(--viz-1));
 }
 .mapcard.is-active .mapcard__icon { background: var(--cat, var(--viz-1)); color: var(--map-surface); }
 .mapcard__body { display: block; min-width: 0; }
 .mapcard__overline {
-  display: block; font-family: var(--font-ui); font-size: var(--text-overline);
-  font-weight: var(--text-overline-weight); text-transform: var(--text-overline-tt);
-  letter-spacing: var(--text-overline-ls); color: var(--text-3);
+  display: block; font-family: var(--font-family-component); font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold); text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--color-text-tertiary);
 }
 .mapcard__title {
-  display: block; font-family: var(--font-display); font-size: var(--text-h3);
-  font-weight: 700; letter-spacing: -0.01em; color: var(--panel-text);
+  display: block; font-family: var(--font-family-display); font-size: var(--font-size-heading-6);
+  font-weight: var(--font-weight-heading-bold); letter-spacing: -0.01em; color: var(--panel-text);
 }
 .mapcard__sub {
-  display: block; font-family: var(--font-body); font-size: var(--text-body-sm);
+  display: block; font-family: var(--font-family-body); font-size: var(--font-size-body-3);
   color: var(--panel-text-2); margin-top: 2px;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
-.mapcard__link {
-  display: block; padding: var(--space-1) var(--space-2);
-  border-top: 1px solid var(--panel-border);
-  font-family: var(--font-ui); font-size: var(--text-caption); font-weight: 600;
-  color: var(--text-3); text-decoration: none;
+.mapcard__meta {
+  display: flex; gap: var(--space-component-gap-medium); margin-top: var(--space-component-gap-small);
+  font-family: var(--font-family-component); font-size: var(--font-size-body-4);
+  color: var(--panel-text-2);
 }
-.mapcard__link:hover { color: var(--text); background: var(--accent-soft); }
+.mapcard__meta span + span::before { content: "·"; margin-right: var(--space-x-small); }
+.mapcard__link {
+  display: block; padding: var(--space-component-stack-padding-large) var(--space-component-inline-padding-xx-large);
+  border-top: 1px solid var(--panel-border);
+  font-family: var(--font-family-component); font-size: var(--font-size-action-small);
+  font-weight: var(--font-weight-component-semibold);
+  color: var(--color-text-tertiary); text-decoration: none;
+}
+.mapcard__link:hover { color: var(--color-text-primary); background: var(--color-action-passive-subtle-hover); }
 
 /* ── 1. Split: map right, cards left, both full height ────────────────── */
 
@@ -243,11 +284,11 @@
   grid-template-columns: minmax(20rem, 26rem) 1fr;
   height: calc(100vh - var(--header-h, 5rem));
   min-height: 32rem;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--color-container-border-primary);
 }
 .mapsplit__panel {
   display: flex; flex-direction: column; min-width: 0;
-  border-right: 1px solid var(--border);
+  border-right: 1px solid var(--color-container-border-primary);
   overflow-y: auto; overscroll-behavior: contain;
   contain: paint; /* keeps the scroller's overflow off the document */
 }
@@ -255,50 +296,116 @@
 
 /* ── 2. Stack: full-width map, cards underneath ───────────────────────── */
 
-.mapstack__map { border-bottom: 1px solid var(--border); }
+.mapstack__map { border-bottom: 1px solid var(--color-container-border-primary); }
 .mapstack__map--tall { height: min(70vh, 40rem); }
 .mapstack__map--short { height: min(50vh, 28rem); }
-.mapstack__head { padding: var(--space-5) 0 var(--space-2); }
+
+/* ── Filter chips ─────────────────────────────────────────────────────── */
+/* Panel furniture, so it follows the PAGE theme (--panel-*), not the basemap. */
+.mapfilter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-column-gap-x-small);
+  margin-top: var(--space-medium);
+}
+
+.chip {
+  padding: var(--space-component-stack-padding-x-small) var(--space-component-inline-padding-medium);
+  border: 1px solid var(--panel-border);
+  background: transparent;
+  color: var(--panel-text-2);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-action-x-small);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color var(--duration-fade-fast) var(--ease-fade),
+              border-color var(--duration-fade-fast) var(--ease-fade),
+              background var(--duration-fade-fast) var(--ease-fade);
+}
+
+.chip:hover { color: var(--panel-text); border-color: var(--panel-text); }
+
+/* A pressed chip is a selected action, not an inverse surface — action
+   family, not text-on-background inversion. */
+.chip[aria-pressed="true"] {
+  background: var(--color-action-standard);
+  border-color: var(--color-action-standard);
+  /* text-inverse: the standard action is bright teal in dark scheme, so the
+     label flips to ink there (route discs keep text-complementary — their
+     background is a basemap-keyed literal that never flips). */
+  color: var(--color-text-inverse);
+}
+
+.chip:focus-visible { outline: 2px solid var(--color-focus-indicator); outline-offset: 2px; }
+
+/* ── Place page: the contextual map ───────────────────────────────────── */
+/* Sits in the editorial column rather than running full bleed — on a place
+   page the map is one section among many, not the subject. .mapshell is
+   height:100%, so this box has to say how tall it is. */
+.placemap {
+  height: min(46vh, 24rem);
+  max-width: var(--content-width);
+  margin-top: var(--space-medium);
+  border: 1px solid var(--color-container-border-primary);
+}
+
+/* The region map is the page's subject, not a footnote to it — taller, and it
+   runs the full editorial width rather than the prose measure. */
+.placemap--region { height: min(60vh, 32rem); max-width: none; }
+
+.placemap__note {
+  max-width: var(--content-width);
+  margin-top: var(--space-x-small);
+  font-size: var(--font-size-body-3);
+  color: var(--color-text-tertiary);
+}
+
+/* The jump buttons repeat the Nearby cards for keyboard and screen-reader
+   users; on a pointer device the cards themselves are the obvious target. */
+.placemap__jumps { margin-top: var(--space-medium); }
+.mapstack__head { padding: var(--space-x-large) 0 var(--space-medium); }
 .mapstack__title {
-  font-family: var(--font-display); font-size: var(--text-h1);
-  font-weight: var(--text-h1-weight); letter-spacing: var(--text-h1-ls);
-  line-height: var(--text-h1-lh);
+  font-family: var(--font-family-display); font-size: var(--font-size-heading-1);
+  font-weight: var(--font-weight-heading-bold);
+  line-height: var(--line-height-heading);
 }
 .mapstack__sub {
-  font-family: var(--font-body); font-size: clamp(17px, 1vw + 12px, 20px);
-  color: var(--text-2); margin-top: var(--space-2); max-width: var(--content-width);
+  font-family: var(--font-family-body); font-size: var(--font-size-body-1); /* lede size */
+  color: var(--color-text-secondary); margin-top: var(--space-medium); max-width: var(--content-width);
 }
-.mapafter { margin: var(--space-5) auto; }
+.mapafter { margin: var(--space-x-large) auto; }
 
 /* ── 3. Story: sticky map, steps scroll past ──────────────────────────── */
 
-.story__opener { padding: var(--space-6) 0 var(--space-5); }
+.story__opener { padding: var(--space-container-padding-xxx-large) 0 var(--space-x-large); }
 .story__title {
-  font-family: var(--font-display); font-size: var(--text-display);
-  font-weight: var(--text-display-weight); letter-spacing: var(--text-display-ls);
-  line-height: var(--text-display-lh); max-width: 18ch;
+  font-family: var(--font-family-display); font-size: var(--font-size-display-2);
+  font-weight: var(--font-weight-display-bold);
+  line-height: var(--line-height-display); max-width: 18ch;
 }
 .story__standfirst {
-  font-family: var(--font-body); font-size: clamp(18px, 1.2vw + 12px, 24px);
-  line-height: 1.5; color: var(--text-2); margin-top: var(--space-3);
+  font-family: var(--font-family-body); font-size: var(--font-size-body-1);
+  line-height: var(--line-height-body); color: var(--color-text-secondary); margin-top: var(--space-large);
   max-width: var(--content-width);
 }
 .story__cue {
-  margin-top: var(--space-4); font-family: var(--font-ui);
-  font-size: var(--text-overline); font-weight: var(--text-overline-weight);
-  text-transform: var(--text-overline-tt); letter-spacing: var(--text-overline-ls);
-  color: var(--text-3);
+  margin-top: var(--space-container-padding-x-large); font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4); font-weight: var(--font-weight-component-semibold);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--color-text-tertiary);
 }
 
 .story__stage { position: relative; }
 .story__map {
   position: sticky; top: 0; height: 100vh; z-index: 0;
-  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  border-top: 1px solid var(--color-container-border-primary);
+  border-bottom: 1px solid var(--color-container-border-primary);
 }
 .story__steps {
   position: relative; z-index: 1;
   margin-top: -100vh;               /* steps ride over the sticky map */
-  padding: 0 var(--space-4);
+  padding: 0 var(--space-container-padding-x-large);
   pointer-events: none;             /* the map stays draggable between cards */
 }
 .storystep {
@@ -309,85 +416,120 @@
 .storystep:last-child { min-height: 70vh; }
 .storystep__card {
   pointer-events: auto;
-  padding: var(--space-3);
+  padding: var(--space-container-padding-large);
   background: var(--panel-surface);
   border: 1px solid var(--panel-border);
   box-shadow: var(--map-shadow);
-  transition: opacity .4s ease, transform .4s ease;
+  /* Opacity rides the transform clock: the lift and the fade have to land
+     together or the dimming reads as a glitch. */
+  transition: opacity var(--duration-transform-moderate) var(--ease-transform),
+              transform var(--duration-transform-moderate) var(--ease-transform);
 }
 /* Dimming only once the observer is live — without JS all cards stay readable */
 .js-story .storystep__card { opacity: 0.72; transform: translateY(6px); }
 .storystep.is-active .storystep__card { opacity: 1; transform: none; }
 .storystep__num {
-  font-family: var(--font-ui); font-size: var(--text-overline);
-  font-weight: 700; letter-spacing: var(--text-overline-ls);
-  color: var(--brand-terra);
+  font-family: var(--font-family-component); font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold); letter-spacing: 0.1em;
+  /* Page furniture (it sits in the card, not on the map), so the andean
+     attention hue — same family as the route line, but it flips with the
+     page scheme. */
+  color: var(--color-ui-attention);
 }
 .storystep__title {
-  font-family: var(--font-display); font-size: var(--text-h2);
-  font-weight: var(--text-h2-weight); letter-spacing: var(--text-h2-ls);
-  line-height: var(--text-h2-lh); margin-top: var(--space-0);
+  font-family: var(--font-family-display); font-size: var(--font-size-heading-2);
+  font-weight: var(--font-weight-heading-bold);
+  line-height: var(--line-height-heading); margin-top: var(--space-component-gap-small);
   color: var(--panel-text);
 }
 .storystep__body {
-  font-family: var(--font-body); font-size: var(--text-body);
-  line-height: var(--text-body-lh); color: var(--panel-text-2);
-  margin-top: var(--space-1);
+  font-family: var(--font-family-body); font-size: var(--font-size-body-2);
+  line-height: var(--line-height-body); color: var(--panel-text-2);
+  margin-top: var(--space-x-small);
 }
+/* One figure per chapter. Rule above it rather than a box around it — the
+   number is part of the paragraph's argument, not a pull-quote beside it. */
+.storystep__stat {
+  margin-top: var(--space-medium);
+  padding-top: var(--space-container-padding-small);
+  border-top: 1px solid var(--panel-border);
+}
+.storystep__stat-value {
+  display: block;
+  font-family: var(--font-family-display); font-size: var(--font-size-heading-2);
+  font-weight: var(--font-weight-heading-bold); letter-spacing: -0.02em; line-height: 1.05;
+  color: var(--panel-text);
+}
+.storystep__stat-label {
+  display: block; margin-top: 2px;
+  font-family: var(--font-family-component); font-size: var(--font-size-body-4);
+  color: var(--panel-text-2);
+}
+.storystep__stat-source {
+  display: block; margin-top: var(--space-component-gap-small);
+  font-family: var(--font-family-component); font-size: var(--font-size-body-4);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--color-text-tertiary);
+}
+
 .storystep__link {
-  display: inline-block; margin-top: var(--space-2);
-  font-family: var(--font-ui); font-size: var(--text-caption); font-weight: 600;
+  display: inline-block; margin-top: var(--space-medium);
+  font-family: var(--font-family-component); font-size: var(--font-size-action-small);
+  font-weight: var(--font-weight-component-semibold);
 }
-.story__outro { padding: var(--space-6) 0; }
+.story__outro { padding: var(--space-container-padding-xxx-large) 0; }
 
 /* ── 4. Route ─────────────────────────────────────────────────────────── */
 
-.route__map { position: relative; height: min(65vh, 38rem); border-bottom: 1px solid var(--border); }
-.route__badge {
-  position: absolute; left: var(--space-2); top: var(--space-2); z-index: 2;
-  padding: var(--space-2);
-  background: var(--map-surface); border: 1px solid var(--map-border);
-  box-shadow: var(--map-shadow); max-width: 18rem;
-}
-.route__badge-title {
-  display: block; font-family: var(--font-display); font-size: var(--text-h3);
-  font-weight: 700; letter-spacing: -0.01em; color: var(--map-text);
-}
-.route__badge-meta {
-  display: flex; flex-wrap: wrap; gap: var(--space-1); margin-top: 2px;
-  font-family: var(--font-ui); font-size: var(--text-caption); color: var(--map-text-2);
-}
-.route__badge-meta span + span::before { content: "·"; margin-right: var(--space-1); }
-.route__head { padding: var(--space-5) 0 var(--space-2); }
+.route__map { position: relative; height: min(65vh, 38rem); border-bottom: 1px solid var(--color-container-border-primary); }
+/* The opener sits above a full-bleed map, so its padding is weighted below the
+   text rather than above it — the old .route__head sat under the map and had
+   the opposite job. */
+.route__opener { padding: var(--space-x-large) 0 var(--space-large); }
 
-.route__list { list-style: none; margin: var(--space-4) 0 var(--space-6); padding: 0; counter-reset: stop; max-width: var(--content-width); }
-.routestop { border-bottom: 1px solid var(--border); }
-.routestop:first-child { border-top: 1px solid var(--border); }
+.route__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-column-gap-small);
+  margin-top: var(--space-medium);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-tertiary);
+}
+
+.route__list { list-style: none; margin: var(--space-container-padding-x-large) 0 var(--space-container-padding-xxx-large); padding: 0; counter-reset: stop; max-width: var(--content-width); }
+.routestop { border-bottom: 1px solid var(--color-container-border-primary); }
+.routestop:first-child { border-top: 1px solid var(--color-container-border-primary); }
 .routestop.is-active { box-shadow: inset 3px 0 0 var(--route-line); }
 .routestop__hit {
-  display: flex; gap: var(--space-3); width: 100%; padding: var(--space-3) var(--space-2);
+  display: flex; gap: var(--space-column-gap-large); width: 100%;
+  padding: var(--space-container-padding-large) var(--space-container-padding-small);
   border: none; background: none; text-align: left; font: inherit; color: inherit; cursor: pointer;
 }
-.routestop__hit:focus-visible { outline: 2px solid var(--text); outline-offset: -2px; }
+.routestop__hit:focus-visible { outline: 2px solid var(--color-focus-indicator); outline-offset: -2px; }
 .routestop__num {
-  flex: none; width: 26px; height: 26px; border-radius: 9999px;
+  flex: none; width: 26px; height: 26px; border-radius: var(--radius-full);
   display: flex; align-items: center; justify-content: center;
-  background: var(--route-ink); color: #fff;
-  font-family: var(--font-ui); font-size: var(--text-caption); font-weight: 700;
+  background: var(--route-ink); color: var(--color-text-complementary);
+  font-family: var(--font-family-component); font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
 }
 .routestop__body { display: block; min-width: 0; }
 .routestop__day {
-  display: block; font-family: var(--font-ui); font-size: var(--text-overline);
-  font-weight: var(--text-overline-weight); text-transform: var(--text-overline-tt);
-  letter-spacing: var(--text-overline-ls); color: var(--text-3);
+  display: block; font-family: var(--font-family-component); font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold); text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--color-text-tertiary);
 }
 .routestop__title {
-  display: block; font-family: var(--font-display); font-size: var(--text-h3);
-  font-weight: 700; letter-spacing: -0.01em;
+  display: block; font-family: var(--font-family-display); font-size: var(--font-size-heading-6);
+  font-weight: var(--font-weight-heading-bold); letter-spacing: -0.01em;
 }
 .routestop__note {
-  display: block; font-family: var(--font-body); font-size: var(--text-body-sm);
-  color: var(--text-2); margin-top: 2px;
+  display: block; font-family: var(--font-family-body); font-size: var(--font-size-body-3);
+  color: var(--color-text-secondary); margin-top: 2px;
 }
 
 /* ── 5. Neighborhood: map left, grouped list right ────────────────────── */
@@ -395,57 +537,58 @@
 .hood {
   display: grid; grid-template-columns: 1fr minmax(20rem, 24rem);
   height: calc(100vh - var(--header-h, 5rem)); min-height: 32rem;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--color-container-border-primary);
 }
 .hood__map { min-width: 0; }
 .hood__panel {
-  border-left: 1px solid var(--border);
+  border-left: 1px solid var(--color-container-border-primary);
   overflow-y: auto; overscroll-behavior: contain; contain: paint; min-width: 0;
 }
-.hood__intro { padding: var(--space-3); border-top: 1px solid var(--border); }
-.hood__intro p { font-size: var(--text-body-sm); }
-.hood__group { border-top: 1px solid var(--border); }
+.hood__intro { padding: var(--space-container-padding-large); border-top: 1px solid var(--color-container-border-primary); }
+.hood__intro p { font-size: var(--font-size-body-3); }
+.hood__group { border-top: 1px solid var(--color-container-border-primary); }
 .hood__grouphead {
-  display: flex; align-items: center; gap: var(--space-1);
-  padding: var(--space-2) var(--space-3);
-  font-family: var(--font-ui); font-size: var(--text-overline);
-  font-weight: var(--text-overline-weight); text-transform: var(--text-overline-tt);
-  letter-spacing: var(--text-overline-ls); color: var(--text-2);
+  display: flex; align-items: center; gap: var(--space-component-gap-medium);
+  padding: var(--space-container-padding-small) var(--space-container-padding-large);
+  font-family: var(--font-family-component); font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold); text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--color-text-secondary);
 }
-.hood__count { margin-left: auto; color: var(--text-3); }
+.hood__count { margin-left: auto; color: var(--color-text-tertiary); }
 .hood__list { list-style: none; margin: 0; padding: 0; }
-.hoodrow { display: flex; align-items: stretch; border-top: 1px solid var(--border-subtle); }
-.hoodrow.is-active { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--cat, var(--text)); }
+.hoodrow { display: flex; align-items: stretch; border-top: 1px solid var(--color-divider-tertiary); }
+.hoodrow.is-active { background: var(--color-action-passive-subtle-hover); box-shadow: inset 3px 0 0 var(--cat, var(--color-text-primary)); }
 .hoodrow__hit {
   flex: 1 1 auto; min-width: 0; text-align: left; font: inherit; color: inherit;
-  border: none; background: none; cursor: pointer; padding: var(--space-2) var(--space-3);
+  border: none; background: none; cursor: pointer;
+  padding: var(--space-container-padding-small) var(--space-container-padding-large);
 }
-.hoodrow__hit:focus-visible { outline: 2px solid var(--text); outline-offset: -2px; }
-.hoodrow__title { display: block; font-family: var(--font-display); font-weight: 700; font-size: var(--text-body); }
+.hoodrow__hit:focus-visible { outline: 2px solid var(--color-focus-indicator); outline-offset: -2px; }
+.hoodrow__title { display: block; font-family: var(--font-family-display); font-weight: var(--font-weight-heading-bold); font-size: var(--font-size-body-2); }
 .hoodrow__sub {
-  display: block; font-family: var(--font-body); font-size: var(--text-body-sm);
-  color: var(--text-2); margin-top: 2px;
+  display: block; font-family: var(--font-family-body); font-size: var(--font-size-body-3);
+  color: var(--color-text-secondary); margin-top: 2px;
   display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
 }
 .hoodrow__link {
-  flex: none; display: flex; align-items: center; padding: 0 var(--space-2);
-  color: var(--text-3); border-left: 1px solid var(--border-subtle);
+  flex: none; display: flex; align-items: center; padding: 0 var(--space-component-inline-padding-xx-large);
+  color: var(--color-text-tertiary); border-left: 1px solid var(--color-divider-tertiary);
 }
-.hoodrow__link:hover { color: var(--text); background: var(--accent-soft); }
+.hoodrow__link:hover { color: var(--color-text-primary); background: var(--color-action-passive-subtle-hover); }
 
 /* ── 6. Area guide ────────────────────────────────────────────────────── */
 
-.area__map { height: min(58vh, 34rem); border-bottom: 1px solid var(--border); position: relative; }
-.area__head { padding: var(--space-5) 0 var(--space-2); }
-.areaband { padding: var(--space-4) 0; border-top: 1px solid var(--border); }
-.areaband__head { display: flex; align-items: baseline; gap: var(--space-1); flex-wrap: wrap; }
+.area__map { height: min(58vh, 34rem); border-bottom: 1px solid var(--color-container-border-primary); position: relative; }
+.area__head { padding: var(--space-x-large) 0 var(--space-medium); }
+.areaband { padding: var(--space-container-padding-x-large) 0; border-top: 1px solid var(--color-container-border-primary); }
+.areaband__head { display: flex; align-items: baseline; gap: var(--space-column-gap-x-small); flex-wrap: wrap; }
 .areaband__title {
-  font-family: var(--font-display); font-size: var(--text-h2);
-  font-weight: var(--text-h2-weight); letter-spacing: var(--text-h2-ls);
+  font-family: var(--font-family-display); font-size: var(--font-size-heading-2);
+  font-weight: var(--font-weight-heading-bold);
 }
 .areaband__blurb {
-  flex: 1 1 20rem; font-family: var(--font-body); font-size: var(--text-body-sm);
-  color: var(--text-2);
+  flex: 1 1 20rem; font-family: var(--font-family-body); font-size: var(--font-size-body-3);
+  color: var(--color-text-secondary);
 }
 
 /* ── Responsive ───────────────────────────────────────────────────────── */
@@ -460,10 +603,10 @@
 
   /* The story map halves so a card and the map are both readable at once */
   .story__map { height: 55vh; top: 0; }
-  .story__steps { margin-top: -55vh; padding: 0 var(--space-2); }
+  .story__steps { margin-top: -55vh; padding: 0 var(--space-medium); }
   .storystep { min-height: 80vh; max-width: none; }
   .storystep__card { opacity: 1; transform: none; }
-  .maplegend { max-width: 11rem; bottom: var(--space-2); }
+  .maplegend { max-width: 11rem; bottom: var(--space-medium); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -473,14 +616,155 @@
 /* Route markers carry the stop number, matching the numbered itinerary */
 .mk--seq {
   background: var(--route-line);
-  color: #fff;
+  /* text-complementary is white in both schemes — constant on a route disc */
+  color: var(--color-text-complementary);
   border-color: var(--route-casing);
   border-width: 2px;
 }
 .mk__num {
-  font-family: var(--font-ui);
-  font-size: var(--text-caption);
-  font-weight: 700;
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
   line-height: 1;
 }
-.mk--seq.mk--active { background: var(--map-text); border-color: #fff; }
+.mk--seq.mk--active { background: var(--map-text); border-color: var(--map-surface); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Region directory (/regions/<slug>/)
+   ──────────────────────────────────────────────────────────────────────────
+   The same .mapsplit grid and .mapcard rows as /map/, so the site's full
+   directory and one region of it read as one system. Two differences: this
+   sits under a page header rather than under the nav, so it is a band with a
+   height of its own instead of a viewport takeover; and it carries a detail
+   panel, because a region page lets you read a place without leaving the map.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.mapsplit--region {
+  /* Not 100vh: a page header sits above it and Keep exploring below, and both
+     have to be reachable without the map eating the screen first. */
+  height: min(76vh, 44rem);
+  border-bottom: 1px solid var(--color-container-border-primary);
+}
+
+/* The detail panel is positioned against the map half. */
+.mapsplit--region .mapsplit__map { position: relative; }
+
+/* ── Detail panel ─────────────────────────────────────────────────────── */
+
+.regionpanel--detail {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  width: min(28rem, 100%);
+  background: var(--panel-surface);
+  color: var(--panel-text);
+  border-left: 1px solid var(--panel-border);
+  box-shadow: var(--map-shadow-pop);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.regionpanel__inner { padding: var(--space-container-padding-large); }
+
+.regionpanel__eyebrow {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-tertiary);
+}
+
+.regionpanel__title {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-heading-2);
+  font-weight: var(--font-weight-heading-bold);
+  line-height: var(--line-height-heading);
+  margin-top: var(--space-component-gap-small);
+  color: var(--panel-text);
+}
+
+.regionpanel__meta {
+  margin-top: var(--space-x-small);
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-body-4);
+  color: var(--panel-text-2);
+}
+
+.regionpanel__close {
+  position: sticky;
+  top: 0;
+  float: right;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin: var(--space-x-small) var(--space-x-small) 0 0;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-surface);
+  color: var(--panel-text-2);
+  cursor: pointer;
+  transition: color var(--duration-fade-fast) var(--ease-fade),
+              border-color var(--duration-fade-fast) var(--ease-fade);
+}
+.regionpanel__close:hover { color: var(--panel-text); border-color: var(--panel-text); }
+.regionpanel__close:focus-visible { outline: 2px solid var(--color-focus-indicator); outline-offset: 2px; }
+
+/* ── Detail content ───────────────────────────────────────────────────── */
+
+.placedetail__standfirst {
+  margin-top: var(--space-x-small);
+  /* body-2, not the page-lede size: in a 28rem panel the lede would sit at
+     the same size as the panel's own headings. */
+  font-size: var(--font-size-body-2);
+  color: var(--panel-text-2);
+}
+
+.placedetail__bestfor {
+  margin-top: var(--space-medium);
+  font-size: var(--font-size-body-3);
+  color: var(--panel-text-2);
+}
+
+.placedetail__body { margin-top: var(--space-medium); }
+.placedetail__body h2 { font-size: var(--font-size-heading-6); margin-top: var(--space-large); }
+.placedetail__body p { font-size: var(--font-size-body-3); }
+/* These anchor a full page's headings; in a panel they link nowhere useful. */
+.placedetail__body .heading-anchor { display: none; }
+
+.placedetail__actions { margin-top: var(--space-large); }
+
+/* ── No JS ────────────────────────────────────────────────────────────── */
+/* Every place is a readable section under the map, and nothing is hidden that
+   JS has to reveal. .js-regionmap is what turns the stack into a panel. */
+.mapsplit--region:not(.js-regionmap) { height: auto; display: block; }
+.mapsplit--region:not(.js-regionmap) .mapsplit__map { height: min(60vh, 34rem); }
+.mapsplit--region:not(.js-regionmap) .regionpanel--detail {
+  position: static;
+  width: auto;
+  border-left: none;
+  box-shadow: none;
+}
+.mapsplit--region:not(.js-regionmap) .regionpanel__close { display: none; }
+
+/* ── Narrow screens ───────────────────────────────────────────────────── */
+/* .mapsplit already collapses to one column below 900px (see the base rule);
+   here the detail simply takes the whole map half when it opens. */
+@media (max-width: 900px) {
+  .mapsplit--region { height: auto; }
+
+  /* The base .mapsplit rule gives the map half 55vh on narrow screens. A full
+     write-up cannot live in a 55vh box, so the detail leaves the flow entirely
+     and becomes a sheet over the page. */
+  .regionpanel--detail {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    width: auto;
+    border-left: none;
+  }
+}

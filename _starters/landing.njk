@@ -1,0 +1,47 @@
+---
+# LANDING — a conversion page: story → proof → CTA, one primary action repeated.
+#
+# Unlike every other starter this is a .njk file in pages/, not markdown in
+# content/ — landings are all front matter (see pages/atelier.njk) and the
+# landing layout reads the page body as its demo slot. Set the permalink
+# yourself: segment landings live at /for/<segment>/, per _plans/02.
+#
+# Every block below is optional. Delete what you are not using and the section
+# disappears — no empty headings, no stray rules.
+layout: layouts/landing.njk
+permalink: /__SLUG__/
+section: for                   # atelier | learn | tools | places | for
+title: __TITLE__
+description: ""                # one sentence — meta description and og:description
+
+overline: ""                   # small label above the headline
+headline: ""                   # defaults to title if omitted
+lede: ""                       # the one-sentence promise: what it makes, for whom
+
+cta: { label: "Open the editor", url: /atelier/editor/ }
+# secondary_cta: { label: "", url: "" }
+
+capabilities_label: ""
+capabilities_title: ""
+capabilities: []               # 3 max — { overline, title, description, url }
+
+# examples_title: ""
+# examples: []                 # { label, url }
+
+# forgiveness:                 # a way out for readers who are not ready yet
+#   text: ""
+#   label: ""
+#   url: /learn/
+
+final_cta:
+  title: ""
+  body: ""
+
+# email_capture:
+#   label: ""
+
+# app:                         # emits SoftwareApplication JSON-LD — tools only
+#   name: ""
+#   url: ""
+#   description: ""
+---

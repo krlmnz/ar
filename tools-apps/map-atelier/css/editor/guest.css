@@ -1,0 +1,61 @@
+/* ============================================================
+   GUEST MODE + PREVIEW — the published, read-only face of a map.
+   body.guest = guest.html, decoded from a share link;
+   body.preview = preview.html, your own draft from the store.
+   They are separate pages now, so these rules mostly just reclaim
+   the space the editor chrome used to occupy.
+   ============================================================ */
+body.guest header#topbar { display: none; }
+body.guest #stage { inset: 0; }
+
+#guest-hero {
+  position: absolute; top: var(--space-container-padding-large); left: var(--space-container-padding-large); z-index: 30;
+  width: 372px; max-width: calc(100vw - 48px);
+  /* translucent over the basemap, but built from the container token so
+     the card goes properly dark instead of glowing white */
+  background: color-mix(in srgb, var(--color-container-background-primary) 94%, transparent); backdrop-filter: blur(10px);
+  border: 1px solid var(--color-container-border-primary); border-radius: var(--radius-x-large); box-shadow: var(--elevation-level-3) var(--color-shadow);
+  padding: var(--space-container-padding-large); display: none;
+}
+body.guest #guest-hero { display: block; }
+.gh-eyebrow { font-size: var(--font-size-component-x-small); letter-spacing: .26em; text-transform: uppercase; color: var(--color-text-tertiary); font-weight: var(--font-weight-component-semibold); margin-bottom: 8px; }
+/* was 37px, which sits between the scale's rungs; display-4 (48) would
+   overwhelm a 372px card, so heading-2 is the pick */
+.gh-title { font-family: var(--font-family-component); font-size: var(--font-size-heading-2); font-weight: var(--font-weight-heading-bold); line-height: 1.05; margin-bottom: var(--space-component-inline-padding-large); }
+.gh-desc { color: var(--color-text-secondary); font-size: var(--font-size-component-small); line-height: 1.6; margin-bottom: var(--space-container-padding-small); }
+.gh-meta { display: flex; align-items: center; gap: var(--space-component-gap-medium); font-size: var(--font-size-component-x-small); color: var(--color-text-tertiary); }
+.gh-list-toggle { margin-top: var(--space-container-padding-small); width: 100%; justify-content: center; }
+#guest-list { margin-top: var(--space-component-inline-padding-large); max-height: 300px; overflow-y: auto; display: none; }
+#guest-list.open { display: block; }
+#guest-badge {
+  /* clear of the Mapbox zoom stack, which owns the bottom-right corner */
+  position: absolute; bottom: calc(var(--space-container-padding-small) + 74px); right: var(--space-container-padding-small); z-index: 30;
+  background: color-mix(in srgb, var(--color-container-background-primary) 92%, transparent);
+  border: 1px solid var(--color-container-border-primary); border-radius: var(--radius-full);
+  font-size: var(--font-size-component-x-small); color: var(--color-text-secondary); padding: 7px 14px; display: none;
+  text-decoration: none; font-weight: var(--font-weight-component-semibold); box-shadow: var(--elevation-level-1) var(--color-shadow);
+}
+body.guest #guest-badge, body.preview #guest-badge { display: inline-flex; gap: 6px; align-items: center; }
+#guest-badge:hover { color: var(--color-text-primary); box-shadow: var(--elevation-level-3) var(--color-shadow); }
+
+/* preview mode = guest look while editing — full-bleed, like the real
+   guest view: rail, topbar and every editor affordance recede so the
+   map fills the whole viewport. A floating pill is the way back. */
+body.preview #topbar { display: none; }
+body.preview #rail { display: none; }
+body.preview #stage { inset: 0; }
+body.preview #guest-hero { display: block; }
+/* The place panel follows its own .open state here, exactly as it does
+   in guest mode. It used to be pinned open by a `display:block` that
+   outranked `.open`, which contradicted the rule above it — preview is
+   supposed to shed editor chrome, and the layer column is chrome. */
+
+#preview-exit {
+  position: fixed; top: var(--space-container-padding-small); right: var(--space-container-padding-small); z-index: 120;
+  display: none; align-items: center; gap: 7px;
+  /* text-inverse flips to ink on the bright dark-scheme teal */
+  background: var(--color-action-standard); color: var(--color-text-inverse); border: none; box-shadow: var(--elevation-level-3) var(--color-shadow);
+}
+/* darkens along the action ramp, matching .btn.primary */
+#preview-exit:hover { background: var(--color-action-standard-hover); }
+body.preview #preview-exit { display: inline-flex; }

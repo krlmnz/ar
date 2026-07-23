@@ -1,6 +1,7 @@
 ---
 layout: layouts/base.njk
 fullBleed: true
+mapPage: true
 ---
 {# MAP-AREA — an area guide covering several sub-regions. The map orients;
    each area gets a band of its own with its places. Zooming to an area is a
@@ -9,15 +10,8 @@ fullBleed: true
 
 {% set feats = [] %}
 {% for a in areas %}
-  {% for i in collections.places | bySlugs(a.places) %}
-    {% if i.data.coordinates %}
-    {% set feats = (feats.push({
-        id: i.data.slug, title: i.data.title, type: i.data.type or "",
-        category: a.key, subtitle: i.data.subtitle or "",
-        url: "/places/" + i.data.slug + "/",
-        lng: i.data.coordinates.lng, lat: i.data.coordinates.lat
-      }), feats) %}
-    {% endif %}
+  {% for f in collections.places | bySlugs(a.places) | toFeatures(a.key) %}
+    {% set feats = (feats.push(f), feats) %}
   {% endfor %}
 {% endfor %}
 {% set legend = [] %}
@@ -49,24 +43,8 @@ fullBleed: true
         {% if a.blurb %}<p class="areaband__blurb">{{ a.blurb }}</p>{% endif %}
       </div>
       <ul class="mapcards mapcards--grid">
-        {% for i in collections.places | bySlugs(a.places) %}
-        <li>
-          <article class="mapcard" data-feature="{{ i.data.slug }}" data-cat="{{ a.key }}">
-            <button type="button" class="mapcard__hit" data-goto="{{ i.data.slug }}" aria-pressed="false"
-                    aria-label="Show {{ i.data.title }} on the map">
-              <span class="mapcard__icon">
-                {% set iconName = placeIcons[i.data.type] or placeIcons._default %}
-                {% icon iconName, weight="fill", size=18 %}
-              </span>
-              <span class="mapcard__body">
-                <span class="mapcard__overline">{{ i.data.type | replace("-", " ") }}</span>
-                <span class="mapcard__title">{{ i.data.title }}</span>
-                <span class="mapcard__sub">{{ i.data.subtitle }}</span>
-              </span>
-            </button>
-            <a class="mapcard__link" href="/places/{{ i.data.slug }}/">Read more <span aria-hidden="true">→</span></a>
-          </article>
-        </li>
+        {% for f in collections.places | bySlugs(a.places) | toFeatures(a.key) %}
+        {% include "partials/mapcard.njk" %}
         {% endfor %}
       </ul>
     </section>

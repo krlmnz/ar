@@ -8,12 +8,18 @@
  *   { token, style, mapId, mode, features[], route[], fit, zoom, center }
  *   mode: "pins" | "route" | "story"
  *   feature: { id, title, type, category, lng, lat, url, subtitle, meta }
+ *
+ * mapbox-gl is loaded lazily: the library and its CSS are injected only when
+ * the map container comes within ~600px of the viewport, so pages where the
+ * map sits below the fold don't pay ~230 KB up front — and a reader who never
+ * scrolls to it never pays at all. The config element carries the GL version
+ * (data-gl) and an optional dark basemap (data-style-dark).
  */
 (function () {
   "use strict";
 
   var cfgEl = document.getElementById("map-config");
-  if (!cfgEl || !window.mapboxgl) return;
+  if (!cfgEl) return;
 
   var cfg;
   try {
@@ -26,19 +32,98 @@
   var root = document.getElementById(cfg.mapId || "map");
   if (!root) return;
 
+  function collapseShell() {
+    var shell = root.closest(".mapshell") || root;
+    shell.setAttribute("hidden", "");
+    document.documentElement.classList.add("no-map");
+  }
+
   // No token (env var missing on the build host) — collapse the map surface
   // rather than leaving a dead grey box. The page's text and its list of places
   // are unaffected; every card link works without JS.
   if (!cfg.token) {
-    var shell = root.closest(".mapshell") || root;
-    shell.setAttribute("hidden", "");
-    document.documentElement.classList.add("no-map");
+    collapseShell();
     return;
   }
+
+  var GL_VERSION = cfgEl.getAttribute("data-gl") || "v3.9.0";
+  var STYLE_DARK = cfgEl.getAttribute("data-style-dark") || "";
+  var FALLBACK = { light: "mapbox://styles/mapbox/light-v11", dark: "mapbox://styles/mapbox/dark-v11" };
+
+  function pageTheme() {
+    // The scheme moved off data-theme (now the static token-set name) onto
+    // data-colorscheme; base.njk's toggle flips the same attribute.
+    return document.documentElement.dataset.colorscheme === "dark" ? "dark" : "light";
+  }
+
+  /* ---- lazy bootstrap -------------------------------------------------- */
+
+  function loadGL(done) {
+    if (window.mapboxgl) { done(); return; }
+    var base = "https://api.mapbox.com/mapbox-gl-js/" + GL_VERSION + "/";
+    var css = document.createElement("link");
+    css.rel = "stylesheet";
+    css.href = base + "mapbox-gl.css";
+    document.head.appendChild(css);
+    var js = document.createElement("script");
+    js.src = base + "mapbox-gl.js";
+    js.onload = done;
+    js.onerror = function () {
+      collapseShell();
+      console.warn("[andean-road] mapbox-gl failed to load — map hidden.");
+    };
+    document.head.appendChild(js);
+  }
+
+  var booted = false;
+  function boot() {
+    if (booted) return;
+    booted = true;
+    loadGL(init);
+  }
+
+  // Above-the-fold maps boot straight away — waiting on an observer there
+  // only adds a frame of delay, and IO callbacks don't fire at all in some
+  // hidden/backgrounded rendering states. The observer is kept for maps that
+  // start genuinely below the fold.
+  function nearViewport() {
+    var r = root.getBoundingClientRect();
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    return r.bottom > -600 && r.top < vh + 600;
+  }
+
+  if ("IntersectionObserver" in window && !nearViewport()) {
+    var pre = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        pre.disconnect();
+        boot();
+      });
+    }, { rootMargin: "600px 0px 600px 0px" });
+    pre.observe(root);
+  } else {
+    boot();
+  }
+
+  /* ---- the map itself -------------------------------------------------- */
+
+  function init() {
 
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var sprites = document.querySelector("[data-map-sprites]");
   var status = document.getElementById("map-status");
+
+  // The basemap follows the page scheme when a dark style exists. Chrome that
+  // must match the basemap (markers, popups, legend) keys off data-map-theme,
+  // NOT data-colorscheme — the two differ when no dark basemap is configured.
+  var mapTheme = STYLE_DARK ? pageTheme() : "light";
+  var usedFallback = false;
+  document.documentElement.setAttribute("data-map-theme", mapTheme);
+
+  function styleFor(theme) {
+    if (usedFallback) return FALLBACK[theme];
+    return theme === "dark" && STYLE_DARK ? STYLE_DARK : cfg.style;
+  }
 
   mapboxgl.accessToken = cfg.token;
 
@@ -47,13 +132,20 @@
 
   var opts = {
     container: cfg.mapId || "map",
-    style: cfg.style,
+    style: styleFor(mapTheme),
     cooperativeGestures: cfg.mode !== "story", // a story map owns its scroll
     attributionControl: true
   };
   if (cfg.mode === "story") {
     opts.center = [cfg.features[0].lng, cfg.features[0].lat];
     opts.zoom = cfg.features[0].zoom || cfg.zoom || 12;
+  } else if (cfg.center) {
+    // An explicit camera. A place page wants "here, at this zoom" — fitting
+    // bounds to one marker gives a degenerate box that mapbox-gl resolves to
+    // maxZoom, i.e. a page-filling close-up of a single rooftop. `center` was
+    // in this file's documented contract from the start and never read.
+    opts.center = cfg.center;
+    opts.zoom = cfg.zoom || 13;
   } else {
     opts.bounds = bounds;
     opts.fitBoundsOptions = { padding: cfg.fit || 64 };
@@ -67,9 +159,7 @@
   // and the canvas just paints nothing. So probe a tile directly and collapse
   // the map ourselves. One small request, only on map pages.
   function collapseMap(reason) {
-    var shell = root.closest(".mapshell") || root;
-    shell.setAttribute("hidden", "");
-    document.documentElement.classList.add("no-map");
+    collapseShell();
     console.warn("[andean-road] Map hidden: " + reason + ". Add " +
       location.hostname + " to the token's URL restrictions in Mapbox, or set a " +
       "separate MAPBOX_TOKEN for this deploy context.");
@@ -84,10 +174,22 @@
     })
     .catch(function () { /* offline or blocked: leave the map as-is */ });
 
-  // Style-level auth failures do raise an error event; keep that path too.
+  // Style-level failures do raise an error event. Auth errors collapse the
+  // map; a missing style (deleted in Studio, typo'd id) falls back to a stock
+  // Mapbox style instead — a generic basemap still orients the reader. The 404
+  // branch only arms until the style first loads: after that, a 404 is some
+  // tile or sprite of a style that plainly exists, not a missing style.
+  var styleEverLoaded = false;
+  map.on("style.load", function () { styleEverLoaded = true; });
   map.on("error", function (e) {
-    var status = e && e.error && e.error.status;
-    if (status === 401 || status === 403) collapseMap("Mapbox returned " + status);
+    var st = e && e.error && e.error.status;
+    if (st === 401 || st === 403) {
+      collapseMap("Mapbox returned " + st);
+    } else if (st === 404 && !styleEverLoaded && !usedFallback) {
+      usedFallback = true;
+      map.setStyle(FALLBACK[mapTheme]);
+      console.warn("[andean-road] Style not found — using a stock Mapbox basemap.");
+    }
   });
 
   /* ---- markers ------------------------------------------------------- */
@@ -99,7 +201,7 @@
     closeButton: false,
     closeOnClick: false,
     focusAfterOpen: false,   // never steal focus from the list
-    className: "mappopup"
+    className: "map-popup"
   });
 
   function sprite(type) {
@@ -183,10 +285,26 @@
       b.setAttribute("aria-pressed", b.getAttribute("data-goto") === id ? "true" : "false");
     });
 
+    // Make the selection shareable. replaceState, not a hash assignment: the
+    // reader is browsing a map, and every pin they poke should not become a
+    // back-button step out of the page.
+    if (cfg.mode === "pins" && window.history && history.replaceState) {
+      history.replaceState(null, "", "#" + encodeURIComponent(id));
+    }
+
     if (o.fly !== false) {
       var cam = { center: [f.lng, f.lat], zoom: Math.max(map.getZoom(), f.zoom || 13) };
       if (reduceMotion) map.jumpTo(cam);
       else map.flyTo({ center: cam.center, zoom: cam.zoom, duration: 900 });
+    }
+
+    // Pages that render their own detail surface set `popup: false` and listen
+    // for andean:select instead. A popup AND a panel would say the same thing
+    // twice, with the popup covering the map the panel is describing.
+    if (cfg.popup === false) {
+      document.dispatchEvent(new CustomEvent("andean:select", { detail: { id: id, feature: f } }));
+      announce("Showing " + f.title + " on the map.");
+      return;
     }
 
     // Built as DOM, never as an HTML string — titles are author-supplied.
@@ -216,6 +334,7 @@
   function clearSelection() {
     active = null;
     popup.remove();
+    document.dispatchEvent(new CustomEvent("andean:clear"));
     Object.keys(markers).forEach(function (k) {
       markers[k].getElement().classList.remove("mk--active");
     });
@@ -257,6 +376,20 @@
     });
   });
 
+  /* ---- theme ----------------------------------------------------------- */
+
+  // The header toggle dispatches "themechange". setStyle wipes every source
+  // and layer, so the route (if any) re-arms and redraws on the new style —
+  // reading its colours from CSS again, which data-map-theme has now flipped.
+  window.addEventListener("themechange", function () {
+    if (!STYLE_DARK) return;
+    var next = pageTheme();
+    if (next === mapTheme) return;
+    mapTheme = next;
+    document.documentElement.setAttribute("data-map-theme", mapTheme);
+    map.setStyle(styleFor(mapTheme));
+  });
+
   /* ---- route line ----------------------------------------------------- */
 
   if (cfg.mode === "route") {
@@ -266,7 +399,9 @@
     //   - isStyleLoaded() flickers false while any source is pending, so it
     //     rejects perfectly valid moments to add a layer.
     // What actually matters is whether the style JSON is parsed, so gate on
-    // getStyle() and let a failed attempt retry on the next event.
+    // getStyle() and let a failed attempt retry on the next event. Once the
+    // route is drawn the polling listeners come OFF — sourcedata and idle
+    // fire on every tile load forever, and a no-op on each adds up.
     var routeDrawn = false;
 
     function drawRoute() {
@@ -298,7 +433,7 @@
         source: "route",
         layout: { "line-cap": "round", "line-join": "round" },
         paint: {
-          "line-color": css.getPropertyValue("--route-casing").trim() || "rgba(24,23,22,.12)",
+          "line-color": css.getPropertyValue("--route-casing").trim() || "rgba(24,23,22,.14)",
           "line-width": 7,
           "line-opacity": 0.9
         }
@@ -309,7 +444,7 @@
         source: "route",
         layout: { "line-cap": "round", "line-join": "round" },
         paint: {
-          "line-color": css.getPropertyValue("--route-line").trim() || "#D7561D",
+          "line-color": css.getPropertyValue("--route-line").trim() || "#C84F00",
           "line-width": 3,
           // Dashed on purpose: these are straight segments between stops, not
           // driving geometry. A solid road-weight line would assert a road
@@ -321,11 +456,28 @@
       routeDrawn = true;
     }
 
-    drawRoute();
-    map.on("style.load", drawRoute);
-    map.on("styledata", drawRoute);
-    map.on("sourcedata", drawRoute);
-    map.on("idle", drawRoute);
+    function onRouteEvent() {
+      drawRoute();
+      if (routeDrawn) {
+        map.off("styledata", onRouteEvent);
+        map.off("sourcedata", onRouteEvent);
+        map.off("idle", onRouteEvent);
+      }
+    }
+
+    function armRoute() {
+      map.on("styledata", onRouteEvent);
+      map.on("sourcedata", onRouteEvent);
+      map.on("idle", onRouteEvent);
+      onRouteEvent();
+    }
+
+    armRoute();
+    // A style swap (theme toggle, 404 fallback) wipes the route — re-arm.
+    map.on("style.load", function () {
+      routeDrawn = false;
+      armRoute();
+    });
   }
 
   /* ---- scrollytelling -------------------------------------------------- */
@@ -380,5 +532,71 @@
     }
   }
 
+  /* ---- filtering ------------------------------------------------------- */
+
+  // Chips declare what they filter on: data-map-filter="region" plus
+  // data-filter-value="santiago" (empty value = show everything). Hiding is
+  // done on the marker element and the matching card, then the camera re-fits
+  // to what survives — a filter that leaves the view over an empty stretch of
+  // ocean reads as a broken map rather than an empty result.
+  var chips = document.querySelectorAll("[data-map-filter]");
+  if (chips.length) {
+    var applyFilter = function (key, value) {
+      var visible = new mapboxgl.LngLatBounds();
+      var count = 0;
+
+      cfg.features.forEach(function (f) {
+        var hit = !value || String(f[key] || "") === value;
+        var mk = markers[f.id];
+        if (mk) mk.getElement().style.display = hit ? "" : "none";
+        var card = document.querySelector('[data-feature="' + f.id + '"]');
+        if (card) card.hidden = !hit;
+        if (hit) { visible.extend([f.lng, f.lat]); count++; }
+      });
+
+      chips.forEach(function (c) {
+        var on = c.getAttribute("data-map-filter") === key &&
+                 (c.getAttribute("data-filter-value") || "") === value;
+        c.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+
+      var tally = document.getElementById("map-count");
+      if (tally) tally.textContent = count + (count === 1 ? " place" : " places");
+
+      if (count) {
+        clearSelection();
+        map.fitBounds(visible, { padding: cfg.fit || 64, maxZoom: 14, duration: reduceMotion ? 0 : 700 });
+      }
+      announce(count ? count + " places shown." : "No places match.");
+    };
+
+    chips.forEach(function (c) {
+      c.addEventListener("click", function () {
+        applyFilter(c.getAttribute("data-map-filter"), c.getAttribute("data-filter-value") || "");
+      });
+    });
+  }
+
+  /* ---- deep link ------------------------------------------------------- */
+
+  // /map/#<slug> opens with that place selected, so a place page can say
+  // "see it on the area map" and land the reader on the right pin instead of
+  // a country-wide view they have to hunt through. Selecting also writes the
+  // hash back, which makes any selection a shareable URL.
+  if (cfg.mode === "pins") {
+    var fromHash = function () {
+      var id = decodeURIComponent((location.hash || "").slice(1));
+      if (id && cfg.features.some(function (f) { return f.id === id; })) {
+        select(id, { scrollCard: true });
+        var f = cfg.features.filter(function (x) { return x.id === id; })[0];
+        map.flyTo({ center: [f.lng, f.lat], zoom: 14, duration: reduceMotion ? 0 : 900 });
+      }
+    };
+    map.on("load", fromHash);
+    window.addEventListener("hashchange", fromHash);
+  }
+
   window.AndeanMap = { map: map, select: select, reset: resetView };
+
+  } // init
 })();

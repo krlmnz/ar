@@ -3,6 +3,24 @@ layout: layouts/base.njk
 permalink: /
 ---
 
+{# Site + author entity — ties every page's author reference to one Person. #}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "{{ site.title }}",
+  "description": {{ site.description | dump | safe }},
+  "url": "{{ site.url }}/",
+  "inLanguage": "{{ site.language }}",
+  "author": {
+    "@type": "Person",
+    "name": "{{ site.author }}",
+    "url": "{{ site.url }}/about/",
+    "description": "Born in Chile, raised in New York — writes Andean Road, a personal travel guide to Chile."
+  }
+}
+</script>
+
 <div class="hero">
   <div class="hero-overline">Your friend's guide to Chile</div>
   <h1 class="hero-title">Andean Road</h1>

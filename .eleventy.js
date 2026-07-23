@@ -5,6 +5,12 @@ const markdownIt = require('markdown-it');
 const markdownItAnchor = require('markdown-it-anchor');
 
 module.exports = function(eleventyConfig) {
+  // --serve honours PORT so a preview harness can hand us a free port.
+  // Without this, Eleventy ignores the environment and pins itself to 8080.
+  if (process.env.PORT) {
+    eleventyConfig.setServerOptions({ port: Number(process.env.PORT) });
+  }
+
   // Inline SVG icons, resolved from the @phosphor-icons/core package.
   // Nothing to download — every Phosphor icon is already available by name.
   //
@@ -76,24 +82,126 @@ module.exports = function(eleventyConfig) {
     })
   }));
 
+  /* ---- map features --------------------------------------------------- */
+
   // Turn place collection items into the feature shape the map engine reads.
-  eleventyConfig.addFilter('toFeatures', (items) => (items || [])
+  //
+  //   category: '' (default)  — neutral pins; use on layouts with no legend,
+  //             'type'        — colour by place type (needs a type legend),
+  //             any string    — literal category key (map-area's area key).
+  //   zoom: optional per-feature zoom the camera uses when a pin is selected.
+  eleventyConfig.addFilter('toFeatures', (items, category = '', zoom) => (items || [])
     .filter(i => i && i.data && i.data.coordinates)
-    .map(i => ({
-      id: i.data.slug,
-      title: i.data.title,
-      type: i.data.type || '',
-      category: i.data.region || '',
-      subtitle: i.data.subtitle || '',
-      url: `/places/${i.data.slug}/`,
-      lng: i.data.coordinates.lng,
-      lat: i.data.coordinates.lat
-    })));
+    .map(i => {
+      const f = {
+        id: i.data.slug,
+        title: i.data.title,
+        type: i.data.type || '',
+        // Carried so the map can filter on it without a second data source.
+        region: i.data.region || '',
+        category: category === 'type' ? (i.data.type || '') : category,
+        subtitle: i.data.subtitle || '',
+        url: `/places/${i.data.slug}/`,
+        lng: i.data.coordinates.lng,
+        lat: i.data.coordinates.lat,
+        meta: [i.data.cost_level, i.data.duration && String(i.data.duration).replace(/-/g, ' ')]
+          .filter(Boolean)
+      };
+      if (zoom) f.zoom = zoom;
+      return f;
+    }));
+
+  // `nearby` returns {item, distance, km} wrappers; `toFeatures` wants the
+  // collection items. This unwraps them so a place page can put itself and its
+  // neighbours on one map without either filter learning about the other.
+  eleventyConfig.addFilter('pluck', (list, key) => (list || []).map(o => o && o[key]).filter(Boolean));
+
+  // Resolve story steps / route stops to map features. A step may reference a
+  // place by slug, carry its own lng/lat, or both — explicit coordinates win.
+  // A step that resolves to no coordinates is dropped with a warning instead
+  // of crashing the build or emitting `undefined` into the map config.
+  eleventyConfig.addFilter('stepFeatures', (steps, places, mode = 'story') => (steps || [])
+    .map((s, i) => {
+      const p = s.place ? (places || []).find(x => x.data.slug === s.place) : null;
+      const coords = (s.lng != null && s.lat != null)
+        ? { lng: s.lng, lat: s.lat }
+        : (p && p.data.coordinates) || null;
+      if (!coords) {
+        console.warn(`[andean-road] ${mode} step "${s.title || s.place || i + 1}" has no coordinates — skipped`);
+        return null;
+      }
+      const f = {
+        id: mode === 'route'
+          ? (s.place || `stop-${i + 1}`)
+          : (s.id || `step-${i + 1}`),
+        title: mode === 'route' ? (p ? p.data.title : s.title) : s.title,
+        type: (p ? p.data.type : s.type) || '',
+        subtitle: (mode === 'route'
+          ? (s.note || (p ? p.data.subtitle : ''))
+          : s.subtitle) || '',
+        url: p ? `/places/${p.data.slug}/` : '',
+        lng: coords.lng,
+        lat: coords.lat
+      };
+      if (mode === 'route') f.day = s.day || '';
+      if (mode === 'story') {
+        f.zoom = s.zoom || 12;
+        f.pitch = s.pitch || 0;
+        f.bearing = s.bearing || 0;
+      }
+      return f;
+    })
+    .filter(Boolean));
 
   // Resolve a list of place slugs to full collection items, dropping misses.
   eleventyConfig.addFilter('bySlugs', (collection, slugs) => (slugs || [])
     .map(s => (collection || []).find(i => i.data.slug === s))
     .filter(Boolean));
+
+  // Straight-line distance neighbours for "while you're here" blocks.
+  // Returns [{item, km}] nearest-first. Haversine is plenty at guide scale —
+  // the reader wants "20 minutes away", not survey-grade geodesy.
+  const havKm = (a, b) => {
+    const rad = (d) => d * Math.PI / 180;
+    const dLat = rad(b.lat - a.lat);
+    const dLng = rad(b.lng - a.lng);
+    const h = Math.sin(dLat / 2) ** 2 +
+      Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+    return 6371 * 2 * Math.asin(Math.sqrt(h));
+  };
+
+  // km is a display string: neighbours in the same block round to "0 km" as an
+  // integer, which reads like a bug — so under 1 km say so, under 10 keep one
+  // decimal, beyond that whole kilometres are honest enough.
+  const kmLabel = (d) => (d < 1 ? '<1' : d < 10 ? d.toFixed(1) : String(Math.round(d)));
+
+  eleventyConfig.addFilter('nearby', (places, slug, limit = 3) => {
+    const me = (places || []).find(i => i.data.slug === slug);
+    if (!me || !me.data.coordinates) return [];
+    return places
+      .filter(i => i.data.slug !== slug && i.data.coordinates)
+      .map(i => {
+        const d = havKm(me.data.coordinates, i.data.coordinates);
+        return { item: i, distance: d, km: kmLabel(d) };
+      })
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, limit);
+  });
+
+  // Front-matter `cover:` is a filename next to the content file (or an
+  // absolute /assets/... path). Resolve it to the URL it is actually served
+  // from — passthrough copy preserves the content/ prefix — and only if the
+  // file exists, so a missing cover never becomes a 404 og:image.
+  eleventyConfig.addFilter('resolveCover', (cover, pg) => {
+    if (!cover || !pg || !pg.inputPath) return '';
+    if (cover.startsWith('/')) {
+      return fs.existsSync(path.join(__dirname, '.' + cover)) ? cover : '';
+    }
+    const dir = path.dirname(pg.inputPath).replace(/^\.\//, '');
+    return fs.existsSync(path.join(__dirname, dir, cover))
+      ? '/' + dir.split(path.sep).join('/') + '/' + cover
+      : '';
+  });
 
   // Build a table of contents from already-rendered HTML — no extra dependency.
   eleventyConfig.addFilter('toc', (html) => {
@@ -120,97 +228,81 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addDataExtension('yaml', contents => yaml.load(contents));
   eleventyConfig.addDataExtension('yml', contents => yaml.load(contents));
 
-  // Create collections
-  eleventyConfig.addCollection('places', collection => {
-    return collection
-      .getFilteredByGlob('content/places/*/index.md')
-      .filter(item => item.data.published !== false)
-      .sort((a, b) => a.data.title.localeCompare(b.data.title));
-  });
+  /* ---- collections ----------------------------------------------------- */
 
-  eleventyConfig.addCollection('guides', collection => {
-    return collection
-      .getFilteredByGlob('content/guides/*.md')
-      .filter(item => item.data.published !== false)
-      .sort((a, b) => (a.data.title || '').localeCompare(b.data.title || ''));
-  });
+  const published = (item) => item.data.published !== false;
 
-  eleventyConfig.addCollection('practical', collection => {
-    return collection
-      .getFilteredByGlob('content/practical/*.md')
-      .filter(item => item.data.published !== false)
-      .sort((a, b) => (a.data.title || '').localeCompare(b.data.title || ''));
-  });
+  const placesOf = (collection) => collection
+    .getFilteredByGlob('content/places/*/index.md')
+    .filter(published);
 
-  eleventyConfig.addCollection('templates', collection => {
-    return collection
-      .getFilteredByGlob('content/templates/*.md')
-      .sort((a, b) => (a.data.order || 99) - (b.data.order || 99));
-  });
+  eleventyConfig.addCollection('places', collection => placesOf(collection)
+    .sort((a, b) => a.data.title.localeCompare(b.data.title)));
 
-  // Group places by region
-  eleventyConfig.addCollection('byRegion', collection => {
-    const places = collection.getFilteredByGlob('content/places/*/index.md')
-      .filter(item => item.data.published !== false);
+  eleventyConfig.addCollection('guides', collection => collection
+    .getFilteredByGlob('content/guides/*.md')
+    .filter(published)
+    .sort((a, b) => (a.data.title || '').localeCompare(b.data.title || '')));
 
+  eleventyConfig.addCollection('practical', collection => collection
+    .getFilteredByGlob('content/practical/*.md')
+    .filter(published)
+    .sort((a, b) => (a.data.title || '').localeCompare(b.data.title || '')));
+
+  eleventyConfig.addCollection('templates', collection => collection
+    .getFilteredByGlob('content/templates/*.md')
+    .sort((a, b) => (a.data.order || 99) - (b.data.order || 99)));
+
+  // Learn — one collection per track, so the hub can render a track without
+  // filtering in the template. `track` comes from each folder's data file.
+  // Sorted by an explicit `order` because how-tos are a sequence (colors →
+  // patterns → borders → places → share → publish), not an alphabet; anything
+  // without one falls to the end in title order.
+  const learnTrack = (track) => (collection) => collection
+    .getFilteredByGlob('content/learn/*/*.md')
+    .filter(published)
+    .filter(item => item.data.track === track)
+    .sort((a, b) => (a.data.order || 99) - (b.data.order || 99)
+      || (a.data.title || '').localeCompare(b.data.title || ''));
+
+  eleventyConfig.addCollection('learnEditor', learnTrack('editor'));
+  eleventyConfig.addCollection('learnCartography', learnTrack('cartography'));
+  eleventyConfig.addCollection('learnNotes', learnTrack('notes'));
+
+  // Places grouped by a front-matter key that may hold several values.
+  const groupPlacesBy = (keysOf) => (collection) => {
     const grouped = {};
-    places.forEach(place => {
-      const region = place.data.region || 'Uncategorized';
-      if (!grouped[region]) {
-        grouped[region] = [];
-      }
-      grouped[region].push(place);
+    placesOf(collection).forEach(place => {
+      keysOf(place).forEach(key => (grouped[key] = grouped[key] || []).push(place));
     });
     return grouped;
-  });
+  };
 
-  // Group places by audience
-  eleventyConfig.addCollection('byAudience', collection => {
-    const places = collection.getFilteredByGlob('content/places/*/index.md')
-      .filter(item => item.data.published !== false);
+  eleventyConfig.addCollection('byAudience', groupPlacesBy(p => p.data.audience || []));
+  eleventyConfig.addCollection('byTag', groupPlacesBy(p =>
+    Array.isArray(p.data.tags) ? p.data.tags : (p.data.tags ? [p.data.tags] : [])));
 
-    const grouped = {};
-    places.forEach(place => {
-      const audiences = place.data.audience || [];
-      audiences.forEach(aud => {
-        if (!grouped[aud]) {
-          grouped[aud] = [];
-        }
-        grouped[aud].push(place);
-      });
-    });
-    return grouped;
-  });
+  /* ---- filters ---------------------------------------------------------- */
 
-  // Group places by tag
-  eleventyConfig.addCollection('byTag', collection => {
-    const places = collection.getFilteredByGlob('content/places/*/index.md')
-      .filter(item => item.data.published !== false);
-
-    const grouped = {};
-    places.forEach(place => {
-      const tags = Array.isArray(place.data.tags) ? place.data.tags : (place.data.tags ? [place.data.tags] : []);
-      tags.forEach(tag => {
-        if (!grouped[tag]) {
-          grouped[tag] = [];
-        }
-        grouped[tag].push(place);
-      });
-    });
-    return grouped;
-  });
-
-  // Filters
   eleventyConfig.addFilter('findBySlug', (collection, slug) => {
     return collection.find(item => item.data.slug === slug);
   });
 
+  // Everything before the first ## — the paragraph that answers "why go".
   eleventyConfig.addFilter('excerpt', (content) => {
+    if (!content) return '';
     const match = content.match(/^([\s\S]*?)##\s/m);
     return match ? match[1].trim() : content;
   });
 
+  // Rendered HTML → plain text, for feeds, search indexes and llms.txt.
+  eleventyConfig.addFilter('stripHtml', (html) => String(html || '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim());
+
   eleventyConfig.addFilter('truncate', (str, limit = 150) => {
+    if (!str) return '';
     if (str.length <= limit) return str;
     return str.substring(0, limit).trim() + '...';
   });
@@ -245,14 +337,62 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addWatchTarget('assets/icons/');
   eleventyConfig.on('eleventy.beforeWatch', () => iconCache.clear());
 
-  // Passthrough copy
-  eleventyConfig.addPassthroughCopy('content/places/**/*.{jpg,jpeg,png,webp,svg}');
-  eleventyConfig.addPassthroughCopy('assets/');
+  // Passthrough copy. assets/ is copied per-subfolder so that a stray
+  // .DS_Store at the top level never ships.
+  // All of content/, not just places/ — resolveCover promises that an image
+  // next to ANY content file is served; a places-only glob made every other
+  // cover a guaranteed 404 the moment an author added one.
+  eleventyConfig.addPassthroughCopy('content/**/*.{jpg,jpeg,png,webp,svg}');
+  eleventyConfig.addPassthroughCopy('assets/css');
+  eleventyConfig.addPassthroughCopy('assets/fonts');
+  eleventyConfig.addPassthroughCopy('assets/img');
+  eleventyConfig.addPassthroughCopy('assets/js');
   eleventyConfig.addPassthroughCopy('robots.txt');
 
-  // Exclude internal docs from build
+  // Map Atelier — a self-contained Mapbox app (own ES modules, own tokens,
+  // own localStorage store), served at /atelier/editor/ as the product's
+  // front door. The whole directory must land flat in one place: js/config.js
+  // exports bare filenames ('editor.html', 'preview.html', 'guest.html') that
+  // six modules resolve against location.href, so splitting the app across
+  // paths breaks share links and page-to-page navigation. editor.html is
+  // copied twice so /atelier/editor/ (no filename) resolves to the editor.
+  eleventyConfig.addPassthroughCopy({ 'tools-apps/map-atelier': 'atelier/editor' });
+  eleventyConfig.addPassthroughCopy({ 'tools-apps/map-atelier/editor.html': 'atelier/editor/index.html' });
+
+  // SVG Map Editor — a self-contained single-file recolor/layer studio for
+  // one embedded SVG (the Inca road system map). Same reasoning as Map
+  // Atelier: hosted as-is via passthrough copy rather than a njk page.
+  //
+  // It sits one level down, at /tools/svg-editor/app/, so that
+  // /tools/svg-editor/ can be a real entry page on the site's tokens — the app
+  // is 1.3 MB of markup with its own hardcoded colors and no way back to the
+  // site. Nothing moved from a reader's point of view: the URL they had still
+  // resolves, it just leads to the door rather than dropping them inside.
+  eleventyConfig.addPassthroughCopy({ 'tools-apps/svg-editor': 'tools/svg-editor/app' });
+
+  // Chromatlas and Destination Weddings were briefly hosted here as-is. They
+  // are now real pages in `pages/tools/` on the site tokens — a tool page is
+  // a template in this system, not a guest inside it. Passthrough is for
+  // apps that genuinely cannot be one (their own module graph, their own
+  // stores), which is Map Atelier and the SVG editor, not a styled document.
+
+  // Internal docs and scaffolding never reach _site — _starters/ especially,
+  // which used to publish every blank starter as a real page.
+  // CLAUDE.md quotes the {% icon %} shortcode, so Eleventy renders it and
+  // fails the build unless it's ignored.
+  eleventyConfig.ignores.add('CLAUDE.md');
+  // Passthrough copy does NOT stop Eleventy treating these .html files as
+  // templates — with input:'.' it did both, shipping asset-less duplicates at
+  // /tools-apps/map-atelier/editor/ and listing them in the sitemap. It also
+  // meant any brace pair the apps' own copy happens to contain would be
+  // evaluated as Nunjucks. Ignoring the source directory leaves passthrough
+  // as the only path to _site.
+  eleventyConfig.ignores.add('tools-apps/**');
+  eleventyConfig.ignores.add('_plans/**');
   eleventyConfig.ignores.add('DESIGN-SYSTEM.md');
   eleventyConfig.ignores.add('README.md');
+  eleventyConfig.ignores.add('WRITING.md');
+  eleventyConfig.ignores.add('_starters/**');
 
   // Template options
   return {

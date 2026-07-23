@@ -17,10 +17,11 @@ seo:
   {% else %}{% set writing = (writing.push(t), writing) %}{% endif %}
 {% endfor %}
 
+
 <div class="hero">
   <div class="hero-overline">Write, don't design</div>
   <h1 class="hero-title">Templates</h1>
-  <p class="hero-lede">{{ collections.templates | length }} layouts built on the Andean Road tokens — {{ writing | length }} for writing, {{ maps | length }} for maps. Pick one, set a <code>layout:</code> in your front matter, and write markdown. Each page documents its own fields.</p>
+  <p class="hero-lede">{{ collections.templates | length }} layouts built on the Andean Road tokens — {{ writing | length }} for writing, {{ maps | length }} for maps. Pick a layout, set it in your front matter, and write markdown. Each page documents its own fields.</p>
 </div>
 
 <hr class="rule rule--heavy">
@@ -52,8 +53,6 @@ seo:
   </a>
   {% endfor %}
 </section>
-
-<hr class="rule rule--section">
 
 <section class="section">
   <div class="section-label">Getting started</div>

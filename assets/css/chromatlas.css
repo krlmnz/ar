@@ -1,0 +1,516 @@
+/* ============================================================
+   Chromatlas — /tools/chromatlas/
+   ------------------------------------------------------------
+   Scoped under .chromatlas so nothing here escapes into the
+   site. Everything this page could borrow, it borrows: the
+   chrome comes from tools.css (.tool-section, .tool-toc,
+   .tool-panel, .tool-cols, .tool-swatches, .tool-code,
+   .tool-entries) and the editorial type from main.css
+   (.hero-*, .section-*, .subhead, .callout, .btn, .tag,
+   .note-line). No local colour token, no local type or space
+   scale — the andean tokens carry all of it, so this page
+   follows the colour scheme for free.
+
+   What is left below is only what the system genuinely did not
+   have: the hero strip, the chip grid, the harmony engine
+   (wheel, hub, tabs, result cards), the family cards, the chart
+   frames and the toast.
+
+   THE COLOUR EXCEPTION (DESIGN-SYSTEM.md §4): on this page the
+   Pantone hues ARE the data — they are the whole subject. So a
+   swatch, chip face, strip segment, wheel node or chart mark
+   carries its real hex, injected inline from PANTONE_DATA or
+   the harmony maths. Everything wrapped around them — labels,
+   names, codes, borders, tabs, hover states — stays greyscale.
+   Chrome takes the andean radius now (the old razor-corner rule
+   retired with the token migration); the data surfaces — strip,
+   swatch faces, wheel — stay square-cut, because they are the
+   figure.
+============================================================ */
+
+.chromatlas {
+  font-family: var(--font-family-component);
+}
+
+/* The site header owns the top of the viewport; jump links must
+   land below it rather than under it. */
+.chromatlas section { scroll-margin-top: var(--space-x-large); }
+
+/* The one italic in the masthead. Emphasis by cut, not by hue —
+   and not by weight either, so it drops back to the display
+   weight. */
+.chromatlas .hero-title em { font-style: italic; font-weight: var(--font-weight-display); }
+
+.chromatlas .hero-title { max-width: 15ch; }
+
+/* Scroll-spy state on the shared jump-link row. The active link
+   is a selection, so its underline takes the selection
+   indicator rather than an ink borrow. */
+.chromatlas .tool-toc a.is-active {
+  color: var(--color-text-primary);
+  border-color: var(--color-selection-indicator);
+}
+
+/* ── Hero strip — 27 annual hues, edge to edge ─────────────── */
+/* Data, so it keeps its colour. The segment widths respond to
+   hover so a reader can single one out. */
+.cx-hero-strip {
+  display: flex;
+  height: 64px;
+  margin-top: var(--space-container-padding-x-large);
+  border: 1px solid var(--color-container-border-primary);
+  overflow: hidden;
+}
+
+.cx-hero-strip__sw {
+  flex: 1;
+  /* Width change, so it rides the transform pair. */
+  transition: flex var(--duration-transform-fast) var(--ease-transform);
+}
+
+.cx-hero-strip__sw:hover { flex: 2.4; }
+
+/* ── Colour groups ─────────────────────────────────────────── */
+.cx-group { margin-top: var(--space-container-padding-x-large); }
+
+.cx-group__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-column-gap-small);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-medium);
+  padding-bottom: var(--space-component-stack-padding-large);
+  border-bottom: 1px solid var(--color-divider-tertiary);
+}
+
+.cx-group__head .subhead { margin-bottom: 0; }
+
+.cx-group__count {
+  margin-left: auto;
+  font-size: var(--font-size-body-4);
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Chip grid ─────────────────────────────────────────────── */
+.cx-chips {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
+  gap: var(--space-row-gap-small) var(--space-column-gap-small);
+}
+
+.cx-chip {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  padding: 0;
+  background: var(--color-container-background-primary);
+  border: 1px solid var(--color-container-border-primary);
+  border-radius: var(--radius-medium);
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color var(--duration-fade-fast) var(--ease-fade);
+}
+
+/* The hover flip keeps its full contrast: ui-secondary is the
+   ink-strength interactive neutral, so the border can go to ink
+   without borrowing a text token. */
+.cx-chip:hover { border-color: var(--color-ui-secondary-hover); }
+.cx-chip:focus-visible { outline: 2px solid var(--color-focus-indicator); outline-offset: 2px; }
+
+.cx-chip__swatch { height: 92px; position: relative; }
+
+/* The HSL readout sits on top of the swatch, so it needs a scrim
+   rather than a token — it has to survive any hue underneath. */
+.cx-chip__hsl {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  padding: var(--space-container-padding-xx-small);
+  font-size: var(--font-size-body-4);
+  letter-spacing: 0.03em;
+  color: #fff;
+  background: linear-gradient(0deg, rgba(0, 0, 0, .55), transparent 62%);
+  opacity: 0;
+  transition: opacity var(--duration-fade-fast) var(--ease-fade);
+}
+
+.cx-chip:hover .cx-chip__hsl,
+.cx-chip:focus-visible .cx-chip__hsl { opacity: 1; }
+
+.cx-chip__foot { padding: var(--space-container-padding-xx-small); }
+
+.cx-chip__year {
+  font-size: var(--font-size-body-4);
+  letter-spacing: 0.08em;
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.cx-chip__name {
+  font-weight: var(--font-weight-component-semibold);
+  font-size: var(--font-size-component-small);
+  line-height: var(--line-height-component);
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+  margin: 2px 0 3px;
+}
+
+.cx-chip__code {
+  font-size: var(--font-size-body-4);
+  letter-spacing: 0.02em;
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.cx-chip__note {
+  font-size: var(--font-size-body-4);
+  line-height: 1.35; /* tighter than body — three lines must fit a chip foot */
+  color: var(--color-text-secondary);
+  margin-top: var(--space-component-gap-small);
+}
+
+/* ── Harmony engine ────────────────────────────────────────── */
+.cx-engine { padding: var(--space-container-padding-large); }
+
+.cx-engine__grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: var(--space-row-gap-large) var(--space-column-gap-large);
+  align-items: start;
+}
+
+.cx-engine__controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-row-gap-small);
+  min-width: 0;
+}
+
+.cx-wheelwrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-row-gap-small);
+}
+
+/* The wheel is round because a hue wheel IS a circle — that is
+   the diagram, not a soft corner. Cut with clip-path so the ring
+   stays a true circle whatever the box does. */
+.cx-wheel { position: relative; width: 264px; height: 264px; flex: none; }
+
+.cx-wheel__ring {
+  position: absolute;
+  inset: 0;
+  clip-path: circle(50%);
+  background: conic-gradient(from 0deg,
+    hsl(0 85% 55%), hsl(30 85% 55%), hsl(60 85% 55%), hsl(90 75% 48%), hsl(120 65% 45%),
+    hsl(150 60% 45%), hsl(180 62% 45%), hsl(210 75% 52%), hsl(240 70% 58%), hsl(270 65% 58%),
+    hsl(300 70% 55%), hsl(330 80% 56%), hsl(360 85% 55%));
+  -webkit-mask: radial-gradient(circle at center, transparent 0 61%, #000 62% 100%);
+          mask: radial-gradient(circle at center, transparent 0 61%, #000 62% 100%);
+  opacity: .92;
+}
+
+.cx-wheel svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+.cx-hub {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 120px;
+  /* A disc with a 1px ring, painted rather than bordered: a real
+     border on a clipped box would be clipped away with the
+     corners. */
+  background: radial-gradient(circle closest-side,
+    var(--color-container-background-primary) 0 calc(100% - 1px),
+    var(--color-container-border-primary) calc(100% - 1px) 100%,
+    transparent 100%);
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.cx-hub__swatch {
+  width: 20px;
+  height: 20px;
+  margin: 0 auto var(--space-component-gap-small);
+  border: 1px solid var(--color-container-border-primary);
+}
+
+.cx-hub__name {
+  font-weight: var(--font-weight-component-semibold);
+  font-size: var(--font-size-component-x-small);
+  line-height: 1.15; /* two lines of name must fit the 120px hub */
+  padding: 0 var(--space-component-inline-padding-medium);
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.cx-hub__code {
+  font-size: var(--font-size-body-4);
+  color: var(--color-text-tertiary);
+  margin-top: 3px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cx-basepick {
+  display: flex;
+  align-items: center;
+  gap: var(--space-component-gap-medium);
+  flex-wrap: wrap;
+}
+
+/* The overline pattern — transform and tracking have no andean
+   axis, so those two stay literal. */
+.cx-basepick label {
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-tertiary);
+}
+
+/* A native input, so it takes the input border. */
+.cx-basepick input[type="color"] {
+  width: 34px;
+  height: 34px;
+  padding: 2px;
+  border: 1px solid var(--color-input-border-primary);
+  border-radius: var(--radius-small);
+  background: none;
+  cursor: pointer;
+}
+
+/* ── Harmony tabs ──────────────────────────────────────────── */
+.cx-tabs { display: flex; flex-wrap: wrap; gap: var(--space-component-gap-medium); }
+
+/* Quiet controls, so they take the passive action family rather
+   than the teal standard one. */
+.cx-tab {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-action-x-small);
+  font-weight: var(--font-weight-component-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  background: var(--color-action-passive-subtle);
+  border: 1px solid var(--color-action-passive-border);
+  border-radius: var(--radius-action);
+  padding: var(--space-component-stack-padding-large) var(--space-component-inline-padding-xx-large);
+  cursor: pointer;
+  transition: color var(--duration-fade-fast) var(--ease-fade),
+              border-color var(--duration-fade-fast) var(--ease-fade),
+              background var(--duration-fade-fast) var(--ease-fade);
+}
+
+.cx-tab:hover { color: var(--color-text-primary); border-color: var(--color-ui-secondary-hover); }
+.cx-tab:focus-visible { outline: 2px solid var(--color-focus-indicator); outline-offset: 2px; }
+
+/* Selected is a state, not an action, so it takes the inverse
+   container pair — the same move as the toast — rather than the
+   teal action fill. */
+.cx-tab[aria-pressed="true"] {
+  background: var(--color-container-background-inverse);
+  border-color: var(--color-container-background-inverse);
+  color: var(--color-text-inverse);
+}
+
+.cx-formula { margin: 0; letter-spacing: 0.02em; }
+.cx-formula b { color: var(--color-text-primary); font-weight: var(--font-weight-body-bold); }
+
+.cx-harmdesc {
+  font-size: var(--font-size-body-3);
+  line-height: var(--line-height-body);
+  color: var(--color-text-secondary);
+  max-width: 62ch;
+}
+
+/* ── Harmony results ───────────────────────────────────────── */
+.cx-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-row-gap-small) var(--space-column-gap-small);
+}
+
+.cx-res {
+  border: 1px solid var(--color-container-border-primary);
+  background: var(--color-page-background-primary);
+  border-radius: var(--radius-medium);
+  overflow: hidden;
+}
+
+/* The computed hue and the chip it snapped to, side by side —
+   the pair is the point, so both keep their real colour. */
+.cx-res__sw { display: flex; height: 66px; }
+
+.cx-res__ideal { width: 34%; position: relative; }
+
+/* Sits ON an arbitrary hue, so the label stays a literal
+   white-alpha rather than a token. */
+.cx-res__ideal::after {
+  content: "ideal";
+  position: absolute;
+  left: 5px;
+  bottom: 4px;
+  font-size: var(--font-size-body-4);
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, .85);
+}
+
+.cx-res__snap { flex: 1; cursor: pointer; }
+
+.cx-res__foot { padding: var(--space-container-padding-xx-small); }
+
+.cx-res__role {
+  font-size: var(--font-size-body-4);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+
+.cx-res__name {
+  font-weight: var(--font-weight-component-semibold);
+  font-size: var(--font-size-component-x-small);
+  line-height: 1.15; /* long Pantone names wrap inside a narrow card */
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+  margin: 2px 0;
+}
+
+.cx-res__code,
+.cx-res__de {
+  font-size: var(--font-size-body-4);
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.cx-res__de { margin-top: var(--space-component-gap-small); }
+
+/* ── Chromatic family cards ────────────────────────────────── */
+.cx-fams {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--space-row-gap-small) var(--space-column-gap-small);
+}
+
+.cx-fam {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: var(--color-container-background-primary);
+  border: 1px solid var(--color-container-border-primary);
+  border-radius: var(--radius-medium);
+  padding: var(--space-container-padding-small);
+  cursor: pointer;
+  transition: border-color var(--duration-fade-fast) var(--ease-fade);
+}
+
+.cx-fam:hover { border-color: var(--color-ui-secondary-hover); }
+.cx-fam:focus-visible { outline: 2px solid var(--color-focus-indicator); outline-offset: 2px; }
+
+.cx-fam__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-column-gap-small);
+  margin-bottom: var(--space-x-small);
+}
+
+.cx-fam__name {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-heading-3);
+  font-weight: var(--font-weight-heading-bold);
+  line-height: var(--line-height-heading);
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.cx-fam__count {
+  font-size: var(--font-size-body-4);
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The representative strip is a .tool-swatches, just taller. */
+.cx-fam .tool-swatches { height: 44px; }
+
+.cx-fam__hint {
+  font-size: var(--font-size-body-4);
+  font-weight: var(--font-weight-component-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-tertiary);
+  margin-top: var(--space-x-small);
+}
+
+/* ── Charts ────────────────────────────────────────────────── */
+.cx-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-row-gap-small) var(--space-column-gap-small);
+}
+
+.cx-chart--wide { grid-column: 1 / -1; }
+
+.cx-chart svg { width: 100%; height: auto; display: block; overflow: visible; margin-top: var(--space-medium); }
+
+.cx-chart .tool-caption { margin-top: var(--space-component-gap-small); }
+
+/* Rendered in SVG user units, so the token size scales with the
+   chart rather than the page. */
+.cx-axis {
+  font-family: var(--font-family-component);
+  font-size: var(--font-size-component-x-small);
+  fill: var(--color-text-tertiary);
+  letter-spacing: 0.04em;
+}
+
+/* ── Toast ─────────────────────────────────────────────────── */
+/* An inverse chip, not an action — and a floating surface, so it
+   carries level-2 elevation. */
+.cx-toast {
+  position: fixed;
+  left: 50%;
+  bottom: var(--space-large);
+  transform: translate(-50%, 20px);
+  z-index: 80;
+  background: var(--color-container-background-inverse);
+  color: var(--color-text-inverse);
+  font-size: var(--font-size-body-4);
+  letter-spacing: 0.02em;
+  padding: var(--space-component-stack-padding-large) var(--space-component-inline-padding-xx-large);
+  border-radius: var(--radius-medium);
+  box-shadow: var(--elevation-level-2) var(--color-shadow);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-appear-fast) var(--ease-appear),
+              transform var(--duration-appear-fast) var(--ease-appear);
+}
+
+.cx-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .cx-engine__grid { grid-template-columns: 1fr; }
+  .cx-charts { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 520px) {
+  .cx-chips {
+    grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+    gap: var(--space-row-gap-x-small) var(--space-column-gap-x-small);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cx-hero-strip__sw,
+  .cx-toast { transition: none; }
+}

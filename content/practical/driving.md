@@ -7,7 +7,6 @@ category: transport
 seo:
   title: "Driving in Chile — Tolls, Rental Cars, and What to Know"
   description: "Everything you need to know about driving in Chile: no international license needed, toll system (TAG), and rental car tips."
-status: published
 updated: 2026-03-28
 ---
 

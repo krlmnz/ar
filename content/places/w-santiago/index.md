@@ -27,7 +27,6 @@ website: "https://www.marriott.com/hotels/travel/sclwh-w-santiago/"
 duration: "multi-day"
 cover: cover.jpg
 cover_alt: "The W Santiago rooftop pool overlooking the Andes mountains at sunset"
-images: auto
 related:
   - hyatt-centric-santiago
   - bocanriz
@@ -35,7 +34,6 @@ related:
 near:
   - hyatt-centric-santiago
   - la-cabrera-chile
-status: published
 updated: 2026-03-28
 author_note: true
 ---

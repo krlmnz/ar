@@ -1,0 +1,122 @@
+/* ============================================================
+   BASE — reset, typography, shared primitives
+   Components used on more than one page (home, editor, overlays)
+   live here. Page- and feature-specific styles live in their own
+   sheets. Every theme value resolves through /assets/css/andean.css;
+   the only tokens this app still defines are the layout constants
+   below — measures, not theme.
+   ============================================================ */
+
+/* Layout constants. They never flip with the colorscheme, so they
+   live here rather than in the andean layer. --tool-w is deliberately
+   absent: above 900px the tool strip reads its var(--tool-w, 62px)
+   fallback, and shell.css's 900px media query is the only real
+   definition — defining it here would change the desktop layout. */
+:root {
+  --nav-h: 64px;
+  --rail-w: 332px;
+  /* the one swatch unit: fill/border swatches, ramp steps and layer
+     dots all share it, so a density step and a color chip read as
+     the same kind of object */
+  --swatch-size: 24px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-family-component);
+  color: var(--color-text-primary);
+  background: var(--color-container-background-primary);
+  -webkit-font-smoothing: antialiased;
+  font-size: var(--font-size-component-medium);
+}
+
+button { font-family: var(--font-family-component); cursor: pointer; }
+input, textarea { font-family: var(--font-family-component); color: var(--color-text-primary); }
+::placeholder { color: var(--color-input-placeholder); }
+
+/* ---------- buttons ---------- */
+.btn {
+  /* quiet furniture, not a call to action — hence the passive border,
+     not the accent one */
+  border: 1px solid var(--color-action-passive-border);
+  background: var(--color-action-standard-subtle);
+  font-size: var(--font-size-action-small); font-weight: var(--font-weight-component-semibold);
+  color: var(--color-text-primary);
+  border-radius: var(--radius-full);
+  padding: var(--space-component-stack-padding-large) var(--space-component-inline-padding-xx-large);
+  display: inline-flex; align-items: center; gap: 7px;
+  transition: box-shadow var(--duration-fade-fast) var(--ease-fade),
+              transform var(--duration-transform-fast) var(--ease-transform),
+              background var(--duration-fade-fast) var(--ease-fade);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.btn:hover { box-shadow: var(--elevation-level-1) var(--color-shadow); }
+.btn:active { transform: translateY(1px); }
+.btn.primary {
+  /* text-inverse flips to ink on the bright dark-scheme teal */
+  background: var(--color-action-standard); color: var(--color-text-inverse);
+  border-color: var(--color-action-standard);
+}
+/* hover walks the action ramp instead of fading the whole button */
+.btn.primary:hover { background: var(--color-action-standard-hover); border-color: var(--color-action-standard-hover); }
+.btn.ghost { border-color: transparent; background: transparent; color: var(--color-text-secondary); }
+.btn.ghost:hover { background: var(--color-action-passive-subtle-hover); box-shadow: none; color: var(--color-text-primary); }
+.btn.danger { color: var(--color-action-negative); border-color: var(--color-container-border-negative); }
+/* the old --danger-soft resolved to near-black in light mode; the
+   negative subtle ramp is what this hover always meant */
+.btn.danger:hover { background: var(--color-action-negative-subtle-hover); }
+
+.icon-x { border: none; background: none; color: var(--color-text-tertiary); padding: 6px; border-radius: var(--radius-medium); }
+.icon-x:hover { background: var(--color-action-passive-subtle-hover); color: var(--color-text-primary); }
+
+/* ---------- form fields ---------- */
+.field-label {
+  /* overline treatment, but colored as what it is: an input label */
+  font-size: var(--font-size-component-x-small); font-weight: var(--font-weight-component-semibold);
+  letter-spacing: .14em;
+  text-transform: uppercase; color: var(--color-input-label); margin-bottom: 7px;
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.field-label .hint { font-weight: var(--font-weight-component); letter-spacing: 0; text-transform: none; }
+.text-input, textarea.text-input {
+  width: 100%; font-size: var(--font-size-input-text);
+  border: 1px solid var(--color-input-border-primary); border-radius: var(--radius-x-small);
+  background: var(--color-input-background-primary); padding: 10px 12px; outline: none;
+  transition: border-color var(--duration-fade-fast) var(--ease-fade),
+              background var(--duration-fade-fast) var(--ease-fade),
+              box-shadow var(--duration-fade-fast) var(--ease-fade);
+}
+.text-input:hover { border-color: var(--color-input-border-primary-hover); background: var(--color-input-background-primary-hover); }
+/* inputs keep their soft halo on focus — only the color source moved,
+   from the old --select-soft to the accent container wash */
+.text-input:focus {
+  border-color: var(--color-input-border-primary-focus);
+  background: var(--color-input-background-primary-focus);
+  box-shadow: 0 0 0 3px var(--color-container-background-accent);
+}
+textarea.text-input { resize: vertical; min-height: 74px; line-height: var(--line-height-body); }
+
+/* ---------- brand lockup (topbar of every page) ---------- */
+.brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; text-decoration: none; color: var(--color-text-primary); }
+.brand-mark {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: grid; place-items: center; color: var(--color-icon-inverse);
+  /* an inverse chip, not an action — flips to a light disc in dark */
+  background: var(--color-container-background-inverse); flex-shrink: 0;
+}
+/* was 19px — heading-6 is the nearest rung on the andean scale */
+.brand-name { font-family: var(--font-family-component); font-size: var(--font-size-heading-6); font-weight: var(--font-weight-heading-bold); line-height: 1.05; letter-spacing: .01em; }
+.brand-sub { font-size: var(--font-size-component-x-small); color: var(--color-text-tertiary); letter-spacing: .16em; text-transform: uppercase; }
+
+/* ---------- toast ---------- */
+#toast {
+  position: fixed; left: 50%; bottom: var(--space-container-padding-xx-large); transform: translateX(-50%) translateY(20px);
+  background: var(--color-container-background-inverse); color: var(--color-text-inverse); font-size: var(--font-size-component-small);
+  padding: 11px 22px; border-radius: var(--radius-full); box-shadow: var(--elevation-level-3) var(--color-shadow);
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--duration-appear-moderate) var(--ease-appear),
+              transform var(--duration-appear-moderate) var(--ease-appear);
+  z-index: 200;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }

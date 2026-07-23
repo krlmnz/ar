@@ -1,0 +1,89 @@
+/* ============================================================
+   PATTERNS FEATURE — orientation-grouped picker, intensity ramps.
+
+   The picker draws patterns as small black-on-white icons rather
+   than tinted swatches: you compare *orientation* across them, and
+   orientation is what encodes category. Intensity (density, weight)
+   is a separate, second-order choice that only appears once a
+   pattern is committed — same orientation + rising intensity is how
+   you show ordered values inside one category.
+
+   The #fff tile backgrounds are semantic, not theme: the pattern
+   strokes are dark SVG data URIs generated in pattern-svg.js, so the
+   tiles stay white in both schemes or the icons would invert.
+   ============================================================ */
+.seg-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.seg-chip {
+  border: 1px solid var(--color-container-border-primary); background: var(--color-container-background-primary); border-radius: var(--radius-full);
+  font-size: var(--font-size-component-x-small); font-weight: var(--font-weight-component-semibold); color: var(--color-text-secondary); padding: 6px 13px;
+  display: inline-flex; align-items: center; gap: 7px;
+  transition: all var(--duration-fade-fast) var(--ease-fade); cursor: pointer;
+}
+/* color-agnostic ring over the segment's own hue — stays literal */
+.seg-chip .dot { width: 9px; height: 9px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); }
+.seg-chip:hover { border-color: var(--color-container-border-tertiary); }
+.seg-chip.active { border-color: var(--color-selection-indicator); color: var(--color-text-primary); box-shadow: 0 0 0 1px var(--color-selection-indicator); }
+
+/* ---------- pattern picker: one continuous grid ---------- */
+/* Tiles are ordered by orientation family, so adjacency carries the
+   grouping without section labels. Columns flex to fill the panel and
+   aspect-ratio keeps every tile square at any width. */
+/* Six fixed columns, twelve tiles: None plus eleven hatches lands as two
+   completely filled rows at every panel width, with no orphan on a third. */
+.ptn-grid {
+  display: grid; gap: 5px;
+  grid-template-columns: repeat(6, 1fr);
+}
+
+/* small mono tiles — icons, not swatches */
+.ptn-tile {
+  aspect-ratio: 1; min-width: 0; padding: 0; cursor: pointer;
+  border: 1px solid var(--color-container-border-primary); border-radius: var(--radius-x-small);
+  background-color: #fff; background-size: cover; background-position: center;
+  transition: border-color var(--duration-fade-fast) var(--ease-fade),
+              box-shadow var(--duration-fade-fast) var(--ease-fade),
+              transform var(--duration-transform-fast) var(--ease-transform);
+}
+.ptn-tile:hover { border-color: var(--color-container-border-tertiary); transform: translateY(-1px); }
+.ptn-tile.active { border-color: var(--color-selection-indicator); box-shadow: 0 0 0 1.5px var(--color-selection-indicator); }
+.ptn-tile.none {
+  position: relative; background-image: none;
+  display: flex; align-items: center; justify-content: center;
+}
+.ptn-tile.none::after {
+  content: ''; position: absolute; left: 5px; right: 5px; top: 50%;
+  /* slash over the always-white tile — literal, like the tile itself */
+  height: 1.5px; background: #727E85; transform: rotate(-45deg);
+}
+
+/* ---------- intensity ramps (density / weight) ---------- */
+#ptn-controls { margin-top: var(--space-container-padding-small); padding-top: var(--space-container-padding-small); border-top: 1px solid var(--color-container-border-primary); }
+.ramp-block { margin-bottom: var(--space-container-padding-small); }
+.ramp-block:last-child { margin-bottom: 0; }
+.ramp-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 5px;
+  font-size: var(--font-size-component-x-small); font-weight: var(--font-weight-component-semibold); color: var(--color-text-secondary);
+}
+.ramp-val { font-family: ui-monospace, Menlo, monospace; color: var(--color-text-tertiary); font-weight: var(--font-weight-component); }
+.ramp {
+  display: flex; flex-wrap: wrap; gap: 3px;
+  border-radius: var(--radius-x-small);
+}
+/* Every swatch in the panel is the same --swatch-size square — ramp steps,
+   the fill and border swatches, the layer dots. One size means a density
+   step and a color chip read as the same kind of object. */
+.ramp-step {
+  width: var(--swatch-size); height: var(--swatch-size); flex: 0 0 var(--swatch-size); padding: 0; cursor: pointer;
+  border: 1px solid var(--color-container-border-primary); border-radius: var(--radius-x-small);
+  background-color: #fff; background-size: var(--swatch-size) var(--swatch-size); background-position: center;
+  transition: border-color var(--duration-fade-fast) var(--ease-fade),
+              box-shadow var(--duration-fade-fast) var(--ease-fade);
+}
+.ramp-step:hover { border-color: var(--color-container-border-tertiary); }
+.ramp-step.active { border-color: var(--color-selection-indicator); box-shadow: 0 0 0 1.5px var(--color-selection-indicator); }
+
+/* ---------- sliders (line + border width) ---------- */
+.slider-row { display: flex; align-items: center; gap: 10px; margin-bottom: var(--space-component-inline-padding-large); }
+.slider-row label { font-size: var(--font-size-component-x-small); font-weight: var(--font-weight-component-semibold); color: var(--color-text-secondary); width: 56px; flex-shrink: 0; }
+.slider-row input[type=range] { flex: 1; accent-color: var(--color-progress-indicator); }
+.slider-row .val { font-size: var(--font-size-component-x-small); color: var(--color-text-tertiary); width: 38px; text-align: right; font-family: ui-monospace, Menlo, monospace; }

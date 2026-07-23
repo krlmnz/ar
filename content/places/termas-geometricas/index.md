@@ -41,7 +41,6 @@ spanish:
       meaning: "Which pool is the hottest?"
 cover: cover.jpg
 cover_alt: "Red wooden walkway winding through steam and forest at Termas Geométricas"
-images: auto
 related:
   - volcan-villarrica
   - parque-huerquehue
@@ -50,7 +49,6 @@ near:
 seo:
   title: "Termas Geométricas — Chile's Most Beautiful Hot Springs near Pucón"
   description: "17 volcanic thermal pools connected by a striking red walkway through native rainforest. Tucked inside Villarrica National Park near Pucón, Chile."
-status: published
 updated: 2026-03-28
 author_note: true
 ---

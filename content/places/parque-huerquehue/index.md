@@ -33,13 +33,11 @@ bring:
   - good hiking shoes
 cover: cover.jpg
 cover_alt: "Araucaria monkey puzzle trees in Parque Nacional Huerquehue"
-images: auto
 related:
   - volcan-villarrica
   - termas-geometricas
 near:
   - volcan-villarrica
-status: published
 updated: 2026-03-28
 author_note: true
 ---
