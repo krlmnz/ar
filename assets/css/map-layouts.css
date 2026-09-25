@@ -17,8 +17,7 @@
 
 /* Referenced by the 100vh split layouts. Must match the real header height or
    the map runs past the viewport. */
-:root { --header-h: 67px; }
-@media (max-width: 560px) { :root { --header-h: 104px; } }
+:root { --header-h: var(--header-height); }
 
 /* ── Map surface ──────────────────────────────────────────────────────── */
 
@@ -292,12 +291,12 @@
 
 .story__stage { position: relative; }
 .story__map {
-  position: sticky; top: 0; height: 100vh; z-index: 0;
+  position: sticky; top: var(--header-h); height: calc(100vh - var(--header-h)); z-index: 0;
   border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
 }
 .story__steps {
   position: relative; z-index: 1;
-  margin-top: -100vh;               /* steps ride over the sticky map */
+  margin-top: calc(-100vh + var(--header-h)); /* steps ride over the sticky map */
   padding: 0 var(--space-4);
   pointer-events: none;             /* the map stays draggable between cards */
 }
@@ -459,7 +458,7 @@
   .mapstack__map--tall, .route__map, .area__map { height: 55vh; min-height: 18rem; }
 
   /* The story map halves so a card and the map are both readable at once */
-  .story__map { height: 55vh; top: 0; }
+  .story__map { height: 55vh; top: var(--header-h); }
   .story__steps { margin-top: -55vh; padding: 0 var(--space-2); }
   .storystep { min-height: 80vh; max-width: none; }
   .storystep__card { opacity: 1; transform: none; }

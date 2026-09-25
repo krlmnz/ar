@@ -6,6 +6,7 @@
 */
 
 @import "tokens.css";
+@import "chrome.css";
 @import "map-tokens.css";
 @import "map-layouts.css";
 
@@ -19,127 +20,8 @@
   padding: 0;
 }
 
-/* ======================== */
-/* Skip Link (a11y) */
-/* ======================== */
-
-.skip-link {
-  position: absolute;
-  top: -100%;
-  left: var(--space-2);
-  background: var(--text);
-  color: var(--bg);
-  padding: var(--space-1) var(--space-2);
-  font-family: var(--font-ui);
-  font-size: var(--text-caption);
-  font-weight: 600;
-  z-index: 100;
-  text-decoration: none;
-  transition: top var(--transition);
-}
-
-.skip-link:focus {
-  top: var(--space-1);
-}
-
-/* ======================== */
-/* Body */
-/* ======================== */
-
-body {
-  font-family: var(--font-body);
-  background: var(--bg);
-  color: var(--text);
-  font-size: var(--text-body);
-  line-height: var(--text-body-lh);
-  transition: background var(--transition), color var(--transition);
-}
-
-/* ======================== */
-/* Layout */
-/* ======================== */
-
-.wrap {
-  max-width: var(--page-width);
-  margin: 0 auto;
-  padding: 0 var(--space-4);
-}
-
-@media (max-width: 640px) {
-  .wrap {
-    padding: 0 var(--space-2);
-  }
-}
-
 .content-column {
   max-width: var(--content-width);
-}
-
-/* ======================== */
-/* Header — minimal, Vignelli-inspired */
-/* ======================== */
-
-.site-header {
-  border-bottom: 2px solid var(--text);
-  padding: var(--space-2) 0;
-}
-
-.site-title {
-  font-family: var(--font-display);
-  font-size: var(--text-h3);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-}
-
-/* ======================== */
-/* Navigation */
-/* ======================== */
-
-.site-header__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-}
-
-.site-title {
-  text-decoration: none;
-  color: var(--text);
-}
-
-.site-header__end {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  min-width: 0; /* allows the nav to shrink instead of overflowing the page */
-}
-
-.site-nav {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: var(--space-3);
-  font-family: var(--font-ui);
-  font-size: var(--text-caption);
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.site-nav a {
-  color: var(--text-3);
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.site-nav a:hover { color: var(--text); }
-
-/* Four nav items + the toggle stop fitting one line on small phones */
-@media (max-width: 560px) {
-  .site-header__row { flex-wrap: wrap; row-gap: var(--space-1); }
-  .site-header__end { gap: var(--space-2); }
-  .site-nav { gap: var(--space-2); }
 }
 
 /* ======================== */
@@ -154,40 +36,10 @@ body {
 }
 
 /* ======================== */
-/* Theme toggle */
-/* ======================== */
-
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-0);
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  color: var(--text-3);
-  transition: color var(--transition);
-}
-
-.theme-toggle:hover {
-  color: var(--text);
-}
-
-/* Show the icon for the mode you'd switch TO. Both are in the DOM, so the
-   correct one is painted immediately — no flash, no JS re-render. */
-.theme-toggle .icon--sun { display: none; }
-
-[data-theme="dark"] .theme-toggle .icon--moon { display: none; }
-[data-theme="dark"] .theme-toggle .icon--sun { display: inline-block; }
-
-/* ======================== */
 /* Directory + Map                                                          */
 /* ======================== */
-/* Scoped token block. The Loom design-system scale is deliberately confined */
-/* to this component: its --space-* values (12/24/30/39/63/96) and 12px      */
-/* --radius collide with the site's existing 4px-base scale and 0px radius,  */
-/* which all 60+ other pages are built on. Scoping adopts the preferred      */
-/* tokens here without restyling the whole site. See notes in DESIGN-SYSTEM. */
+/* Page chrome follows the reading theme. Marker and popup colors stay      */
+/* pinned to the light basemap.                                             */
 
 .dirmap {
   --space-1: 12px;
@@ -197,13 +49,13 @@ body {
   --radius: 12px;
   --radius-sm: 6px;
   --radius-full: 9999px;
-  /* Directory chrome — page content, so it follows the site theme */
-  --dm-border: #E2E0DC;
-  --dm-surface: #FFFFFF;
-  --dm-surface-2: #F5F4F2;
-  --dm-text: #111416;
-  --dm-text-2: #6B7280;
-  --dm-accent: #2592C2;
+  /* Directory chrome — page content, so it follows the reading theme */
+  --dm-border: var(--border);
+  --dm-surface: var(--surface);
+  --dm-surface-2: var(--surface-2);
+  --dm-text: var(--text);
+  --dm-text-2: var(--text-2);
+  --dm-accent: var(--accent);
 
   /* Map chrome — markers, popups, controls. Deliberately NOT theme-reactive:
      these sit ON the basemap, so legibility is relative to the map, not the
@@ -214,24 +66,11 @@ body {
   --dm-map-text: #111416;
   --dm-map-text-2: #6B7280;
 
-  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.07);
-  --shadow-pop: 0 8px 32px rgba(0,0,0,.14), 0 2px 8px rgba(0,0,0,.08);
-
   display: grid;
   grid-template-columns: minmax(320px, 380px) 1fr;
   gap: var(--space-2);
   margin: var(--space-3) 0 var(--space-4);
   align-items: start;
-}
-
-[data-theme="dark"] .dirmap {
-  --dm-border: #434547;
-  --dm-surface: #1C1F22;
-  --dm-surface-2: #24282B;
-  --dm-text: #FFFFFF;
-  --dm-text-2: #9CA3AF;
-  --shadow: 0 1px 3px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.28);
-  --shadow-pop: 0 8px 32px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.3);
 }
 
 /* Mapbox failed to load — drop the empty map box, keep the directory usable */
@@ -319,7 +158,7 @@ body {
 
 .dirmap__map {
   position: sticky; /* also the containing block for .dirmap__controls */
-  top: var(--space-2);
+  top: calc(var(--header-height) + var(--space-1));
   border: 1px solid var(--dm-border);
   border-radius: var(--radius-sm);
   overflow: hidden;
@@ -489,19 +328,21 @@ body {
 /* ======================== */
 
 a {
-  color: var(--text);
+  color: var(--accent-text);
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
   transition: color var(--transition);
 }
 
 a:hover {
-  color: var(--text-2);
+  color: var(--accent-hover);
 }
 
-a:focus-visible {
-  outline: 2px solid var(--text);
-  outline-offset: 2px;
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 /* ======================== */
@@ -529,15 +370,13 @@ a:focus-visible {
 }
 
 .prose h2 {
-  font-family: var(--font-display);
+  font-family: var(--font-ui);
   font-size: var(--text-h2);
   font-weight: var(--text-h2-weight);
   letter-spacing: var(--text-h2-ls);
   line-height: var(--text-h2-lh);
-  margin-top: var(--space-6);
+  margin-top: var(--space-5);
   margin-bottom: var(--space-2);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--border);
 }
 
 .prose h3 {
@@ -587,7 +426,7 @@ a:focus-visible {
 /* ======================== */
 
 .hero {
-  padding: var(--space-6) 0 var(--space-5);
+  padding: var(--space-4) 0 var(--space-3);
 }
 
 .hero-overline {
@@ -624,13 +463,13 @@ a:focus-visible {
 
 .rule {
   border: none;
-  border-top: 1px solid var(--border);
-  margin: var(--space-4) 0;
+  border-top: 2px solid var(--border-strong);
+  margin: var(--space-2) 0;
 }
 
 .rule--heavy {
   border-top-width: 2px;
-  border-color: var(--text);
+  border-color: var(--border-strong);
 }
 
 .rule--section {
@@ -689,10 +528,7 @@ a:focus-visible {
 }
 
 .place-entry:hover {
-  background: var(--accent-soft);
-  margin: 0 calc(var(--space-2) * -1);
-  padding-left: var(--space-2);
-  padding-right: var(--space-2);
+  background: var(--accent-wash);
 }
 
 .place-entry:focus-visible {
@@ -864,17 +700,22 @@ a:focus-visible {
 
 .card {
   display: block;
+  min-width: 0;
   border: 1px solid var(--border);
-  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  background: var(--surface);
   text-decoration: none;
   color: inherit;
   transition: border-color var(--transition), background var(--transition);
 }
 
 .card:hover {
-  border-color: var(--text-3);
-  background: var(--accent-soft);
+  border-color: var(--border-strong);
+  background: var(--surface-2);
 }
+
+.card h3 { margin-top: 0; }
 
 .card:focus-visible {
   outline: 2px solid var(--text);
@@ -952,21 +793,22 @@ a:focus-visible {
 /* ======================== */
 
 .tag {
-  display: inline-flex;
-  font-family: var(--font-ui);
-  font-size: var(--text-overline);
-  font-weight: 500;
-  letter-spacing: 0.04em;
+  display: inline-block;
+  font: 800 var(--text-xs)/1 var(--font-ui);
+  letter-spacing: .08em;
   text-transform: uppercase;
-  padding: 2px 8px;
-  border: 1px solid var(--border);
-  color: var(--text-3);
+  padding: var(--space-025) var(--space-05);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  background: transparent;
   text-decoration: none;
-  transition: all var(--transition);
+  transition: border-color var(--transition), background var(--transition);
 }
 
 .tag:hover {
-  border-color: var(--text);
+  border-color: var(--border-strong);
+  background: var(--surface-2);
   color: var(--text);
 }
 
@@ -1002,8 +844,7 @@ a:focus-visible {
 /* ======================== */
 
 .page-header {
-  padding: var(--space-5) 0 var(--space-4);
-  border-bottom: 2px solid var(--text);
+  padding: var(--space-3) 0 var(--space-3);
   margin-bottom: var(--space-4);
 }
 
@@ -1106,18 +947,20 @@ a:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  padding: var(--space-1) var(--space-2);
+  min-height: var(--control-height-md);
+  padding: var(--space-05) var(--space-2);
   font-family: var(--font-ui);
-  font-size: var(--text-caption);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  font-size: var(--text-ui);
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: none;
   text-decoration: none;
-  border: 1px solid var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
   color: var(--text);
-  background: transparent;
+  background: var(--surface);
   cursor: pointer;
-  transition: all var(--transition);
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
 }
 
 .btn:hover {
@@ -1152,17 +995,7 @@ a:focus-visible {
 /* Footer */
 /* ======================== */
 
-.site-footer {
-  border-top: 2px solid var(--text);
-  padding: var(--space-4) 0;
-  margin-top: var(--space-7);
-}
-
-.site-footer p {
-  font-family: var(--font-ui);
-  font-size: var(--text-caption);
-  color: var(--text-3);
-}
+/* Footer lives in chrome.css so every page shares the guide's closing rule. */
 
 /* ======================== */
 /* Map placeholder (future) */
@@ -1170,15 +1003,11 @@ a:focus-visible {
 
 .map-container {
   aspect-ratio: 16/9;
-  background: var(--gray-100);
+  background: var(--surface-2);
   border: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-[data-theme="dark"] .map-container {
-  background: var(--surface);
 }
 
 /* ======================== */
@@ -1223,14 +1052,10 @@ a:focus-visible {
 
 .placeholder-img {
   aspect-ratio: 3/2;
-  background: var(--gray-100);
+  background: var(--surface-2);
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-[data-theme="dark"] .placeholder-img {
-  background: var(--surface);
 }
 
 /* ======================== */
@@ -1461,7 +1286,7 @@ a:focus-visible {
   .site-header,
   .site-footer,
   .btn,
-  .theme-toggle,
+  .view-menu,
   .view-toggle {
     display: none;
   }
@@ -1582,12 +1407,16 @@ a:focus-visible {
 
 /* Callout — a boxed aside. .tip already covers the "pro tip" case. */
 .callout {
-  max-width: var(--content-width);
-  margin: var(--space-4) 0;
-  padding: var(--space-3);
-  border-left: 2px solid var(--text);
-  background: var(--accent-soft);
+  max-width: var(--measure);
+  margin: var(--space-2) 0;
+  padding: var(--space-1) var(--space-2);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: inset 0 -10px 0 color-mix(in srgb, var(--highlight) 60%, transparent);
 }
+
+.callout b { font-family: var(--font-ui); }
 
 .callout__label {
   font-family: var(--font-ui);
@@ -1809,8 +1638,8 @@ a.tag { text-decoration: none; }
 
 .manual__aside {
   position: sticky;
-  top: var(--space-3);
-  max-height: calc(100vh - var(--space-6));
+  top: calc(var(--header-height) + var(--space-2));
+  max-height: calc(100vh - var(--header-height) - var(--space-4));
   overflow-y: auto;
 }
 
@@ -1923,26 +1752,7 @@ h4:hover > .heading-anchor,
 /* ---- Code — no styles existed, so blocks overflowed their column. ---- */
 
 .prose pre {
-  overflow-x: auto;               /* long lines scroll, they don't break layout */
-  padding: var(--space-2);
-  margin-bottom: var(--space-3);
-  background: var(--accent-soft);
-  border: 1px solid var(--border);
-  font-size: var(--text-body-sm);
-  line-height: 1.6;
   max-width: 100%;
-}
-
-.prose code {
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
-  font-size: 0.92em;
-}
-
-/* Inline code only — not the contents of a block */
-.prose :not(pre) > code {
-  padding: 0.15em 0.4em;
-  background: var(--accent-soft);
-  border: 1px solid var(--border-subtle);
 }
 
 .prose pre code {

@@ -1,0 +1,128 @@
+---
+layout: layouts/base.njk
+permalink: /chile/
+title: Andean Road
+description: A personal travel guide to Chile — places, guides, and the things worth knowing before you land.
+seo:
+  title: Chile — Andean Road
+  description: A personal travel guide to Chile. Places, multi-day guides, and practical notes from someone born there and raised in New York.
+---
+
+<div class="hero">
+  <div class="hero-overline">Your friend's guide to Chile</div>
+  <h1 class="hero-title">Andean Road</h1>
+  <p class="hero-lede">I was born in Chile and raised in New York. These are the places I've been, the things I've done, and everything I wish someone had told me before my first trip back.</p>
+</div>
+
+<hr class="rule rule--heavy">
+
+{# Guides — featured editorial entries #}
+<section class="section">
+  <div class="section-label">Guides</div>
+  <div class="section-title">Start here</div>
+  <div class="section-description">Multi-day itineraries that put the best of Chile in order.</div>
+
+  {% for guide in collections.guides %}
+  <a href="/guides/{{ guide.data.slug }}/" class="guide-entry">
+    <div class="guide-entry__overline">{{ guide.data.duration }}</div>
+    <div class="guide-entry__title">{{ guide.data.title }}</div>
+    <div class="guide-entry__description">{{ guide.data.description }}</div>
+  </a>
+  {% endfor %}
+</section>
+
+{# Santiago #}
+<section class="section">
+  <div class="section-label">Santiago</div>
+  <div class="section-title">Where to start</div>
+  <div class="section-description">A capital city with world-class food, street art, Neruda houses, and the Andes visible from every rooftop.</div>
+
+  {% for item in collections.places %}
+    {% if item.data.region == "santiago" %}
+    <a href="/places/{{ item.data.slug }}/" class="place-entry">
+      <div class="place-entry__overline">{{ item.data.type | replace("-", " ") }}</div>
+      <div class="place-entry__name">{{ item.data.title }}</div>
+      <div class="place-entry__description">{{ item.data.subtitle }}</div>
+      <div class="place-entry__meta">
+        <span>{{ item.data.cost_level }}</span>
+        <span>{{ item.data.duration | replace("-", " ") }}</span>
+      </div>
+    </a>
+    {% endif %}
+  {% endfor %}
+</section>
+
+{# Casablanca Valley #}
+<section class="section">
+  <div class="section-label">Casablanca Valley</div>
+  <div class="section-title">Wine country</div>
+  <div class="section-description">Midway between Santiago and the Pacific — an easy day trip through some of the best vineyards in South America.</div>
+
+  {% for item in collections.places %}
+    {% if item.data.region == "casablanca-valley" %}
+    <a href="/places/{{ item.data.slug }}/" class="place-entry">
+      <div class="place-entry__overline">{{ item.data.type | replace("-", " ") }}</div>
+      <div class="place-entry__name">{{ item.data.title }}</div>
+      <div class="place-entry__description">{{ item.data.subtitle }}</div>
+      <div class="place-entry__meta">
+        <span>{{ item.data.cost_level }}</span>
+        <span>{{ item.data.duration | replace("-", " ") }}</span>
+      </div>
+    </a>
+    {% endif %}
+  {% endfor %}
+</section>
+
+{# Lake District #}
+<section class="section">
+  <div class="section-label">Lake District</div>
+  <div class="section-title">Volcanoes and hot springs</div>
+  <div class="section-description">The southern adventure zone — active volcanoes, rainforest trails, thermal pools, and the best steak south of Santiago.</div>
+
+  {% for item in collections.places %}
+    {% if item.data.region == "lake-district" %}
+    <a href="/places/{{ item.data.slug }}/" class="place-entry">
+      <div class="place-entry__overline">{{ item.data.type | replace("-", " ") }}</div>
+      <div class="place-entry__name">{{ item.data.title }}</div>
+      <div class="place-entry__description">{{ item.data.subtitle }}</div>
+      <div class="place-entry__meta">
+        <span>{{ item.data.cost_level }}</span>
+        <span>{{ item.data.duration | replace("-", " ") }}</span>
+      </div>
+    </a>
+    {% endif %}
+  {% endfor %}
+</section>
+
+{# Day Trips #}
+<section class="section">
+  <div class="section-label">Day Trips</div>
+  <div class="section-title">Beyond the city</div>
+
+  {% for item in collections.places %}
+    {% if item.data.region == "pomaire" or item.data.region == "central-coast" or item.data.region == "central-mountains" %}
+    <a href="/places/{{ item.data.slug }}/" class="place-entry">
+      <div class="place-entry__overline">{{ item.data.type | replace("-", " ") }}</div>
+      <div class="place-entry__name">{{ item.data.title }}</div>
+      <div class="place-entry__description">{{ item.data.subtitle }}</div>
+      <div class="place-entry__meta">
+        <span>{{ item.data.cost_level }}</span>
+        <span>{{ item.data.duration | replace("-", " ") }}</span>
+      </div>
+    </a>
+    {% endif %}
+  {% endfor %}
+</section>
+
+{# Practical #}
+<section class="section">
+  <div class="section-label">Before You Go</div>
+  <div class="section-title">Practical</div>
+  <div class="section-description">The things you'll be glad you read before landing.</div>
+
+  <div class="practical-list">
+    {% for p in collections.practical %}
+    <a href="/practical/{{ p.data.slug }}/" class="practical-link">{{ p.data.title }}</a>
+    {% endfor %}
+  </div>
+</section>
