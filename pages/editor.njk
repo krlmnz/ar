@@ -36,7 +36,6 @@ seo:
       <button type="button" data-view="library" aria-pressed="true">Library</button>
       <button type="button" data-view="new" aria-pressed="false">New page</button>
       <a href="/editor/templates/">Template previews</a>
-      <button type="button" data-view="settings" aria-pressed="false">Settings</button>
       <button type="button" id="forget">Forget this browser</button>
     </div>
 
@@ -82,25 +81,6 @@ seo:
         <input type="text" id="new-title" required>
         <div class="studio-actions">
           <button type="button" class="primary" id="create-draft">Create draft</button>
-        </div>
-      </form>
-    </div>
-
-    <div id="view-settings" hidden>
-      <div class="section-label">Settings</div>
-      <h2 class="section-title">Publish to GitHub</h2>
-      <p class="studio-hint">Saving writes markdown into the repo through the GitHub API, and Netlify rebuilds the site from that commit. The token below never leaves this browser — it is stored in localStorage, not in the site.</p>
-      <form class="studio-form" id="settings-form" style="max-width: 560px">
-        <label for="set-token">GitHub token (contents: write on this repo)</label>
-        <input type="password" id="set-token" autocomplete="off">
-        <label for="set-owner">Owner</label>
-        <input type="text" id="set-owner">
-        <label for="set-repo">Repository</label>
-        <input type="text" id="set-repo">
-        <label for="set-branch">Branch</label>
-        <input type="text" id="set-branch">
-        <div class="studio-actions">
-          <button type="button" class="primary" id="save-settings">Save settings</button>
         </div>
       </form>
     </div>

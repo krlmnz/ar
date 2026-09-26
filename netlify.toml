@@ -42,10 +42,19 @@ Cache-Control = "public, max-age=31536000, immutable"
 # Do not force a trailing slash on /places/:slug — Netlify already does that,
 # and force = true matches the slashed URL and redirects it to itself.
 [[redirects]]
+from = "/api/studio"
+to = "/.netlify/functions/studio"
+status = 200
+force = true
+
+[[redirects]]
 from = "/templates/*"
 to = "/editor/templates/:splat"
 status = 301
 force = true
+
+[[plugins]]
+package = "./netlify/plugins/studio-drafts"
 
 [[redirects]]
 from = "/demo/*"
