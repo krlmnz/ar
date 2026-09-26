@@ -382,16 +382,19 @@
   gap: 1px;
 }
 
-/* Quiet icon button. .icon-btn is 28×28 / 16px glyph.
-   .icon-btn--touch, and the toolbar at the phone breakpoint, is 44×44 / 20px. */
+/* Quiet icon button. Local mirror of component-kit PR #6
+   (https://github.com/krlmnz/component-kit/pull/6): compact .icon-btn is
+   28×28 / 16px, .icon-btn--touch and .btn--icon.btn--touch are 44×44 / 20px.
+   Delete this mirror once Andean Road consumes the kit. */
 .icon-btn {
-  display: inline-grid;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex: none;
-  width: var(--icon-btn-size);
-  height: var(--icon-btn-size);
-  min-width: var(--icon-btn-size);
-  min-height: var(--icon-btn-size);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
+  min-width: var(--control-height-xs);
+  min-height: var(--control-height-xs);
   padding: 0;
   color: var(--text-2);
   background: transparent;
@@ -400,9 +403,9 @@
   cursor: pointer;
 }
 
-.icon-btn .icon {
-  width: var(--icon-btn-glyph);
-  height: var(--icon-btn-glyph);
+.icon-btn svg {
+  width: 16px;
+  height: 16px;
 }
 
 .icon-btn--touch {
@@ -410,11 +413,25 @@
   height: var(--icon-btn-size-touch);
   min-width: var(--icon-btn-size-touch);
   min-height: var(--icon-btn-size-touch);
+  flex: none;
 }
 
-.icon-btn--touch .icon {
-  width: var(--icon-btn-glyph-touch);
-  height: var(--icon-btn-glyph-touch);
+.icon-btn--touch svg {
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+}
+
+.btn--icon.btn--touch {
+  width: var(--icon-btn-size-touch);
+  height: var(--icon-btn-size-touch);
+  padding: 0;
+  aspect-ratio: auto;
+  flex: none;
+}
+
+.btn--icon.btn--touch svg {
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
 }
 
 .icon-btn:hover:not(:disabled) {
@@ -922,20 +939,20 @@
    Phone widths and touch pointers keep .icon-btn--touch (44×44, 20px glyph). */
 @media (min-width: 721px) and (not (pointer: coarse)) {
   .studio-toolbar .icon-btn--touch {
-    width: var(--icon-btn-size);
-    height: var(--icon-btn-size);
-    min-width: var(--icon-btn-size);
-    min-height: var(--icon-btn-size);
+    width: var(--control-height-xs);
+    height: var(--control-height-xs);
+    min-width: var(--control-height-xs);
+    min-height: var(--control-height-xs);
   }
 
-  .studio-toolbar .icon-btn--touch .icon {
-    width: var(--icon-btn-glyph);
-    height: var(--icon-btn-glyph);
+  .studio-toolbar .icon-btn--touch svg {
+    width: 16px;
+    height: 16px;
   }
 
   .studio-toolbar .studio-menu__trigger.icon-btn--touch {
     width: auto;
-    min-width: var(--icon-btn-size);
+    min-width: var(--control-height-xs);
   }
 
   .studio-toolbar .icon-btn--touch .studio-caret {
