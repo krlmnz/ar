@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 const yaml = require('js-yaml');
 const markdownIt = require('markdown-it');
 const markdownItAnchor = require('markdown-it-anchor');
@@ -8,6 +9,7 @@ const editorMarks = require('./lib/editor-marks');
 const prose = require('./lib/prose');
 
 module.exports = function(eleventyConfig) {
+  execFileSync(process.execPath, [path.join(__dirname, 'scripts/kit-icon-btn.js')], { stdio: 'inherit' });
   // Inline SVG icons, resolved from the @phosphor-icons/core package.
   // Nothing to download — every Phosphor icon is already available by name.
   //

@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Andean Road — a twelve-template Eleventy starter",
   "scripts": {
-    "start": "node scripts/bundle-editor.js && npx @11ty/eleventy --serve",
-    "build": "node scripts/bundle-editor.js && npx @11ty/eleventy",
+    "start": "node scripts/kit-icon-btn.js && node scripts/bundle-editor.js && npx @11ty/eleventy --serve",
+    "build": "node scripts/kit-icon-btn.js && node scripts/bundle-editor.js && npx @11ty/eleventy",
     "debug": "DEBUG=Eleventy* npx @11ty/eleventy",
     "new": "node scripts/new.js"
   },

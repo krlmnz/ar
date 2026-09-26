@@ -382,61 +382,13 @@
   gap: 1px;
 }
 
-/* Quiet icon button. Local mirror of component-kit PR #6
-   (https://github.com/krlmnz/component-kit/pull/6): compact .icon-btn is
-   28×28 / 16px, .icon-btn--touch and .btn--icon.btn--touch are 44×44 / 20px.
-   Delete this mirror once Andean Road consumes the kit. */
+/* Quiet chrome for the kit atom. Sizes come from component-kit. */
 .icon-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   flex: none;
-  width: var(--control-height-xs);
-  height: var(--control-height-xs);
-  min-width: var(--control-height-xs);
-  min-height: var(--control-height-xs);
   padding: 0;
-  color: var(--text-2);
   background: transparent;
   border: 0;
-  border-radius: var(--radius-sm);
   cursor: pointer;
-}
-
-.icon-btn svg {
-  width: 16px;
-  height: 16px;
-}
-
-.icon-btn--touch {
-  width: var(--icon-btn-size-touch);
-  height: var(--icon-btn-size-touch);
-  min-width: var(--icon-btn-size-touch);
-  min-height: var(--icon-btn-size-touch);
-  flex: none;
-}
-
-.icon-btn--touch svg {
-  width: var(--icon-size-md);
-  height: var(--icon-size-md);
-}
-
-.btn--icon.btn--touch {
-  width: var(--icon-btn-size-touch);
-  height: var(--icon-btn-size-touch);
-  padding: 0;
-  aspect-ratio: auto;
-  flex: none;
-}
-
-.btn--icon.btn--touch svg {
-  width: var(--icon-size-md);
-  height: var(--icon-size-md);
-}
-
-.icon-btn:hover:not(:disabled) {
-  color: var(--text);
-  background: var(--surface-2);
 }
 
 .icon-btn[aria-pressed="true"] {
@@ -449,9 +401,9 @@
   cursor: default;
 }
 
-.icon-btn:focus-visible {
-  outline: 2px solid var(--text);
-  outline-offset: 2px;
+.icon-btn:disabled:hover {
+  color: var(--text-2);
+  background: transparent;
 }
 
 .studio-toolbar__sep {
@@ -476,6 +428,7 @@
 .studio-menu__trigger.icon-btn {
   display: inline-flex;
   width: auto;
+  min-width: var(--icon-btn-size-touch);
   gap: 2px;
   padding-inline: 8px;
 }

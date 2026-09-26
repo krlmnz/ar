@@ -6,6 +6,7 @@
 */
 
 @import "tokens.css";
+@import "component-kit-icon-btn.css";
 @import "chrome.css";
 @import "map-tokens.css";
 @import "map-layouts.css";
