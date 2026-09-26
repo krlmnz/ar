@@ -6,7 +6,7 @@
  */
 "use strict";
 
-const { getStore } = require("@netlify/blobs");
+const { connectLambda, getStore } = require("@netlify/blobs");
 const TEMPLATES = require("../_data/templates");
 
 const CODE = "042986";
@@ -131,6 +131,7 @@ exports.handler = async function (event) {
 
   let store;
   try {
+    if (event.blobs) connectLambda(event);
     store = getStore("studio");
   } catch (e) {
     return json(500, { error: "The studio store is not available on this server. " + (e.message || "") });
