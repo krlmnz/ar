@@ -20,7 +20,7 @@
 
   async function load(path) {
     var lastError = "Could not open the draft.";
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0; i < 2; i++) {
       try {
         var res = await window.fetch("/api/studio", {
           method: "POST",
@@ -49,7 +49,7 @@
     return;
   }
 
-  load(path).then(function (text) {
+  function show(text) {
     var parts = String(text || "").match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
     var front = parts ? parts[1] : "";
     var body = parts ? parts[2] : text;
@@ -63,7 +63,12 @@
       cover_meta: field(front, "cover_meta"),
       markdown: body
     });
-  }).catch(function (error) {
-    root.textContent = error.message;
+  }
+
+  var cached = fromCache(path);
+  if (cached) show(cached);
+
+  load(path).then(show).catch(function (error) {
+    if (!cached) root.textContent = error.message;
   });
 })();

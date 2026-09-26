@@ -22,14 +22,14 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function readBlob(store, key, attempts) {
-  const tries = attempts || 1;
-  for (let i = 0; i < tries; i++) {
-    const text = await store.get(key, { type: "text" });
-    if (text != null) return text;
-    if (i < tries - 1) await sleep(250 * (i + 1));
+async function readBlob(store, key, waitMs) {
+  const deadline = Date.now() + (waitMs || 0);
+  let text = await store.get(key, { type: "text" });
+  while (text == null && Date.now() < deadline) {
+    await sleep(400);
+    text = await store.get(key, { type: "text" });
   }
-  return null;
+  return text;
 }
 
 function parseDoc(text) {
@@ -63,13 +63,13 @@ function slugOf(key) {
   return match ? match[1] : "";
 }
 
-async function publishedPosts(store, attempts) {
+async function publishedPosts(store) {
   const listed = await store.list();
   const posts = [];
   for (const blob of listed.blobs || []) {
     const slug = slugOf(blob.key);
     if (!slug) continue;
-    const text = await readBlob(store, blob.key, attempts || 1);
+    const text = await readBlob(store, blob.key, 0);
     const doc = parseDoc(text);
     if (!doc) continue;
     const kind = kindOf(doc.front);
@@ -107,7 +107,7 @@ exports.handler = async function (event) {
     const slug = String((event.queryStringParameters || {}).slug || "")
       .replace(/^\/+|\/+$/g, "");
     if (!slug) {
-      const posts = await publishedPosts(store, 2);
+      const posts = await publishedPosts(store);
       return json(200, {
         posts: posts.map((post) => ({
           slug: post.slug,
@@ -119,7 +119,7 @@ exports.handler = async function (event) {
       });
     }
     if (!/^[a-z0-9-]+$/.test(slug)) return json(400, { error: "Unknown post." });
-    const text = await readBlob(store, "content/" + slug + ".md", 5);
+    const text = await readBlob(store, "content/" + slug + ".md", 7000);
     const doc = parseDoc(text);
     const kind = doc && kindOf(doc.front);
     if (!doc || !kind || doc.front.published !== "true") {

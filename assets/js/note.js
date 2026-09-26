@@ -29,23 +29,26 @@
   }
 
   async function load(slug) {
+    var cached = fromCache(slug);
+    if (cached && cached.markdown) window.AndeanPost.mount(root, cached);
     var lastError = "That post is not published.";
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < 3; i++) {
       try {
         var res = await window.fetch("/api/posts?slug=" + encodeURIComponent(slug));
         var data = await res.json();
-        if (res.ok) return data;
+        if (res.ok) {
+          window.AndeanPost.mount(root, data);
+          return;
+        }
         lastError = data.error || lastError;
         if (res.status !== 404) break;
       } catch (error) {
         lastError = error.message || lastError;
         break;
       }
-      await sleep(400);
+      await sleep(600);
     }
-    var cached = fromCache(slug);
-    if (cached && cached.markdown) return cached;
-    throw new Error(lastError);
+    if (!(cached && cached.markdown)) root.textContent = lastError;
   }
 
   var slug = currentSlug();
@@ -54,9 +57,5 @@
     return;
   }
 
-  load(slug).then(function (doc) {
-    window.AndeanPost.mount(root, doc);
-  }).catch(function (error) {
-    root.textContent = error.message;
-  });
+  load(slug);
 })();

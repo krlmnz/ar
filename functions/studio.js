@@ -114,15 +114,17 @@ function sleep(ms) {
 }
 
 /* Eventual reads. Strong consistency needs an uncachedEdgeURL this
- * function environment does not have, and requesting it fails the read. */
-async function readBlob(store, key, attempts) {
-  const tries = attempts || 1;
-  for (let i = 0; i < tries; i++) {
-    const text = await store.get(key, { type: "text" });
-    if (text != null) return text;
-    if (i < tries - 1) await sleep(250 * (i + 1));
+ * function environment does not have, and requesting it fails the read.
+ * A new blob can take several seconds to show up, so callers that just
+ * wrote may pass a wait budget. */
+async function readBlob(store, key, waitMs) {
+  const deadline = Date.now() + (waitMs || 0);
+  let text = await store.get(key, { type: "text" });
+  while (text == null && Date.now() < deadline) {
+    await sleep(400);
+    text = await store.get(key, { type: "text" });
   }
-  return null;
+  return text;
 }
 
 function noteUrl(path, text) {
@@ -165,7 +167,7 @@ exports.handler = async function (event) {
       const pages = [];
       for (const blob of listed.blobs || []) {
         if (!String(blob.key).startsWith("content/") || !String(blob.key).endsWith(".md")) continue;
-        const text = await readBlob(store, blob.key, 2);
+        const text = await readBlob(store, blob.key, 800);
         if (text == null) continue;
         pages.push({
           path: blob.key,
@@ -190,7 +192,7 @@ exports.handler = async function (event) {
       if (!slug) return json(400, { error: "That title makes an empty slug. Try plainer characters." });
       const path = template.dir ? template.out + "/" + slug + "/index.md" : template.out + "/" + slug + ".md";
       safePath(path);
-      const existing = await readBlob(store, path, 1);
+      const existing = await readBlob(store, path, 0);
       if (existing) return json(409, { error: "A draft with that title already exists." });
       if (await rawFile(path)) return json(409, { error: "A page with that title already exists." });
       const text = await starterText(template, title, slug);
@@ -208,7 +210,7 @@ exports.handler = async function (event) {
 
     if (body.action === "read") {
       const path = safePath(body.path);
-      const blob = await readBlob(store, path, 6);
+      const blob = await readBlob(store, path, 7000);
       if (blob != null) return json(200, { path: path, text: blob, source: "studio" });
       const remote = await githubFile(path);
       if (remote) return json(200, { path: path, text: remote.text, sha: remote.sha, source: "github" });
