@@ -57,7 +57,7 @@
 
   /* ── Map chrome ──────────────────────────────────────────────────────────
      Keyed to the BASEMAP, not the page. The Mapbox style is light-only, so
-     these hold their light values under [data-theme="dark"] — a marker tuned
+     these hold their light values in every reading theme — a marker tuned
      to the page would vanish against the map. See DESIGN-SYSTEM §10. */
   --map-surface:     #FFFFFF;
   --map-surface-2:   #F5F4F2;
@@ -75,10 +75,3 @@
   --panel-text-2:  var(--text-2);
 }
 
-[data-theme="dark"] {
-  --panel-surface: #1C1F22;
-  --panel-border:  #434547;
-  --panel-text:    #F0F0EE;
-  --panel-text-2:  #9CA3AF;
-
-}

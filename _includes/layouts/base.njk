@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
   <title>{% if seo and seo.title %}{{ seo.title }}{% elif title %}{{ title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
   <meta name="description" content="{% if seo and seo.description %}{{ seo.description }}{% elif description %}{{ description }}{% else %}{{ site.description }}{% endif %}">
 
-  {# Canonical URL #}
   <link rel="canonical" href="{{ site.url }}{{ page.url }}">
 
-  {# Open Graph #}
   <meta property="og:title" content="{% if seo and seo.title %}{{ seo.title }}{% elif title %}{{ title }}{% endif %}">
   <meta property="og:description" content="{% if seo and seo.description %}{{ seo.description }}{% elif description %}{{ description }}{% endif %}">
   <meta property="og:type" content="website">
@@ -17,52 +16,60 @@
   <meta property="og:site_name" content="{{ site.title }}">
   {% if cover %}<meta property="og:image" content="{{ site.url }}{{ cover }}">{% endif %}
 
-  {# Twitter Card #}
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="{% if seo and seo.title %}{{ seo.title }}{% elif title %}{{ title }}{% endif %}">
   <meta name="twitter:description" content="{% if seo and seo.description %}{{ seo.description }}{% elif description %}{{ description }}{% else %}{{ site.description }}{% endif %}">
 
   {% include "partials/analytics.njk" %}
 
-  {# Theme — must run before first paint to avoid a flash of light theme #}
+  {# Theme, plain-language, and type size — before first paint. #}
   <script>
-    const t = localStorage.getItem('theme');
-    if (t) document.documentElement.dataset.theme = t;
+    (function () {
+      var root = document.documentElement;
+      var theme = localStorage.getItem('roadtrip-theme');
+      if (!theme) {
+        var legacy = localStorage.getItem('theme');
+        if (legacy === 'dark') theme = 'night';
+      }
+      var themes = ['light', 'night', 'note', 'signal', 'news', 'draft'];
+      root.dataset.theme = themes.indexOf(theme) === -1 ? 'light' : theme;
+      root.dataset.plain = localStorage.getItem('roadtrip-plain') === 'off' ? 'off' : 'on';
+      var size = Number(localStorage.getItem('roadtrip-size')) || 17;
+      size = Math.min(22, Math.max(15, size));
+      root.style.setProperty('--base', size + 'px');
+    })();
   </script>
 
-  {# Map pages talk to Mapbox — start the handshake during HTML parse #}
   {% if page.url == "/map/" %}
   <link rel="preconnect" href="https://api.mapbox.com">
   <link rel="preconnect" href="https://events.mapbox.com">
   {% endif %}
 
-  {# Fonts — Rethink Sans + Source Serif 4, self-hosted #}
-  <link rel="preload" href="/assets/fonts/rethink-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="/assets/fonts/source-serif-4-latin.woff2" as="font" type="font/woff2" crossorigin>
-
-  {# Styles #}
   <link rel="stylesheet" href="/assets/css/main.css">
 </head>
 <body>
-  <a href="#main-content" class="skip-link">Skip to content</a>
+  <a class="skip" href="#main-content">Skip to content</a>
 
   {% include "partials/header.njk" %}
 
-  {# Map layouts set fullBleed so the canvas can run edge to edge; they wrap
-     their own text sections in .wrap themselves. #}
-  <main id="main-content" class="{{ 'bleed' if fullBleed else 'wrap' }}">
+  {% if fieldGuide %}
+  <div class="shell field-guide">
+    {{ content | safe }}
+  </div>
+  {% elif fullBleed %}
+  <main id="main-content" class="bleed">
     {{ content | safe }}
   </main>
+  {% else %}
+  <div class="shell">
+    <main id="main-content" class="reading{{ ' reading--wide' if wide }}">
+      {{ content | safe }}
+    </main>
+  </div>
+  {% endif %}
 
   {% include "partials/footer.njk" %}
 
-  <script>
-    const root = document.documentElement;
-    function toggleTheme() {
-      const isDark = root.dataset.theme === 'dark';
-      root.dataset.theme = isDark ? '' : 'dark';
-      localStorage.setItem('theme', isDark ? '' : 'dark');
-    }
-  </script>
+  <script src="/assets/js/view.js" defer></script>
 </body>
 </html>

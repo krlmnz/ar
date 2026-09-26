@@ -1,6 +1,10 @@
 # Andean Road Design System
 ## Specification & Developer Handoff
 
+> **Current visual system:** `assets/css/tokens.css` and `assets/css/chrome.css`, ported from the MapLibre Roadtrip 101 guide. That guide is the homepage. Themes are `light`, `night`, `note`, `signal`, `news`, and `draft` on `html[data-theme]`. The sections below describe the earlier editorial system; where they disagree with the CSS, the CSS wins. Map marker chrome stays pinned to the basemap.
+
+
+
 **Site:** Andean Road (andean-road.com) — Personal Chile Travel Guide
 **Voice:** The bilingual best friend — born in Chile, raised in New York
 **Audience:** Coastal elite creative professionals who travel well

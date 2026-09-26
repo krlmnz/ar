@@ -1,9 +1,12 @@
 # Andean Road
 
 A personal travel guide to Chile — by someone born there and raised in New York.
+The homepage is currently the MapLibre Roadtrip 101 visual guide; the Chile
+index lives at `/chile/`.
 
 Static site built with [Eleventy](https://www.11ty.dev/). No framework, no
-bundler, no client-side JavaScript except a theme toggle and the map pages.
+bundler. Shared chrome (theme, type size, plain language) is in
+`assets/js/view.js`. Map pages add their own engine.
 
 ```bash
 npm install
