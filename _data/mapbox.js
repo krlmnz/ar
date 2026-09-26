@@ -21,6 +21,10 @@ function localToken() {
   }
 }
 
+const stack = require('../lib/map-stack');
+const andeanStyle = stack.styleById('andean');
+if (!andeanStyle) throw new Error('map stack is missing the andean style');
+
 const token = process.env.MAPBOX_TOKEN || localToken();
 
 if (!token && process.env.ELEVENTY_RUN_MODE !== 'build') {
@@ -29,6 +33,7 @@ if (!token && process.env.ELEVENTY_RUN_MODE !== 'build') {
 
 module.exports = {
   token,
-  style: 'mapbox://styles/kmunoz/cmpndx2y700jc01sc8vm610ld',
+  // Owned by the style catalog so a page cannot drift onto a second URL.
+  style: andeanStyle.style,
   version: 'v3.9.0'
 };

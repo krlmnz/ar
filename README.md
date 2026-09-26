@@ -70,6 +70,8 @@ Two sample places ship with the starter so the route, story, and places map have
 
 `assets/js/andean-map.js` is the engine behind place pins, routes, stories, and the places index. Layouts emit a JSON config and call nothing. Modes are `pins`, `route`, and `story`.
 
+The engine does not call Mapbox or MapLibre itself. `lib/map-stack.js` names the style and the route overlay; `assets/js/map-runtime.js` draws that overlay. Published pages still load Mapbox GL and the studio style. `/atelier/` is a separate bench — MapLibre, open styles, no token. `npm test` checks that split. `npm start`, then open `/atelier/`.
+
 The token is a public `pk.` token. It ships to the browser by design, stays out of git, and should carry URL restrictions in the Mapbox account:
 
 ```

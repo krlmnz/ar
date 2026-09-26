@@ -1,0 +1,144 @@
+---
+layout: layouts/atelier.njk
+permalink: /atelier/
+title: Map Atelier
+description: A MapLibre bench for basemap and route overlay. Separate from the notes.
+stops:
+  - id: cerro-san-cristobal
+    title: Cerro San Cristóbal
+    note: Santiago
+    lng: -70.6322
+    lat: -33.4285
+  - id: isla-negra
+    title: Isla Negra
+    note: Central coast
+    lng: -71.6818
+    lat: -33.4455
+inks:
+  - label: Terra
+    color: "#D7561D"
+  - label: Teal
+    color: "#1A97A9"
+  - label: Cobalt
+    color: "#2B498D"
+  - label: Ink
+    color: "#181716"
+---
+{% set feats = [] %}
+{% for s in stops %}
+  {% set feats = (feats.push({
+    id: s.id,
+    title: s.title,
+    subtitle: s.note or "",
+    lng: s.lng,
+    lat: s.lat
+  }), feats) %}
+{% endfor %}
+{% set mapConfig = {
+  runtime: "maplibre",
+  styleId: "liberty",
+  mapId: "map",
+  mode: "route",
+  fit: 80,
+  includeStyles: true,
+  attributionCompact: false,
+  features: feats
+} %}
+<div class="atelier">
+  <aside class="atelier__rail">
+    <header class="atelier__head">
+      <p class="atelier__kicker">Map Atelier</p>
+      <h1>Style bench</h1>
+      <p class="atelier__lede">The basemap is a style document. The route is an overlay this page owns. This bench draws both on MapLibre.</p>
+    </header>
+
+    <form class="atelier__form">
+      <fieldset>
+        <legend>Basemap</legend>
+        <div class="atelier__choices">
+          {% for style in mapStack.styles %}
+          {% if style.vendor == "maplibre" %}
+          <label class="atelier__choice">
+            <input type="radio" name="basemap" value="{{ style.id }}"{% if style.id == "liberty" %} checked{% endif %}>
+            <span>{{ style.label }}</span>
+          </label>
+          {% endif %}
+          {% endfor %}
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Route overlay</legend>
+        <div class="atelier__checks">
+          <label class="atelier__check">
+            <input type="checkbox" data-overlay-role="casing" data-label="casing" checked>
+            <span>Casing</span>
+          </label>
+          <label class="atelier__check">
+            <input type="checkbox" data-overlay-role="stroke" data-label="stroke" checked>
+            <span>Stroke</span>
+          </label>
+        </div>
+        <p class="atelier__hint" id="casing-hint">Casing is the soft band under the stroke. Its width stays fixed.</p>
+
+        <div class="atelier__inks" role="radiogroup" aria-label="Route ink">
+          {% for ink in inks %}
+          <label class="atelier__ink">
+            <input type="radio" name="ink" value="{{ ink.color }}" data-label="{{ ink.label }}"{% if loop.first %} checked{% endif %}>
+            <span class="atelier__swatch" style="--swatch: {{ ink.color }}" aria-hidden="true"></span>
+            <span>{{ ink.label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+
+        <label class="atelier__weight" for="stroke-weight">
+          <span>Stroke weight <output id="stroke-weight-value" for="stroke-weight">3</output></span>
+          <input id="stroke-weight" type="range" min="1" max="8" step="0.5" value="3">
+        </label>
+      </fieldset>
+    </form>
+
+    <section class="atelier__stops" aria-labelledby="stops-heading">
+      <h2 id="stops-heading">Stops</h2>
+      <p class="atelier__hint">Straight segments between sample places, not a road.</p>
+      <ol>
+        {% for f in feats %}
+        <li data-feature="{{ f.id }}">
+          <button type="button" class="atelier__stop" data-goto="{{ f.id }}" aria-pressed="false"
+                  aria-label="Show {{ f.title }} on the map">
+            <span class="atelier__num" aria-hidden="true">{{ loop.index }}</span>
+            <span>
+              <span class="atelier__stop-title">{{ f.title }}</span>
+              {% if f.subtitle %}<span class="atelier__stop-note">{{ f.subtitle }}</span>{% endif %}
+            </span>
+          </button>
+        </li>
+        {% endfor %}
+      </ol>
+    </section>
+
+    <p id="atelier-fallback" class="atelier__fallback" hidden>The map did not start. The stops above still name the places.</p>
+    <noscript>
+      <p class="atelier__fallback">Map Atelier needs JavaScript to draw. The stops above stay readable.</p>
+    </noscript>
+
+    <footer class="atelier__foot">
+      <p class="atelier__credits">
+        Basemap credits
+        {% for credit in mapStack.styleById("liberty").credits %}
+        <a href="{{ credit.href }}">{{ credit.label }}</a>{% if not loop.last %}<span aria-hidden="true"> · </span>{% endif %}
+        {% endfor %}
+      </p>
+      <p class="atelier__note">Published notes still use the Mapbox studio style. This bench does not.</p>
+      <a class="atelier__leave" href="/">Notes</a>
+    </footer>
+  </aside>
+
+  <div class="atelier__stage" id="atelier-map" tabindex="-1">
+    {% set mapLabel = "Map Atelier basemap" %}
+    {% include "partials/map-shell.njk" %}
+  </div>
+</div>
+
+{% include "partials/map-embed.njk" %}
+<script src="/assets/js/atelier.js" defer></script>

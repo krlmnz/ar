@@ -93,9 +93,9 @@
 
 /* ── Markers ──────────────────────────────────────────────────────────── */
 
-/* mapbox-gl writes an inline `transform` on the marker element to position it,
-   which beats any transform declared here. So the disc is an inner element and
-   the scale happens on that. */
+/* The GL runtime writes an inline `transform` on the marker element to
+   position it, which beats any transform declared here. So the disc is an
+   inner element and the scale happens on that. Mapbox and MapLibre both do this. */
 .mk {
   display: flex; align-items: center; justify-content: center;
   width: 30px; height: 30px; padding: 0;
@@ -122,7 +122,8 @@
 
 /* ── Popup ────────────────────────────────────────────────────────────── */
 
-.mappopup .mapboxgl-popup-content {
+.mappopup .mapboxgl-popup-content,
+.mappopup .maplibregl-popup-content {
   padding: var(--space-2);
   background: var(--map-surface);
   border: 1px solid var(--map-border);
@@ -130,7 +131,8 @@
   border-radius: 0;
   max-width: 15rem;
 }
-.mappopup .mapboxgl-popup-tip {
+.mappopup .mapboxgl-popup-tip,
+.mappopup .maplibregl-popup-tip {
   border-top-color: var(--map-surface) !important;
   border-bottom-color: var(--map-surface) !important;
 }

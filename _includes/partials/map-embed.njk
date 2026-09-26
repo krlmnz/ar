@@ -1,5 +1,6 @@
 {# Shared map plumbing. A layout sets `mapConfig` (a dict) then includes this.
-   Everything the engine needs — sprites, live region, config, scripts. #}
+   The catalog (lib/map-stack.js) decides vendor, style URL, token, and the
+   overlay spec. This partial only loads the matching GL build. #}
 
 <div data-map-sprites hidden aria-hidden="true">
   {%- for type, iconName in placeIcons %}
@@ -9,8 +10,15 @@
 
 <p id="map-status" class="sr-only" role="status" aria-live="polite"></p>
 
-<script type="application/json" id="map-config">{{ mapConfig | dump | safe }}</script>
+{% set resolved = mapStack.resolveConfig(mapConfig) %}
+<script type="application/json" id="map-config">{{ resolved | dump | safe }}</script>
 
+{% if resolved.vendor == "maplibre" %}
+<link rel="stylesheet" href="{{ mapStack.assets.maplibre.css }}">
+<script src="{{ mapStack.assets.maplibre.js }}" defer></script>
+{% else %}
 <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/{{ mapbox.version }}/mapbox-gl.css">
 <script src="https://api.mapbox.com/mapbox-gl-js/{{ mapbox.version }}/mapbox-gl.js" defer></script>
+{% endif %}
+<script src="/assets/js/map-runtime.js" defer></script>
 <script src="/assets/js/andean-map.js" defer></script>

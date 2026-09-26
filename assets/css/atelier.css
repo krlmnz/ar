@@ -1,0 +1,438 @@
+/* Map Atelier — drafting bench.
+   Not the notes theme. No reading serif, no site header, no theme toggle.
+   Map chrome (markers, controls, attribution) is keyed to the basemap. */
+
+:root {
+  --route-line: #D7561D;
+  --route-casing: rgba(24, 23, 22, 0.14);
+  --map-surface: #fffcf7;
+  --map-surface-2: #f3eee4;
+  --map-border: #d9d1c3;
+  --map-text: #1c1915;
+  --map-text-2: #5e584e;
+  --map-shadow: 0 1px 2px rgba(28, 25, 21, 0.16);
+  --map-shadow-pop: 0 8px 24px rgba(28, 25, 21, 0.18);
+  --cat: #D7561D;
+  --viz-1: #D7561D;
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #cfc6b4;
+  color: #f3eee4;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.atelier__skip {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 5;
+  padding: 8px 12px;
+  background: #fffcf7;
+  color: #1c1915;
+  transform: translateY(-160%);
+}
+
+.atelier__skip:focus { transform: none; }
+
+.atelier {
+  display: grid;
+  grid-template-columns: 22rem minmax(0, 1fr);
+  min-height: 100dvh;
+  height: 100dvh;
+}
+
+.atelier__rail {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-height: 0;
+  overflow: auto;
+  padding: 28px 22px 20px;
+  background: #1a1814;
+  color: #f3eee4;
+}
+
+.atelier__kicker {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c4b8a4;
+}
+
+.atelier__head h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.atelier__lede {
+  margin: 12px 0 0;
+  max-width: 34ch;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #d9d0c2;
+}
+
+.atelier__form { display: grid; gap: 22px; }
+
+.atelier fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.atelier legend {
+  padding: 0;
+  margin: 0 0 2px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c4b8a4;
+}
+
+.atelier__choices,
+.atelier__checks,
+.atelier__inks {
+  display: grid;
+  gap: 6px;
+}
+
+.atelier__choice,
+.atelier__check,
+.atelier__ink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 10px;
+  background: #26231e;
+  color: #f3eee4;
+  cursor: pointer;
+}
+
+.atelier__choice:has(input:checked),
+.atelier__check:has(input:checked),
+.atelier__ink:has(input:checked) {
+  outline: 1px solid #f3eee4;
+  outline-offset: -1px;
+}
+
+.atelier input[type="radio"],
+.atelier input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #f3eee4;
+}
+
+.atelier__swatch {
+  width: 16px;
+  height: 16px;
+  background: var(--swatch, #D7561D);
+  border: 1px solid rgba(255, 252, 247, 0.7);
+  flex: none;
+}
+
+.atelier__hint,
+.atelier__note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #b7b0a2;
+}
+
+.atelier__weight {
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.atelier__weight output {
+  font-variant-numeric: tabular-nums;
+}
+
+.atelier__weight input[type="range"] {
+  width: 100%;
+  accent-color: #f3eee4;
+  min-height: 44px;
+}
+
+.atelier__stops h2 {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c4b8a4;
+}
+
+.atelier__stops ol {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.atelier__stop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.atelier__stop[aria-pressed="true"],
+.atelier__stops [data-feature].is-active .atelier__stop {
+  background: #26231e;
+  border-color: rgba(243, 238, 228, 0.35);
+}
+
+.atelier__num {
+  width: 1.5rem;
+  font-variant-numeric: tabular-nums;
+  color: #c4b8a4;
+}
+
+.atelier__stop-title,
+.atelier__stop-note { display: block; }
+
+.atelier__stop-title { font-size: 14px; }
+
+.atelier__stop-note {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #b7b0a2;
+}
+
+.atelier__fallback {
+  margin: 0;
+  padding: 10px 12px;
+  background: #3a2418;
+  color: #f3eee4;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.atelier__foot {
+  margin-top: auto;
+  display: grid;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.atelier__credits {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #d9d0c2;
+}
+
+.atelier__credits a,
+.atelier__leave {
+  color: #f3eee4;
+  text-underline-offset: 3px;
+}
+
+.atelier__leave { font-size: 13px; }
+
+.atelier :focus-visible {
+  outline: 2px solid #f3eee4;
+  outline-offset: 2px;
+}
+
+.atelier__stage {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  background: #cfc6b4;
+}
+
+.atelier__stage:focus { outline: none; }
+
+.atelier__stage:focus-visible {
+  outline: 2px solid #1a1814;
+  outline-offset: -4px;
+}
+
+/* ── Map surface. Marker metrics match the notes maps. ───────────────── */
+
+.mapshell { position: relative; width: 100%; height: 100%; }
+.mapshell__canvas { width: 100%; height: 100%; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.mapctl {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  background: var(--map-surface);
+  border: 1px solid var(--map-border);
+  box-shadow: var(--map-shadow);
+}
+
+.mapctl__btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: var(--map-text);
+  cursor: pointer;
+}
+
+.mapctl__btn + .mapctl__btn { border-top: 1px solid var(--map-border); }
+
+.mapctl__btn:hover { background: var(--map-surface-2); }
+
+.icon { display: block; color: inherit; }
+
+.mk {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  background: var(--map-surface);
+  color: var(--cat, var(--viz-1));
+  border: 1.5px solid currentColor;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: var(--map-shadow);
+}
+
+.mk--seq {
+  background: var(--route-line);
+  color: #fff;
+  border-color: rgba(24, 23, 22, 0.28);
+  border-width: 2px;
+  font: 700 13px/1 Helvetica, Arial, sans-serif;
+}
+
+.mk--active,
+.mk--seq.mk--active {
+  background: var(--map-text);
+  color: var(--map-surface);
+  border-color: #fff;
+  width: 38px;
+  height: 38px;
+  z-index: 3;
+}
+
+/* --map-text is near-black, which disappears on the dark basemap. */
+.mapshell[data-tone="dark"] .mk--active,
+.mapshell[data-tone="dark"] .mk--seq.mk--active {
+  background: var(--map-surface);
+  color: var(--map-text);
+  border-color: var(--map-surface);
+}
+
+.mk:focus-visible { outline: 2px solid var(--map-text); outline-offset: 2px; }
+
+.mappopup .mapboxgl-popup-content,
+.mappopup .maplibregl-popup-content {
+  padding: 10px 12px;
+  background: var(--map-surface);
+  border: 1px solid var(--map-border);
+  box-shadow: var(--map-shadow-pop);
+  border-radius: 0;
+  max-width: 16rem;
+}
+
+.mappopup .mapboxgl-popup-tip,
+.mappopup .maplibregl-popup-tip {
+  border-top-color: var(--map-surface) !important;
+  border-bottom-color: var(--map-surface) !important;
+}
+
+.map-popup__title {
+  display: block;
+  color: var(--map-text);
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.map-popup__sub {
+  display: block;
+  margin-top: 2px;
+  color: var(--map-text-2);
+  font-size: 13px;
+}
+
+/* Full attribution, readable on both light and dark land.
+   MapLibre's own rule is `.maplibregl-ctrl.maplibregl-ctrl-attrib`
+   (two classes, and the stylesheet loads after this file), so the
+   plate needs a third class to win. A translucent white plate fails
+   contrast once it sits on dark land. */
+.atelier .maplibregl-ctrl.maplibregl-ctrl-attrib,
+.atelier .mapboxgl-ctrl.mapboxgl-ctrl-attrib {
+  background-color: rgba(255, 252, 247, 0.94);
+  color: #1c1915;
+  font: 12px/1.4 Helvetica, Arial, sans-serif;
+}
+
+.atelier .maplibregl-ctrl-attrib a,
+.atelier .mapboxgl-ctrl-attrib a {
+  color: #1a365d;
+}
+
+.atelier .maplibregl-ctrl-attrib-button:focus,
+.atelier .maplibregl-ctrl-attrib a:focus-visible {
+  outline: 2px solid #1c1915;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atelier__skip { transition: none; }
+}
+
+@media (max-width: 800px) {
+  .atelier {
+    height: auto;
+    min-height: 100dvh;
+    grid-template-columns: 1fr;
+  }
+
+  .atelier__stage {
+    order: -1;
+    height: 70dvh;
+  }
+
+  .atelier__rail { overflow: visible; }
+}

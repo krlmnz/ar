@@ -235,7 +235,8 @@
 
 /* ---- Popups ---- */
 
-.map-popup .mapboxgl-popup-content {
+.map-popup .mapboxgl-popup-content,
+.map-popup .maplibregl-popup-content {
   padding: var(--space-1);
   border-radius: var(--radius-sm);
   background: var(--dm-map-surface);
@@ -243,7 +244,8 @@
   box-shadow: var(--shadow-pop);
 }
 
-.map-popup .mapboxgl-popup-tip {
+.map-popup .mapboxgl-popup-tip,
+.map-popup .maplibregl-popup-tip {
   border-top-color: var(--dm-map-surface) !important;
   border-bottom-color: var(--dm-map-surface) !important;
 }

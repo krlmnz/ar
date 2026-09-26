@@ -4,8 +4,13 @@
  * <script type="application/json" id="map-config"> block and call nothing;
  * this file reads it on load and builds the map.
  *
+ * The GL library (Mapbox or MapLibre) is chosen by cfg.vendor and reached
+ * only through AndeanMapRuntime. Overlay layers come from cfg.overlays,
+ * which the build copies out of lib/map-stack.js.
+ *
  * Config shape:
- *   { token, style, mapId, mode, features[], route[], fit, zoom, center }
+ *   { vendor, token, style, styleId, requiresToken, mapId, mode,
+ *     features[], route[], fit, zoom, center, overlays, attributionCompact }
  *   mode: "pins" | "route" | "story"
  *   feature: { id, title, type, category, lng, lat, url, subtitle, meta }
  */
@@ -13,7 +18,7 @@
   "use strict";
 
   var cfgEl = document.getElementById("map-config");
-  if (!cfgEl || !window.mapboxgl) return;
+  if (!cfgEl || !window.AndeanMapRuntime) return;
 
   var cfg;
   try {
@@ -26,30 +31,35 @@
   var root = document.getElementById(cfg.mapId || "map");
   if (!root) return;
 
+  var vendor = cfg.vendor || (String(cfg.style || "").indexOf("mapbox://") === 0 ? "mapbox" : "maplibre");
+  var needsToken = cfg.requiresToken != null ? !!cfg.requiresToken : vendor !== "maplibre";
+
   // No token (env var missing on the build host) — collapse the map surface
   // rather than leaving a dead grey box. The page's text and its list of places
-  // are unaffected; every card link works without JS.
-  if (!cfg.token) {
+  // are unaffected; every card link works without JS. MapLibre styles in the
+  // catalog do not require a token, so they skip this.
+  if (needsToken && !cfg.token) {
     var shell = root.closest(".mapshell") || root;
     shell.setAttribute("hidden", "");
     document.documentElement.classList.add("no-map");
     return;
   }
 
+  var session = AndeanMapRuntime.createSession(vendor, cfg.token);
+  if (!session) return;
+
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var sprites = document.querySelector("[data-map-sprites]");
   var status = document.getElementById("map-status");
 
-  mapboxgl.accessToken = cfg.token;
-
-  var bounds = new mapboxgl.LngLatBounds();
+  var bounds = session.bounds();
   cfg.features.forEach(function (f) { bounds.extend([f.lng, f.lat]); });
 
   var opts = {
     container: cfg.mapId || "map",
     style: cfg.style,
     cooperativeGestures: cfg.mode !== "story", // a story map owns its scroll
-    attributionControl: true
+    attributionControl: false
   };
   if (cfg.mode === "story") {
     opts.center = [cfg.features[0].lng, cfg.features[0].lat];
@@ -59,13 +69,16 @@
     opts.fitBoundsOptions = { padding: cfg.fit || 64 };
   }
 
-  var map = new mapboxgl.Map(opts);
+  var map = session.map(opts);
+  var attribOpts = {};
+  if (cfg.attributionCompact === false) attribOpts.compact = false;
+  map.addControl(session.attribution(attribOpts), "bottom-right");
 
   // A URL-restricted token used from an origin outside its allow-list — Netlify
   // deploy previews, most often — gets 403 on every tile. mapbox-gl does NOT
   // surface that: no "error" event fires, areTilesLoaded() still reports true,
   // and the canvas just paints nothing. So probe a tile directly and collapse
-  // the map ourselves. One small request, only on map pages.
+  // the map ourselves. One small request, only on Mapbox pages.
   function collapseMap(reason) {
     var shell = root.closest(".mapshell") || root;
     shell.setAttribute("hidden", "");
@@ -75,26 +88,25 @@
       "separate MAPBOX_TOKEN for this deploy context.");
   }
 
-  fetch("https://api.mapbox.com/v4/mapbox.mapbox-streets-v8/1/0/0.vector.pbf?access_token=" +
-        encodeURIComponent(cfg.token), { method: "GET" })
-    .then(function (r) {
-      if (r.status === 401 || r.status === 403) {
-        collapseMap("Mapbox rejected this origin (" + r.status + ")");
-      }
-    })
-    .catch(function () { /* offline or blocked: leave the map as-is */ });
+  if (vendor === "mapbox" && cfg.token) {
+    AndeanMapRuntime.probeMapboxToken(cfg.token, function (statusCode) {
+      collapseMap("Mapbox rejected this origin (" + statusCode + ")");
+    });
+  }
 
   // Style-level auth failures do raise an error event; keep that path too.
   map.on("error", function (e) {
-    var status = e && e.error && e.error.status;
-    if (status === 401 || status === 403) collapseMap("Mapbox returned " + status);
+    var code = e && e.error && e.error.status;
+    if (vendor === "mapbox" && (code === 401 || code === 403)) {
+      collapseMap("Mapbox returned " + code);
+    }
   });
 
   /* ---- markers ------------------------------------------------------- */
 
   var markers = {};
   var active = null;
-  var popup = new mapboxgl.Popup({
+  var popup = session.popup({
     offset: 24,
     closeButton: false,
     closeOnClick: false,
@@ -234,11 +246,11 @@
 
   cfg.features.forEach(function (f, i) {
     var el = buildMarker(f, i);
-    markers[f.id] = new mapboxgl.Marker({ element: el, anchor: "center" })
+    markers[f.id] = session.marker({ element: el, anchor: "center" })
       .setLngLat([f.lng, f.lat])
       .addTo(map);
-    // mapbox-gl stamps role="img" on the element it takes over, which turns
-    // every marker from a control into an image for assistive tech.
+    // Both GL libraries stamp role="img" on the element they take over, which
+    // turns every marker from a control into an image for assistive tech.
     el.setAttribute("role", "button");
   });
 
@@ -259,68 +271,90 @@
 
   /* ---- route line ----------------------------------------------------- */
 
-  if (cfg.mode === "route") {
-    // Drawing the route proved fiddly to gate correctly:
-    //   - "load" waits for tiles as well as the style and, on the deployed
-    //     build, never fired even after areTilesLoaded() was true.
-    //   - isStyleLoaded() flickers false while any source is pending, so it
-    //     rejects perfectly valid moments to add a layer.
-    // What actually matters is whether the style JSON is parsed, so gate on
-    // getStyle() and let a failed attempt retry on the next event.
-    var routeDrawn = false;
+  // User paint/visibility from the atelier bench. CSS tokens are applied at
+  // draw time and do not stick here, so a bench override wins over --route-line
+  // without becoming the new default for the next page.
+  var userOverlay = { paint: {}, hidden: {} };
+  var appliedRev = -1;
+  var overlayRev = 0;
 
-    function drawRoute() {
-      if (routeDrawn) return;
-      var style;
-      try { style = map.getStyle(); } catch (e) { return; }
-      if (!style) return;
-      if (map.getSource("route")) { routeDrawn = true; return; }
-
-      var line = (cfg.route && cfg.route.length)
-        ? cfg.route
-        : cfg.features.map(function (f) { return [f.lng, f.lat]; });
-
-      try {
-        map.addSource("route", {
-          type: "geojson",
-          data: { type: "Feature", geometry: { type: "LineString", coordinates: line } }
-        });
-      } catch (e) {
-        return; // style not ready for sources yet — the next event retries
+  function cssPaint() {
+    var paint = {};
+    var overlay = cfg.overlays && cfg.overlays.route;
+    if (!overlay || !overlay.layers) return paint;
+    var css = getComputedStyle(document.documentElement);
+    var casing = (css.getPropertyValue("--route-casing") || "").trim();
+    var stroke = (css.getPropertyValue("--route-line") || "").trim();
+    overlay.layers.forEach(function (layer) {
+      var fromCss = {};
+      if (layer.role === "casing" && casing) fromCss["line-color"] = casing;
+      if (layer.role === "stroke" && stroke) fromCss["line-color"] = stroke;
+      var user = userOverlay.paint[layer.id] || {};
+      if (Object.keys(fromCss).length || Object.keys(user).length) {
+        paint[layer.id] = Object.assign(fromCss, user);
       }
+    });
+    return paint;
+  }
 
-      var css = getComputedStyle(document.documentElement);
-      // Casing first, then the line — a bare line disappears over dark basemap
-      // features and busy road networks.
-      map.addLayer({
-        id: "route-casing",
-        type: "line",
-        source: "route",
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: {
-          "line-color": css.getPropertyValue("--route-casing").trim() || "rgba(24,23,22,.12)",
-          "line-width": 7,
-          "line-opacity": 0.9
-        }
-      });
-      map.addLayer({
-        id: "route-line",
-        type: "line",
-        source: "route",
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: {
-          "line-color": css.getPropertyValue("--route-line").trim() || "#D7561D",
-          "line-width": 3,
-          // Dashed on purpose: these are straight segments between stops, not
-          // driving geometry. A solid road-weight line would assert a road
-          // that isn't there. Swap to solid only with real Directions output.
-          "line-dasharray": [1.5, 1.5]
-        }
-      });
+  function drawRoute() {
+    if (cfg.mode !== "route") return;
+    var overlay = cfg.overlays && cfg.overlays.route;
+    if (!overlay) return;
 
-      routeDrawn = true;
+    // setStyle() drops sources. A successful earlier draw must not block the
+    // redraw, and isStyleLoaded() flickers while tiles are pending — gate on
+    // the source actually existing. The runtime returns false until the
+    // style JSON is parsed; the next event retries.
+    var sourceThere = false;
+    try { sourceThere = !!map.getSource(overlay.sourceId); } catch (e) { return; }
+    if (appliedRev === overlayRev && sourceThere) return;
+
+    var line = (cfg.route && cfg.route.length)
+      ? cfg.route
+      : cfg.features.map(function (f) { return [f.lng, f.lat]; });
+
+    var ok = AndeanMapRuntime.syncLineOverlay(map, overlay, line, {
+      paint: cssPaint(),
+      hidden: userOverlay.hidden
+    });
+    if (!ok) return;
+    try {
+      if (map.getSource(overlay.sourceId)) appliedRev = overlayRev;
+    } catch (e) { /* next event retries */ }
+  }
+
+  function invalidateOverlay() {
+    overlayRev += 1;
+    appliedRev = -1;
+    drawRoute();
+  }
+
+  function setOverlayPaint(layerId, prop, value) {
+    if (!layerId || !prop) return;
+    userOverlay.paint[layerId] = userOverlay.paint[layerId] || {};
+    userOverlay.paint[layerId][prop] = value;
+    invalidateOverlay();
+  }
+
+  function setOverlayVisible(layerId, visible) {
+    if (!layerId) return;
+    if (visible) delete userOverlay.hidden[layerId];
+    else userOverlay.hidden[layerId] = true;
+    invalidateOverlay();
+  }
+
+  function setBasemap(styleUrl) {
+    if (!styleUrl) return;
+    if (vendor === "maplibre" && String(styleUrl).indexOf("mapbox://") === 0) {
+      console.warn("[andean-road] MapLibre cannot load a mapbox:// style.");
+      return;
     }
+    appliedRev = -1;
+    map.setStyle(styleUrl);
+  }
 
+  if (cfg.mode === "route") {
     drawRoute();
     map.on("style.load", drawRoute);
     map.on("styledata", drawRoute);
@@ -380,5 +414,12 @@
     }
   }
 
-  window.AndeanMap = { map: map, select: select, reset: resetView };
+  window.AndeanMap = {
+    map: map,
+    select: select,
+    reset: resetView,
+    setBasemap: setBasemap,
+    setOverlayPaint: setOverlayPaint,
+    setOverlayVisible: setOverlayVisible
+  };
 })();
