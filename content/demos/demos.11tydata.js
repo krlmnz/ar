@@ -1,11 +1,14 @@
-// One demo per template. URLs are /demo/<kind>/, never /demos/<kind>/.
+// Template previews. They live behind the studio gate at
+// /editor/templates/<kind>/ — visible for trying things out, but unpublished
+// so they stay out of listings, maps, and the sitemap.
 module.exports = {
-  permalink: '/demo/{{ page.fileSlug }}/',
+  permalink: '/editor/templates/{{ page.fileSlug }}/',
   demo: true,
-  published: true,
+  gate: true,
   eleventyComputed: {
     crumbs: (data) => [
-      { label: 'Templates', url: '/templates/' },
+      { label: 'Studio', url: '/editor/' },
+      { label: 'Templates', url: '/editor/templates/' },
       { label: data.title }
     ],
     seo: (data) => ({

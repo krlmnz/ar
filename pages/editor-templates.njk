@@ -1,23 +1,26 @@
 ---
 layout: layouts/base.njk
-permalink: /templates/
+permalink: /editor/templates/
+published: false
+gate: true
 title: Templates
-overline: Twelve layouts
-subtitle: Pick one, write markdown, stop designing the page. Same tokens, same header, same themes — the structure is the only thing that changes.
+overline: Private · Studio only
+subtitle: Twelve layouts to try. Pick one, see how it reads, then start a new page from it in the studio. Nothing here is public.
 seo:
-  title: Templates — Andean Road
-  description: Twelve page templates. A field guide, an essay, a dispatch, a place, a route, a scrolly story, and the hubs that list them.
+  title: Templates — Studio
+  description: Private template previews for the Andean Road studio.
 ---
 
 <div class="hero">
   <div class="hero-overline">{{ overline }}</div>
   <h1 class="hero-title">{{ title }}</h1>
   <p class="hero-lede">{{ subtitle }}</p>
+  <p><a href="/editor/">← Back to the studio</a></p>
 </div>
 
-<div class="tpl-grid">
+<div class="tpl-grid" data-gated>
   {% for t in templates %}
-  <a class="tpl-card" href="/demo/{{ t.id }}/">
+  <a class="tpl-card" href="/editor/templates/{{ t.id }}/">
     <div class="wire wire--{{ t.id }}" aria-hidden="true">
       <i></i><i></i><i></i><i></i>
     </div>
