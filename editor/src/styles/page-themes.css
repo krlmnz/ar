@@ -1,0 +1,136 @@
+.page-preview {
+  --bg: #f5f5f2;
+  --surface: #ffffff;
+  --surface-2: #f0f0ec;
+  --text: #111416;
+  --text-2: #5c625f;
+  --border: #c9cbc7;
+  --accent: #1d5fd0;
+  --highlight: #fff176;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.page-preview[data-theme="night"] {
+  --bg: #071018;
+  --surface: #0d1722;
+  --surface-2: #121f2c;
+  --text: #eaf1f7;
+  --text-2: #a9b9c7;
+  --border: #314559;
+  --accent: #67d6ff;
+  --highlight: #b7ff7a;
+}
+
+.page-preview[data-theme="note"] {
+  --bg: #f8f1cf;
+  --surface: #fffdf7;
+  --surface-2: #f5ecd1;
+  --text: #3f3024;
+  --text-2: #6f5a49;
+  --border: #c6aa84;
+  --accent: #8d5b2a;
+  --highlight: #f7ff9e;
+}
+
+.page-preview[data-theme="signal"] {
+  --bg: #030608;
+  --surface: #090d10;
+  --surface-2: #0d1419;
+  --text: #e9f8ff;
+  --text-2: #94b1be;
+  --border: #203844;
+  --accent: #35c9ff;
+  --highlight: #b6ff2f;
+}
+
+.page-preview[data-theme="news"] {
+  --bg: #d9d9d4;
+  --surface: #f4f3ef;
+  --surface-2: #e4e3dd;
+  --text: #171717;
+  --text-2: #555550;
+  --border: #9b9b96;
+  --accent: #303030;
+  --highlight: #fff7b0;
+}
+
+.page-preview[data-theme="draft"] {
+  --bg: #edf1ee;
+  --surface: #ffffff;
+  --surface-2: #f5f7f5;
+  --text: #1a2321;
+  --text-2: #60706d;
+  --border: #aebbb7;
+  --accent: #52665f;
+  --highlight: #e9ff87;
+}
+
+.page-preview.is-on {
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100%;
+}
+
+.page-preview.is-on .simple-editor-wrapper {
+  background: transparent;
+  color: var(--text);
+}
+
+.page-preview.is-on .tiptap.ProseMirror {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  line-height: 1.64;
+  color: var(--text);
+}
+
+.page-preview.is-on .tiptap.ProseMirror h1,
+.page-preview.is-on .tiptap.ProseMirror h2,
+.page-preview.is-on .tiptap.ProseMirror h3 {
+  font-family: Helvetica, Arial, sans-serif;
+  letter-spacing: -0.03em;
+}
+
+.page-preview.is-on mark {
+  background: var(--highlight);
+  color: inherit;
+}
+
+.preview-mast {
+  max-width: 648px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2.4rem 3rem 0;
+}
+
+.preview-mast .kicker {
+  margin: 0;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+
+.preview-mast h1 {
+  margin: 0.35rem 0 0.4rem;
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  font-size: clamp(32px, 4vw, 44px);
+  line-height: 0.98;
+}
+
+.preview-mast .standfirst {
+  margin: 0;
+  max-width: 60ch;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 18px;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+
+@media (max-width: 480px) {
+  .preview-mast { padding: 1.4rem 1.5rem 0; }
+}

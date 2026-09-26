@@ -96,3 +96,7 @@ All four are cookieless. See `_data/analytics.js`.
 ## Writing
 
 See [WRITING.md](WRITING.md). It is a local note for authors. It is not part of the site.
+
+A page can set `theme:` (`light`, `night`, `note`, `signal`, `news`, `draft`) so first-time visitors land in that atmosphere. A saved Customize view preference still wins; **Reset to page theme** clears it. See WRITING.md.
+
+The writing studio lives in [`editor/`](editor/README.md). It is a separate Next.js app for `editor.andean-road.com` and does not replace this Eleventy build.

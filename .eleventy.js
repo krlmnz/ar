@@ -266,6 +266,8 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.ignores.add('WRITING.md');
   eleventyConfig.ignores.add('_starters/**');
   eleventyConfig.ignores.add('lib/**');
+  // The writing studio is a separate Next.js app. It must not enter _site.
+  eleventyConfig.ignores.add('editor/**');
 
   // Template options
   return {
