@@ -1,0 +1,12 @@
+---
+permalink: /editor/pages.json
+eleventyExcludeFromCollections: true
+---
+{%- set rows = [] -%}
+{%- for item in collections.previews -%}
+{%- set rows = (rows.push({path: item.inputPath | replace("./", ""), title: item.data.title, url: item.url, kind: item.fileSlug, published: item.data.published, locked: true}), rows) -%}
+{%- endfor -%}
+{%- for item in collections.places -%}
+{%- set rows = (rows.push({path: item.inputPath | replace("./", ""), title: item.data.title, url: item.url, kind: "place", published: item.data.published, locked: false}), rows) -%}
+{%- endfor -%}
+{{ rows | json | safe }}

@@ -145,6 +145,15 @@ module.exports = function(eleventyConfig) {
       .sort((a, b) => (a.data.order || 99) - (b.data.order || 99));
   });
 
+  // The template previews behind the studio gate. Demos stay published so
+  // they keep building; `gate: true` keeps them noindexed and off the
+  // sitemap, and nothing public lists them anymore.
+  eleventyConfig.addCollection('previews', collection => {
+    return collection
+      .getFilteredByGlob('content/demos/*.md')
+      .sort((a, b) => (a.data.order || 99) - (b.data.order || 99));
+  });
+
   // Group places by region
   eleventyConfig.addCollection('byRegion', collection => {
     const places = collection.getFilteredByGlob('content/places/*/index.md')
@@ -249,6 +258,7 @@ module.exports = function(eleventyConfig) {
     return (days || []).filter((d) => d.place && slugs.has(d.place)).length;
   });
   eleventyConfig.addFilter('striptags', (s) => String(s || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
+  eleventyConfig.addFilter('json', (value) => JSON.stringify(value));
 
   // Icons are inlined at build time, so re-read them when they change
   eleventyConfig.addWatchTarget('assets/icons/');
@@ -266,8 +276,6 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.ignores.add('WRITING.md');
   eleventyConfig.ignores.add('_starters/**');
   eleventyConfig.ignores.add('lib/**');
-  // The writing studio is a separate Next.js app. It must not enter _site.
-  eleventyConfig.ignores.add('editor/**');
 
   // Template options
   return {

@@ -1,0 +1,113 @@
+---
+layout: layouts/base.njk
+permalink: /editor/
+published: false
+title: Studio
+overline: Private
+subtitle: The desk where new pages get written. Enter the code once — this browser remembers it.
+seo:
+  title: Studio — Andean Road
+  description: Private writing studio for Andean Road.
+---
+
+<div class="hub wrap" id="studio">
+  <header class="hero">
+    <div class="hero-overline">Studio · Private</div>
+    <h1 class="hero-title">Studio</h1>
+    <p class="hero-lede">{{ subtitle }}</p>
+  </header>
+
+  <section class="section" id="gate-screen" hidden>
+    <div class="section-label">Sign in</div>
+    <h2 class="section-title">Enter the code</h2>
+    <form class="studio-form" id="gate-form" style="max-width: 420px">
+      <label for="gate-code">Studio code</label>
+      <input type="password" id="gate-code" inputmode="numeric" autocomplete="off" required>
+      <p class="studio-notice studio-notice--error" id="gate-error" hidden>That code did not match.</p>
+      <div class="studio-actions">
+        <button class="primary" type="submit">Enter</button>
+      </div>
+      <p class="studio-hint">A simple lock, not a login — it keeps casual visitors out. Anything here stays unpublished until you publish it.</p>
+    </form>
+  </section>
+
+  <section id="app" hidden>
+    <div class="studio-bar" role="toolbar" aria-label="Studio">
+      <button type="button" data-view="library" aria-pressed="true">Library</button>
+      <button type="button" data-view="new" aria-pressed="false">New page</button>
+      <a href="/editor/templates/">Template previews</a>
+      <button type="button" data-view="settings" aria-pressed="false">Settings</button>
+      <button type="button" id="forget">Forget this browser</button>
+    </div>
+
+    <div id="view-library">
+      <div class="section-label">Library</div>
+      <h2 class="section-title">Pages</h2>
+      <p class="studio-hint" id="library-note">Drafts build but stay out of listings until published.</p>
+      <div id="library"></div>
+      <form class="studio-form" id="open-form" style="max-width: 560px; margin-top: 24px">
+        <div class="section-label">Open anything</div>
+        <label for="open-path">Repo path — drafts and files the list above cannot see yet</label>
+        <input type="text" id="open-path" placeholder="content/places/isla-negra/index.md" spellcheck="false">
+        <div class="studio-actions">
+          <button type="submit">Open file</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="view-edit" hidden>
+      <div class="section-label" id="edit-kicker">Edit</div>
+      <h2 class="section-title" id="edit-title">Edit page</h2>
+      <form class="studio-form" id="edit-form">
+        <label for="edit-heading">Title</label>
+        <input type="text" id="edit-heading">
+        <label for="edit-body">Markdown</label>
+        <textarea id="edit-body" spellcheck="false"></textarea>
+        <div class="studio-actions">
+          <button type="button" id="save-draft">Save draft</button>
+          <button type="button" class="primary" id="publish">Publish</button>
+          <button type="button" id="unpublish">Unpublish</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="view-new" hidden>
+      <div class="section-label">New page</div>
+      <h2 class="section-title">Start from a template</h2>
+      <form class="studio-form" id="new-form" style="max-width: 560px">
+        <label for="new-kind">Template</label>
+        <select id="new-kind"></select>
+        <p class="studio-hint" id="new-kind-when"></p>
+        <label for="new-title">Title</label>
+        <input type="text" id="new-title" required>
+        <div class="studio-actions">
+          <button type="button" class="primary" id="create-draft">Create draft</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="view-settings" hidden>
+      <div class="section-label">Settings</div>
+      <h2 class="section-title">Publish to GitHub</h2>
+      <p class="studio-hint">Saving writes markdown into the repo through the GitHub API, and Netlify rebuilds the site from that commit. The token below never leaves this browser — it is stored in localStorage, not in the site.</p>
+      <form class="studio-form" id="settings-form" style="max-width: 560px">
+        <label for="set-token">GitHub token (contents: write on this repo)</label>
+        <input type="password" id="set-token" autocomplete="off">
+        <label for="set-owner">Owner</label>
+        <input type="text" id="set-owner">
+        <label for="set-repo">Repository</label>
+        <input type="text" id="set-repo">
+        <label for="set-branch">Branch</label>
+        <input type="text" id="set-branch">
+        <div class="studio-actions">
+          <button type="button" class="primary" id="save-settings">Save settings</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="studio-notice" id="notice" hidden></div>
+  </section>
+</div>
+
+<script id="studio-templates" type="application/json">{{ templates | dump | safe }}</script>
+<script src="/assets/js/editor.js" defer></script>
