@@ -91,6 +91,42 @@
     clearNotice();
   }
 
+  function noteSlug(path) {
+    var match = String(path || '').match(/^content\/([a-z0-9-]+)\.md$/);
+    return match ? match[1] : '';
+  }
+
+  function noteUrl(path) {
+    var slug = noteSlug(path);
+    return slug ? '/notes/' + slug + '/' : '';
+  }
+
+  function frontValue(front, key) {
+    var match = String(front || '').match(new RegExp('^' + key + ':\\s*(.*)$', 'm'));
+    return match ? match[1].trim().replace(/^"(.*)"$/, '$1') : '';
+  }
+
+  function cacheDraft(path, text, published) {
+    try {
+      sessionStorage.setItem('ar-draft:' + path, text);
+      var slug = noteSlug(path);
+      if (!slug) return;
+      var parts = splitFrontMatter(text);
+      var layout = frontValue(parts.front, 'layout');
+      sessionStorage.setItem('ar-note:' + slug, JSON.stringify({
+        slug: slug,
+        title: parseTitle(text) || 'Untitled',
+        kind: layout.indexOf('guide') !== -1 ? 'guide' : 'center',
+        subtitle: frontValue(parts.front, 'subtitle'),
+        series: frontValue(parts.front, 'series'),
+        cover: /^cover:\s*true\s*$/m.test(parts.front),
+        cover_meta: frontValue(parts.front, 'cover_meta'),
+        markdown: parts.body,
+        published: !!published
+      }));
+    } catch (e) { /* private mode */ }
+  }
+
   function row(page) {
     var item = document.createElement('div');
     item.setAttribute('class', 'page-row');
@@ -105,17 +141,17 @@
     meta.setAttribute('class', 'meta');
     var kind = document.createElement('span');
     kind.setAttribute('class', 'pill');
-    kind.textContent = page.kind;
+    kind.textContent = page.kind === 'guide' ? 'Field guide' : (page.kind === 'center' ? 'Essay' : (page.kind || 'Page'));
     var state = document.createElement('span');
     if (page.locked) {
       state.setAttribute('class', 'pill');
-      state.textContent = 'Preview';
+      state.textContent = 'Template';
     } else {
       state.setAttribute('class', 'pill' + (page.published ? '' : ' pill--draft'));
       state.textContent = page.published ? 'Published' : 'Draft';
     }
     var preview = document.createElement('a');
-    preview.href = page.studio ? page.url : page.url;
+    preview.href = page.url;
     preview.textContent = 'Preview';
     var edit = document.createElement('button');
     edit.type = 'button';
@@ -124,6 +160,13 @@
     meta.appendChild(kind);
     meta.appendChild(state);
     meta.appendChild(preview);
+    var siteHref = page.publicUrl || (page.published ? noteUrl(page.path) : '');
+    if (siteHref && siteHref !== page.url) {
+      var site = document.createElement('a');
+      site.href = siteHref;
+      site.textContent = 'Site';
+      meta.appendChild(site);
+    }
     meta.appendChild(edit);
     item.appendChild(left);
     item.appendChild(meta);
@@ -194,10 +237,13 @@
       var text = '---\n' + front + '\n---\n' + parts.body.replace(/^\n+/, '\n');
       var data = await api({ action: 'write', path: current.path, text: text, verb: verb });
       $('edit-body').value = data.text;
-      var message = data.committed
-        ? 'Saved. The public site rebuilds in about a minute.'
-        : 'Draft saved. Preview it here. It joins the public site on the next build.';
-      notice(message, false, { url: '/editor/draft/?path=' + encodeURIComponent(current.path), label: 'Preview' });
+      cacheDraft(current.path, data.text, published);
+      var publicUrl = published ? noteUrl(current.path) : '';
+      if (published && publicUrl) {
+        notice('Published. It is on the site now.', false, { url: publicUrl, label: 'View on the site' });
+      } else {
+        notice('Draft saved.', false, { url: '/editor/draft/?path=' + encodeURIComponent(current.path), label: 'Preview' });
+      }
       loadLibrary();
     } catch (e) {
       notice(e.message, true);
@@ -231,10 +277,8 @@
       var data = await api({ action: 'create', kind: t.id, title: title });
       $('new-title').value = '';
       fillEditor({ path: data.path, title: data.title, kind: data.kind, url: data.url }, data.text);
-      var message = data.committed
-        ? 'Draft created. The public site rebuilds in about a minute.'
-        : 'Draft created. Preview it here.';
-      notice(message, false, { url: data.url, label: 'Preview' });
+      cacheDraft(data.path, data.text, false);
+      notice('Draft created. Preview it here. Publish when it should be on the site.', false, { url: data.url, label: 'Preview' });
       loadLibrary();
     } catch (e) {
       notice(e.message, true);

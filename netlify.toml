@@ -48,6 +48,19 @@ status = 200
 force = true
 
 [[redirects]]
+from = "/api/posts"
+to = "/.netlify/functions/posts"
+status = 200
+force = true
+
+# Published notes that are not in the latest build yet. A file at the same
+# path wins once Eleventy has generated it, because this redirect is not forced.
+[[redirects]]
+from = "/notes/*"
+to = "/notes/view/?slug=:splat"
+status = 200
+
+[[redirects]]
 from = "/templates/*"
 to = "/editor/templates/:splat"
 status = 301

@@ -1,19 +1,26 @@
 ---
 layout: layouts/guide.njk
+permalink: /notes/__SLUG__/
 published: false
 title: "__TITLE__"
-# series: Field guide          # small label above the title
-# subtitle: ""                  # the line under the title
-# cover: true                   # poster header. Omit for a plain title.
-# cover_meta: ""                # one line along the bottom of the cover
+subtitle: A field guide with a contents rail.
+series: Field guide
 updated: __DATE__
 ---
 
-The sentence that opens the page. Then a heading for every section you want in the contents rail.
+The opening paragraph. Each `##` heading becomes a link in the left rail.
+
+<div class="plain"><strong>In plain words</strong>Say what the section is for, in one or two sentences.</div>
+
+> **Rule:** the theme changes the colors. It does not change the words.
 
 ## First section
 
-Write the section in ordinary markdown. Lists, quotes, and `code` all work.
+Write the section in ordinary markdown.
+
+```
+one line, so the page has a code block
+```
 
 ## Second section (#second)
 

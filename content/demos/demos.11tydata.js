@@ -1,11 +1,16 @@
-// Template previews. They live behind the studio gate at
-// /editor/templates/<kind>/ — visible for trying things out, but unpublished
-// so they stay out of listings, maps, and the sitemap.
+// Only the two post templates are previewed. The other demo files stay in
+// the repo but do not publish — their layouts fight the reading column.
+const KEEP = ['guide', 'center'];
+
 module.exports = {
-  permalink: '/editor/templates/{{ page.fileSlug }}/',
   demo: true,
   gate: true,
   eleventyComputed: {
+    permalink: (data) => {
+      const slug = data.page.fileSlug;
+      if (KEEP.indexOf(slug) === -1) return false;
+      return `/editor/templates/${slug}/`;
+    },
     crumbs: (data) => [
       { label: 'Studio', url: '/editor/' },
       { label: 'Templates', url: '/editor/templates/' },

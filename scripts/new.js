@@ -75,7 +75,7 @@ const body = fs.readFileSync(starterPath, 'utf8')
 fs.mkdirSync(path.dirname(target), { recursive: true });
 fs.writeFileSync(target, body);
 
-const url = spec.dir ? `/places/${slug}/` : `/${slug}/`;
+const url = `/notes/${slug}/`;
 console.log(`
   Created  ${path.relative(ROOT, target)}
   Preview  http://localhost:8080${url}   (npm start)

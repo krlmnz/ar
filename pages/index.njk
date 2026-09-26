@@ -1,11 +1,30 @@
 ---
-layout: layouts/browse.njk
+layout: layouts/base.njk
 permalink: /
 title: Andean Road
-overline: A personal guide to Chile
-subtitle: Starting with one place. More on the way.
-source: places
+overline: Notes
+subtitle: Posts show up here once they are published.
 seo:
   title: Andean Road
-  description: A personal guide to Chile — places, one at a time.
+  description: Notes from Andean Road.
 ---
+
+<div class="hub wrap">
+  <header class="hero">
+    <div class="hero-overline">{{ overline }}</div>
+    <h1 class="hero-title">{{ title }}</h1>
+    <p class="hero-lede">{{ subtitle }}</p>
+  </header>
+
+  <div class="hub-feature" id="post-list"{% if not collections.posts.length %} hidden{% endif %}>
+    {% for post in collections.posts %}
+    <a class="guide-entry" href="{{ post.url }}">
+      <div class="guide-entry__overline">{% if post.data.layout == "layouts/guide.njk" %}Field guide{% else %}Essay{% endif %}</div>
+      <div class="guide-entry__title">{{ post.data.title }}</div>
+      {% if post.data.subtitle or post.data.summary %}<div class="guide-entry__description">{{ post.data.subtitle or post.data.summary }}</div>{% endif %}
+    </a>
+    {% endfor %}
+  </div>
+  <p class="empty-note" id="post-empty"{% if collections.posts.length %} hidden{% endif %}>No posts yet.</p>
+</div>
+<script src="/assets/js/live-posts.js" defer></script>

@@ -151,7 +151,16 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addCollection('previews', collection => {
     return collection
       .getFilteredByGlob('content/demos/*.md')
+      .filter(item => item.fileSlug === 'guide' || item.fileSlug === 'center')
       .sort((a, b) => (a.data.order || 99) - (b.data.order || 99));
+  });
+
+  eleventyConfig.addCollection('posts', collection => {
+    return collection
+      .getFilteredByGlob('content/*.md')
+      .filter(item => item.data.published !== false)
+      .filter(item => item.data.layout === 'layouts/guide.njk' || item.data.layout === 'layouts/center.njk')
+      .sort((a, b) => String(b.data.updated || '').localeCompare(String(a.data.updated || '')));
   });
 
   // Group places by region

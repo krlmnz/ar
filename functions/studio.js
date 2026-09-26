@@ -109,6 +109,28 @@ async function githubWrite(path, text, message, sha) {
   return true;
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/* Eventual reads. Strong consistency needs an uncachedEdgeURL this
+ * function environment does not have, and requesting it fails the read. */
+async function readBlob(store, key, attempts) {
+  const tries = attempts || 1;
+  for (let i = 0; i < tries; i++) {
+    const text = await store.get(key, { type: "text" });
+    if (text != null) return text;
+    if (i < tries - 1) await sleep(250 * (i + 1));
+  }
+  return null;
+}
+
+function noteUrl(path, text) {
+  if (!/^published:\s*true\s*$/m.test(text || "")) return "";
+  const match = String(path).match(/^content\/([a-z0-9-]+)\.md$/);
+  return match ? "/notes/" + match[1] + "/" : "";
+}
+
 async function rawFile(path) {
   const res = await fetch(
     "https://raw.githubusercontent.com/" + OWNER + "/" + REPO + "/" + BRANCH + "/" + path
@@ -143,13 +165,15 @@ exports.handler = async function (event) {
       const pages = [];
       for (const blob of listed.blobs || []) {
         if (!String(blob.key).startsWith("content/") || !String(blob.key).endsWith(".md")) continue;
-        const text = await store.get(blob.key, { type: "text", consistency: "strong" });
+        const text = await readBlob(store, blob.key, 2);
+        if (text == null) continue;
         pages.push({
           path: blob.key,
           title: titleOf(text),
           kind: kindOf(text),
           text: text,
           url: "/editor/draft/?path=" + encodeURIComponent(blob.key),
+          publicUrl: noteUrl(blob.key, text),
           published: /^published:\s*true\s*$/m.test(text || ""),
           studio: true
         });
@@ -166,7 +190,7 @@ exports.handler = async function (event) {
       if (!slug) return json(400, { error: "That title makes an empty slug. Try plainer characters." });
       const path = template.dir ? template.out + "/" + slug + "/index.md" : template.out + "/" + slug + ".md";
       safePath(path);
-      const existing = await store.get(path, { type: "text", consistency: "strong" });
+      const existing = await readBlob(store, path, 1);
       if (existing) return json(409, { error: "A draft with that title already exists." });
       if (await rawFile(path)) return json(409, { error: "A page with that title already exists." });
       const text = await starterText(template, title, slug);
@@ -184,7 +208,7 @@ exports.handler = async function (event) {
 
     if (body.action === "read") {
       const path = safePath(body.path);
-      const blob = await store.get(path, { type: "text", consistency: "strong" });
+      const blob = await readBlob(store, path, 6);
       if (blob != null) return json(200, { path: path, text: blob, source: "studio" });
       const remote = await githubFile(path);
       if (remote) return json(200, { path: path, text: remote.text, sha: remote.sha, source: "github" });
