@@ -1,0 +1,47 @@
+---
+layout: layouts/base.njk
+permalink: /editor/templates/
+published: false
+gate: true
+title: Templates
+overline: Private · Studio only
+subtitle: Twelve layouts to try. Pick one, see how it reads, then start a new page from it in the studio. Nothing here is public.
+seo:
+  title: Templates — Studio
+  description: Private template previews for the Andean Road studio.
+---
+
+<div class="hero">
+  <div class="hero-overline">{{ overline }}</div>
+  <h1 class="hero-title">{{ title }}</h1>
+  <p class="hero-lede">{{ subtitle }}</p>
+  <p><a href="/editor/">← Back to the studio</a></p>
+</div>
+
+<div class="tpl-grid" data-gated>
+  {% for t in templates %}
+  <a class="tpl-card" href="/editor/templates/{{ t.id }}/">
+    <div class="wire wire--{{ t.id }}" aria-hidden="true">
+      <i></i><i></i><i></i><i></i>
+    </div>
+    <div class="tpl-card__body">
+      <div class="tpl-card__kicker">
+        <span>{{ t.id }}</span>
+        {% if t.advanced %}<span>Advanced</span>{% endif %}
+      </div>
+      <h2 class="tpl-card__title">{{ t.title }}</h2>
+      <p class="tpl-card__when">{{ t.when }}</p>
+      <p class="tpl-card__cmd">npm run new -- {{ t.id }} "Title"</p>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+
+<section class="section">
+  <div class="section-label">The contract</div>
+  <h2 class="section-title">What you actually edit</h2>
+  <div class="callout">
+    <div class="callout__label">Front matter, then markdown</div>
+    <p>Only <code>layout</code> and <code>title</code> are required. New files start as <code>published: false</code>, so a draft builds for preview and stays out of Places, maps, and the sitemap. Flip it to <code>true</code> when it should be found. Starter files in <code>_starters/</code> never publish.</p>
+  </div>
+</section>

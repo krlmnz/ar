@@ -8,7 +8,7 @@
   <meta name="description" content="{% if seo and seo.description %}{{ seo.description }}{% elif description %}{{ description }}{% else %}{{ site.description }}{% endif %}">
 
   <link rel="canonical" href="{{ site.url }}{{ page.url }}">
-  {% if published == false %}<meta name="robots" content="noindex">{% endif %}
+  {% if published == false or gate %}<meta name="robots" content="noindex">{% endif %}
 
   <meta property="og:title" content="{% if seo and seo.title %}{{ seo.title }}{% elif title %}{{ title }}{% endif %}">
   <meta property="og:description" content="{% if seo and seo.description %}{{ seo.description }}{% elif description %}{{ description }}{% endif %}">
@@ -76,6 +76,9 @@
 
   {% include "partials/footer.njk" %}
 
+  {% if gate %}
+  <script src="/assets/js/editor-gate.js" defer></script>
+  {% endif %}
   <script src="/assets/js/view.js" defer></script>
 </body>
 </html>
