@@ -518,7 +518,7 @@ function fillEditor(page, text) {
   syncPublishChrome();
   surface.setMarkdown(parts.body || '', false);
   $('doc-markdown').value = surface.getMarkdown();
-  $('link-form').hidden = true;
+  closeLinkForm();
   lastSnapshot = snapshot();
   hydrating = false;
   setStatus('saved');
@@ -631,6 +631,7 @@ function syncToolbar() {
     if (button.getAttribute('role') === 'menuitemradio') {
       button.setAttribute('aria-checked', on ? 'true' : 'false');
     }
+    if (cmd === 'link') button.setAttribute('aria-label', on ? 'Remove link' : 'Link');
     if (cmd === 'undo') button.disabled = markdownMode || !editor.can().undo();
     else if (cmd === 'redo') button.disabled = markdownMode || !editor.can().redo();
     else button.disabled = markdownMode;
@@ -674,15 +675,36 @@ function runCommand(cmd) {
   else if (cmd === 'alignJustify') chain.setTextAlign('justify').run();
   else if (cmd === 'undo') chain.undo().run();
   else if (cmd === 'redo') chain.redo().run();
-  else if (cmd === 'link') openLinkForm();
+  else if (cmd === 'link') toggleLink();
   else if (cmd === 'image') $('image-file').click();
   syncToolbar();
 }
 
-function openLinkForm() {
+let linkSelection = null;
+
+function closeLinkForm() {
   const form = $('link-form');
-  const previous = surface.editor.getAttributes('link').href || '';
-  $('link-url').value = previous;
+  if (form) form.hidden = true;
+  linkSelection = null;
+}
+
+function toggleLink() {
+  if (!surface || markdownMode) return;
+  const editor = surface.editor;
+  const form = $('link-form');
+  if (form && !form.hidden) {
+    closeLinkForm();
+    editor.commands.focus();
+    return;
+  }
+  if (editor.isActive('link')) {
+    editor.chain().focus().unsetLink().run();
+    closeLinkForm();
+    return;
+  }
+  const { from, to } = editor.state.selection;
+  linkSelection = { from, to };
+  $('link-url').value = '';
   form.hidden = false;
   $('link-url').focus();
 }
@@ -690,15 +712,17 @@ function openLinkForm() {
 function applyLink(event) {
   event.preventDefault();
   const href = $('link-url').value.trim();
+  const chain = surface.editor.chain().focus();
+  if (linkSelection) chain.setTextSelection(linkSelection);
   if (!href) {
-    surface.editor.chain().focus().unsetLink().run();
+    chain.unsetLink().run();
   } else {
     const url = /^https?:\/\//i.test(href) || href.startsWith('/') || href.startsWith('#') || href.startsWith('mailto:')
       ? href
       : 'https://' + href;
-    surface.editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+    chain.extendMarkRange('link').setLink({ href: url }).run();
   }
-  $('link-form').hidden = true;
+  closeLinkForm();
   syncToolbar();
 }
 
@@ -706,6 +730,7 @@ function setMarkdownMode(on) {
   if (!surface) return;
   if (on === markdownMode) return;
   if (on) {
+    closeLinkForm();
     $('doc-markdown').value = surface.getMarkdown();
     $('doc-markdown').hidden = false;
     $('studio-doc').classList.add('is-markdown');
@@ -825,14 +850,21 @@ function init() {
     trigger.addEventListener('click', () => toggleMenu(trigger.closest('.studio-menu')));
   });
   document.addEventListener('click', (event) => {
-    if (event.target.closest && event.target.closest('.studio-menu')) return;
-    closeMenus();
+    const target = event.target;
+    if (!(target.closest && target.closest('.studio-menu'))) closeMenus();
+    const form = $('link-form');
+    if (!form || form.hidden) return;
+    if (target.closest && (target.closest('#link-form') || target.closest('[data-cmd="link"]'))) return;
+    closeLinkForm();
   });
   $('markdown-toggle').addEventListener('click', () => setMarkdownMode(!markdownMode));
   $('link-form').addEventListener('submit', applyLink);
-  $('link-remove').addEventListener('click', () => {
-    surface.editor.chain().focus().unsetLink().run();
-    $('link-form').hidden = true;
+  $('link-url').addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    event.preventDefault();
+    event.stopPropagation();
+    closeLinkForm();
+    if (surface) surface.editor.commands.focus();
   });
   $('doc-markdown').addEventListener('input', () => { if (!hydrating) scheduleSave(); });
   $('image-file').addEventListener('change', () => {
@@ -852,7 +884,10 @@ function init() {
   });
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') closeMenus();
+    if (event.key === 'Escape') {
+      closeMenus();
+      closeLinkForm();
+    }
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') {
       event.preventDefault();
       flushSoon();

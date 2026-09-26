@@ -148,9 +148,8 @@ seo:
           </div>
           <form class="studio-link" id="link-form" hidden>
             <label class="sr-only" for="link-url">Link address</label>
-            <input id="link-url" type="url" placeholder="https://" inputmode="url" autocomplete="off">
-            <button type="submit">Apply</button>
-            <button type="button" id="link-remove">Remove</button>
+            <input id="link-url" type="text" placeholder="https://" inputmode="url" autocomplete="off" spellcheck="false">
+            <button type="submit" class="icon-btn icon-btn--touch" aria-label="Apply link">{% icon "check", size=16 %}</button>
           </form>
         </div>
 
