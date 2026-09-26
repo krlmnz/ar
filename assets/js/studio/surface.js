@@ -1,11 +1,15 @@
 import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
+import Highlight from '@tiptap/extension-highlight';
+import TextAlign from '@tiptap/extension-text-align';
 import { StudioMarkdown } from './markdown.js';
 import { StudioHeading } from './heading.js';
+import { StudioParagraph } from './paragraph.js';
 import { StudioCode } from './code-block.js';
 import { Figure } from './figure.js';
 import { HtmlBlock } from './html-block.js';
+import { StudioSuperscript, StudioSubscript } from './scripts.js';
 
 export function looksLikeMarkdown(text) {
   const source = String(text || '').trim();
@@ -18,6 +22,9 @@ export function looksLikeMarkdown(text) {
     /!\[[^\]]*\]\([^)]+\)/.test(source) ||
     /\[[^\]]+\]\(https?:\/\/[^)]+\)/.test(source) ||
     /\*\*[^*]+\*\*/.test(source) ||
+    /~~[^~]+~~/.test(source) ||
+    /\+\+[^+]+\+\+/.test(source) ||
+    /==[^=]+==/.test(source) ||
     /(^|\n)---\s*($|\n)/.test(source)
   );
 }
@@ -39,16 +46,23 @@ export function mountEditor(element, hooks) {
     extensions: [
       StarterKit.configure({
         heading: false,
+        paragraph: false,
         codeBlock: false,
-        underline: false,
-        strike: false,
         link: {
           openOnClick: false,
           autolink: true,
           HTMLAttributes: { target: null, rel: null, class: null }
         }
       }),
+      StudioParagraph,
       StudioHeading.configure({ levels: [2, 3] }),
+      Highlight,
+      StudioSuperscript,
+      StudioSubscript,
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+        alignments: ['left', 'center', 'right', 'justify']
+      }),
       StudioCode,
       Figure,
       HtmlBlock,

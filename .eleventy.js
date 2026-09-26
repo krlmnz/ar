@@ -4,6 +4,7 @@ const yaml = require('js-yaml');
 const markdownIt = require('markdown-it');
 const markdownItAnchor = require('markdown-it-anchor');
 const explicitHeadingIds = require('./lib/headings');
+const editorMarks = require('./lib/editor-marks');
 const prose = require('./lib/prose');
 
 module.exports = function(eleventyConfig) {
@@ -78,7 +79,8 @@ module.exports = function(eleventyConfig) {
         symbol: '#'
       })
     })
-    .use(explicitHeadingIds));
+    .use(explicitHeadingIds)
+    .use(editorMarks));
 
   // Turn place collection items into the feature shape the map engine reads.
   eleventyConfig.addFilter('toFeatures', (items) => (items || [])

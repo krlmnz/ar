@@ -59,25 +59,74 @@ seo:
       <article id="studio-doc" class="tpl tpl--center studio-doc">
         <div class="studio-docbar">
           <div class="studio-toolbar" role="toolbar" aria-label="Formatting">
-            <button type="button" data-cmd="bold" aria-label="Bold" aria-keyshortcuts="Meta+B" aria-pressed="false">{% icon "text-b", size=18 %}</button>
-            <button type="button" data-cmd="italic" aria-label="Italic" aria-keyshortcuts="Meta+I" aria-pressed="false">{% icon "text-italic", size=18 %}</button>
+            <div class="studio-toolbar__group">
+              <button type="button" data-cmd="undo" aria-label="Undo" aria-keyshortcuts="Meta+Z">{% icon "arrow-counter-clockwise", size=18 %}</button>
+              <button type="button" data-cmd="redo" aria-label="Redo" aria-keyshortcuts="Meta+Shift+Z">{% icon "arrow-clockwise", size=18 %}</button>
+            </div>
             <span class="studio-toolbar__sep" aria-hidden="true"></span>
-            <button type="button" data-cmd="h2" aria-label="Heading 2" aria-pressed="false">{% icon "text-h-two", size=18 %}</button>
-            <button type="button" data-cmd="h3" aria-label="Heading 3" aria-pressed="false">{% icon "text-h-three", size=18 %}</button>
+            <div class="studio-toolbar__group">
+              <div class="studio-menu" data-menu="heading">
+                <button type="button" class="studio-menu__trigger" aria-haspopup="menu" aria-expanded="false" aria-pressed="false" aria-label="Text style">
+                  <span class="studio-toolbar__h" id="heading-label">H</span>
+                  {% icon "caret-down", size=12, class="studio-caret" %}
+                </button>
+                <div class="studio-menu__panel" role="menu" hidden>
+                  <button type="button" role="menuitemradio" data-cmd="paragraph" class="studio-menu__item--p" aria-checked="false">Paragraph</button>
+                  <button type="button" role="menuitemradio" data-cmd="h2" class="studio-menu__item--h2" aria-checked="false">Heading 2</button>
+                  <button type="button" role="menuitemradio" data-cmd="h3" class="studio-menu__item--h3" aria-checked="false">Heading 3</button>
+                </div>
+              </div>
+              <div class="studio-menu" data-menu="list">
+                <button type="button" class="studio-menu__trigger" aria-haspopup="menu" aria-expanded="false" aria-pressed="false" aria-label="List">
+                  {% icon "list-bullets", size=18 %}
+                  {% icon "caret-down", size=12, class="studio-caret" %}
+                </button>
+                <div class="studio-menu__panel" role="menu" hidden>
+                  <button type="button" role="menuitemradio" data-cmd="bullet" aria-checked="false">{% icon "list-bullets", size=16 %}<span>Bullet list</span></button>
+                  <button type="button" role="menuitemradio" data-cmd="ordered" aria-checked="false">{% icon "list-numbers", size=16 %}<span>Numbered list</span></button>
+                </div>
+              </div>
+              <button type="button" data-cmd="ordered" aria-label="Numbered list" aria-pressed="false">{% icon "list-numbers", size=18 %}</button>
+              <button type="button" data-cmd="quote" aria-label="Quote" aria-pressed="false">{% icon "quotes", size=18 %}</button>
+            </div>
             <span class="studio-toolbar__sep" aria-hidden="true"></span>
-            <button type="button" data-cmd="bullet" aria-label="Bullet list" aria-pressed="false">{% icon "list-bullets", size=18 %}</button>
-            <button type="button" data-cmd="ordered" aria-label="Numbered list" aria-pressed="false">{% icon "list-numbers", size=18 %}</button>
-            <button type="button" data-cmd="quote" aria-label="Quote" aria-pressed="false">{% icon "quotes", size=18 %}</button>
+            <div class="studio-toolbar__group">
+              <button type="button" data-cmd="bold" aria-label="Bold" aria-keyshortcuts="Meta+B" aria-pressed="false">{% icon "text-b", size=18 %}</button>
+              <button type="button" data-cmd="italic" aria-label="Italic" aria-keyshortcuts="Meta+I" aria-pressed="false">{% icon "text-italic", size=18 %}</button>
+              <button type="button" data-cmd="strike" aria-label="Strikethrough" aria-pressed="false">{% icon "text-strikethrough", size=18 %}</button>
+              <button type="button" data-cmd="code" aria-label="Inline code" aria-pressed="false">{% icon "code", size=18 %}</button>
+              <button type="button" data-cmd="underline" aria-label="Underline" aria-pressed="false">{% icon "text-underline", size=18 %}</button>
+              <button type="button" data-cmd="highlight" aria-label="Highlight" aria-pressed="false">{% icon "highlighter", size=18 %}</button>
+              <button type="button" data-cmd="link" aria-label="Link" aria-pressed="false">{% icon "link", size=18 %}</button>
+            </div>
             <span class="studio-toolbar__sep" aria-hidden="true"></span>
-            <button type="button" data-cmd="link" aria-label="Link" aria-pressed="false">{% icon "link", size=18 %}</button>
-            <button type="button" data-cmd="rule" aria-label="Divider">{% icon "minus", size=18 %}</button>
-            <button type="button" data-cmd="image" aria-label="Image">{% icon "image", size=18 %}</button>
-            <button type="button" data-cmd="code" aria-label="Code block" aria-pressed="false">{% icon "code-block", size=18 %}</button>
+            <div class="studio-toolbar__group">
+              <button type="button" data-cmd="superscript" aria-label="Superscript" aria-pressed="false">{% icon "text-superscript", size=18 %}</button>
+              <button type="button" data-cmd="subscript" aria-label="Subscript" aria-pressed="false">{% icon "text-subscript", size=18 %}</button>
+            </div>
             <span class="studio-toolbar__sep" aria-hidden="true"></span>
-            <button type="button" data-cmd="undo" aria-label="Undo" aria-keyshortcuts="Meta+Z">{% icon "arrow-counter-clockwise", size=18 %}</button>
-            <button type="button" data-cmd="redo" aria-label="Redo" aria-keyshortcuts="Meta+Shift+Z">{% icon "arrow-clockwise", size=18 %}</button>
+            <div class="studio-toolbar__group">
+              <button type="button" data-cmd="alignLeft" aria-label="Align left" aria-pressed="true">{% icon "text-align-left", size=18 %}</button>
+              <button type="button" data-cmd="alignCenter" aria-label="Align center" aria-pressed="false">{% icon "text-align-center", size=18 %}</button>
+              <button type="button" data-cmd="alignRight" aria-label="Align right" aria-pressed="false">{% icon "text-align-right", size=18 %}</button>
+              <button type="button" data-cmd="alignJustify" aria-label="Justify" aria-pressed="false">{% icon "text-align-justify", size=18 %}</button>
+            </div>
             <span class="studio-toolbar__sep" aria-hidden="true"></span>
-            <button type="button" class="studio-toolbar__text" id="markdown-toggle" aria-pressed="false">Markdown</button>
+            <div class="studio-menu studio-add" data-menu="add">
+              <button type="button" class="studio-menu__trigger studio-toolbar__add" aria-haspopup="menu" aria-expanded="false" aria-label="Add">
+                {% icon "plus", size=16 %}
+                <span>Add</span>
+              </button>
+              <div class="studio-menu__panel" role="menu" hidden>
+                <button type="button" role="menuitem" data-cmd="image">{% icon "image", size=16 %}<span>Image</span></button>
+                <button type="button" role="menuitem" data-cmd="codeBlock">{% icon "code-block", size=16 %}<span>Code block</span></button>
+                <button type="button" role="menuitem" data-cmd="rule">{% icon "minus", size=16 %}<span>Divider</span></button>
+              </div>
+            </div>
+            <span class="studio-toolbar__sep" aria-hidden="true"></span>
+            <div class="studio-toolbar__group">
+              <button type="button" id="markdown-toggle" aria-pressed="false" aria-label="Markdown">{% icon "markdown-logo", size=18 %}</button>
+            </div>
           </div>
           <form class="studio-link" id="link-form" hidden>
             <label class="sr-only" for="link-url">Link address</label>

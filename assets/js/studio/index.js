@@ -541,43 +541,103 @@ async function createDraft(event) {
   }
 }
 
+function closeMenus() {
+  document.querySelectorAll('.studio-menu').forEach((menu) => {
+    const panel = menu.querySelector('.studio-menu__panel');
+    const trigger = menu.querySelector('.studio-menu__trigger');
+    if (panel) panel.hidden = true;
+    if (trigger) trigger.setAttribute('aria-expanded', 'false');
+  });
+}
+
+function toggleMenu(menu) {
+  if (!menu || markdownMode) return;
+  const panel = menu.querySelector('.studio-menu__panel');
+  const willOpen = panel && panel.hidden;
+  closeMenus();
+  if (!willOpen || !panel) return;
+  panel.hidden = false;
+  menu.querySelector('.studio-menu__trigger').setAttribute('aria-expanded', 'true');
+}
+
 function syncToolbar() {
   if (!surface) return;
   const editor = surface.editor;
+  const centered = editor.isActive({ textAlign: 'center' });
+  const right = editor.isActive({ textAlign: 'right' });
+  const justify = editor.isActive({ textAlign: 'justify' });
   const map = {
     bold: () => editor.isActive('bold'),
     italic: () => editor.isActive('italic'),
+    strike: () => editor.isActive('strike'),
+    code: () => editor.isActive('code'),
+    underline: () => editor.isActive('underline'),
+    highlight: () => editor.isActive('highlight'),
+    link: () => editor.isActive('link'),
+    superscript: () => editor.isActive('superscript'),
+    subscript: () => editor.isActive('subscript'),
+    paragraph: () => editor.isActive('paragraph'),
     h2: () => editor.isActive('heading', { level: 2 }),
     h3: () => editor.isActive('heading', { level: 3 }),
     bullet: () => editor.isActive('bulletList'),
     ordered: () => editor.isActive('orderedList'),
     quote: () => editor.isActive('blockquote'),
-    link: () => editor.isActive('link'),
-    code: () => editor.isActive('codeBlock')
+    codeBlock: () => editor.isActive('codeBlock'),
+    alignLeft: () => !centered && !right && !justify,
+    alignCenter: () => centered,
+    alignRight: () => right,
+    alignJustify: () => justify
   };
   document.querySelectorAll('.studio-toolbar [data-cmd]').forEach((button) => {
     const cmd = button.getAttribute('data-cmd');
-    if (map[cmd]) button.setAttribute('aria-pressed', map[cmd]() ? 'true' : 'false');
-    if (cmd === 'undo') button.disabled = markdownMode || !editor.can().undo();
-    if (cmd === 'redo') button.disabled = markdownMode || !editor.can().redo();
-    if (cmd !== 'undo' && cmd !== 'redo' && button.id !== 'markdown-toggle') {
-      button.disabled = markdownMode;
+    const on = map[cmd] ? map[cmd]() : false;
+    if (map[cmd] && button.getAttribute('role') !== 'menuitemradio' && button.getAttribute('role') !== 'menuitem') {
+      button.setAttribute('aria-pressed', on ? 'true' : 'false');
     }
+    if (button.getAttribute('role') === 'menuitemradio') {
+      button.setAttribute('aria-checked', on ? 'true' : 'false');
+    }
+    if (cmd === 'undo') button.disabled = markdownMode || !editor.can().undo();
+    else if (cmd === 'redo') button.disabled = markdownMode || !editor.can().redo();
+    else button.disabled = markdownMode;
   });
+  document.querySelectorAll('.studio-menu__trigger').forEach((button) => {
+    button.disabled = markdownMode;
+  });
+  const heading = document.querySelector('[data-menu="heading"] .studio-menu__trigger');
+  const h2 = map.h2();
+  const h3 = map.h3();
+  if (heading) heading.setAttribute('aria-pressed', h2 || h3 ? 'true' : 'false');
+  const label = $('heading-label');
+  if (label) label.textContent = h2 ? 'H2' : h3 ? 'H3' : 'H';
+  const list = document.querySelector('[data-menu="list"] .studio-menu__trigger');
+  if (list) list.setAttribute('aria-pressed', map.bullet() ? 'true' : 'false');
 }
 
 function runCommand(cmd) {
   if (!surface || markdownMode) return;
+  closeMenus();
   const chain = surface.editor.chain().focus();
   if (cmd === 'bold') chain.toggleBold().run();
   else if (cmd === 'italic') chain.toggleItalic().run();
-  else if (cmd === 'h2') chain.toggleHeading({ level: 2 }).run();
-  else if (cmd === 'h3') chain.toggleHeading({ level: 3 }).run();
+  else if (cmd === 'strike') chain.toggleStrike().run();
+  else if (cmd === 'underline') chain.toggleUnderline().run();
+  else if (cmd === 'highlight') chain.toggleHighlight().run();
+  else if (cmd === 'superscript') chain.toggleSuperscript().run();
+  else if (cmd === 'subscript') chain.toggleSubscript().run();
+  else if (cmd === 'code') chain.toggleCode().run();
+  else if (cmd === 'paragraph') chain.setParagraph().run();
+  else if (cmd === 'h2') chain.setHeading({ level: 2 }).run();
+  else if (cmd === 'h3') chain.setHeading({ level: 3 }).run();
   else if (cmd === 'bullet') chain.toggleBulletList().run();
   else if (cmd === 'ordered') chain.toggleOrderedList().run();
   else if (cmd === 'quote') chain.toggleBlockquote().run();
   else if (cmd === 'rule') chain.setHorizontalRule().run();
-  else if (cmd === 'code') chain.toggleCodeBlock().run();
+  else if (cmd === 'codeBlock') chain.toggleCodeBlock().run();
+  else if (cmd === 'alignLeft') chain.unsetTextAlign().run();
+  else if (cmd === 'alignCenter') chain.setTextAlign('center').run();
+  else if (cmd === 'alignRight') chain.setTextAlign('right').run();
+  else if (cmd === 'alignJustify') chain.setTextAlign('justify').run();
   else if (cmd === 'undo') chain.undo().run();
   else if (cmd === 'redo') chain.redo().run();
   else if (cmd === 'link') openLinkForm();
@@ -624,6 +684,7 @@ function setMarkdownMode(on) {
     scheduleSave();
   }
   markdownMode = on;
+  if (on) closeMenus();
   $('markdown-toggle').setAttribute('aria-pressed', on ? 'true' : 'false');
   syncToolbar();
 }
@@ -711,6 +772,13 @@ function init() {
   document.querySelectorAll('.studio-toolbar [data-cmd]').forEach((button) => {
     button.addEventListener('click', () => runCommand(button.getAttribute('data-cmd')));
   });
+  document.querySelectorAll('.studio-menu__trigger').forEach((trigger) => {
+    trigger.addEventListener('click', () => toggleMenu(trigger.closest('.studio-menu')));
+  });
+  document.addEventListener('click', (event) => {
+    if (event.target.closest && event.target.closest('.studio-menu')) return;
+    closeMenus();
+  });
   $('markdown-toggle').addEventListener('click', () => setMarkdownMode(!markdownMode));
   $('link-form').addEventListener('submit', applyLink);
   $('link-remove').addEventListener('click', () => {
@@ -735,6 +803,7 @@ function init() {
   });
 
   document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeMenus();
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') {
       event.preventDefault();
       flushSoon();
