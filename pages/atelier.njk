@@ -1,0 +1,78 @@
+---
+layout: layouts/atelier.njk
+permalink: /atelier/
+title: Map atelier
+description: Sketch a map, add places, recolor land, water, parks, and buildings, then share a read-only link.
+script: /assets/atelier/js/editor.mjs
+---
+
+<div class="atelier-app">
+  <header class="atelier-bar">
+    <a class="atelier-mark" href="/atelier/">Map atelier</a>
+    <p class="atelier-bar__hint">Places, a palette, a link. Separate from the writing studio.</p>
+    <div class="atelier-bar__actions">
+      <span class="save-dot" id="save-dot" hidden>Saved in this browser</span>
+      <button type="button" class="btn btn--ghost" id="btn-new">New map</button>
+      <button type="button" class="btn btn--primary" id="btn-share">Share</button>
+    </div>
+  </header>
+
+  <div class="atelier-stage">
+    <div id="map" class="atelier-map" role="application" aria-label="Editable map"></div>
+    <p id="map-fallback" class="map-fallback" hidden>The basemap did not load. Check the network and reload.</p>
+
+    <aside class="panel panel--pop atelier-rail" id="rail" aria-label="Map editor">
+      <div class="rail-head">
+        <input class="plain-field plain-field--title" id="map-title" maxlength="120" placeholder="Untitled map" aria-label="Map title" autocomplete="off">
+        <textarea class="plain-field plain-field--desc" id="map-desc" rows="2" maxlength="400" placeholder="Add a description" aria-label="Description"></textarea>
+        <div class="tabs" role="tablist" aria-label="Editor sections">
+          <button type="button" class="tabs__tab" id="tab-places" role="tab" aria-selected="true" aria-controls="pane-places">Places <span class="tabs__count" id="place-count"></span></button>
+          <button type="button" class="tabs__tab" id="tab-design" role="tab" aria-selected="false" aria-controls="pane-design">Design</button>
+        </div>
+      </div>
+
+      <div class="panel__body" id="pane-places" role="tabpanel" aria-labelledby="tab-places">
+        <label class="field" for="geo-input">
+          <span class="sr-only">Search for a place</span>
+          <input class="input" id="geo-input" type="search" placeholder="Search for a place" autocomplete="off" enterkeyhint="search">
+        </label>
+        <div id="geo-results" hidden></div>
+        <p class="hint" id="add-hint">Search, or click the map. A click looks up a name for that spot.</p>
+        <div id="places-list"></div>
+      </div>
+
+      <div class="panel__body" id="pane-design" role="tabpanel" aria-labelledby="tab-design" hidden>
+        <p class="hint">Palettes recolor land, water, parks, and buildings. Roads stay with the basemap. Buildings appear from zoom 13.</p>
+        <div id="palette-list" class="palette-list"></div>
+        <p class="field-label">Surfaces</p>
+        <ul id="surface-list" class="surface-list"></ul>
+        <p class="hint" id="basemap-note" style="margin-top:12px"></p>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<dialog id="share-dialog" class="share-dialog" aria-labelledby="share-title">
+  <div class="panel__header">
+    <h2 class="panel__title" id="share-title">Share this map</h2>
+    <button type="button" class="icon-btn" id="share-close" aria-label="Close">×</button>
+  </div>
+  <div class="share-dialog__body">
+    <p class="share-summary" id="share-summary"></p>
+    <p class="hint">Anyone with the guest link sees this map read-only. Nothing is stored on a server — the map lives in the link.</p>
+    <span class="share-label">Guest link</span>
+    <div class="share-row">
+      <input class="input" id="share-link" readonly aria-label="Guest link">
+      <button type="button" class="btn btn--primary" id="share-copy">Copy link</button>
+    </div>
+    <span class="share-label">Embed</span>
+    <textarea class="textarea share-embed" id="share-embed" readonly rows="4" aria-label="Embed snippet"></textarea>
+    <div class="share-actions">
+      <button type="button" class="btn" id="share-open">Open guest view</button>
+      <button type="button" class="btn" id="share-copy-embed">Copy embed</button>
+    </div>
+  </div>
+</dialog>
+
+<p id="map-status" class="sr-only" role="status" aria-live="polite"></p>
+<div id="toast" role="status" aria-live="polite"></div>
