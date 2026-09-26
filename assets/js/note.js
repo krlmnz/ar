@@ -28,25 +28,41 @@
     }
   }
 
+  function cacheIsNewer(cached, data) {
+    if (!cached || !cached.savedAt || !data) return false;
+    if (Date.now() - Number(cached.savedAt) > 20000) return false;
+    return cached.title !== data.title || String(cached.markdown || "") !== String(data.markdown || "");
+  }
+
   async function load(slug) {
     var cached = fromCache(slug);
     if (cached && cached.markdown) window.AndeanPost.mount(root, cached);
     var lastError = "That post is not published.";
-    for (var i = 0; i < 3; i++) {
+    var remote = null;
+    for (var i = 0; i < 6; i++) {
       try {
         var res = await window.fetch("/api/posts?slug=" + encodeURIComponent(slug));
         var data = await res.json();
         if (res.ok) {
-          window.AndeanPost.mount(root, data);
-          return;
+          remote = data;
+          if (!cacheIsNewer(cached, data)) {
+            window.AndeanPost.mount(root, data);
+            return;
+          }
+        } else {
+          lastError = data.error || lastError;
+          if (res.status !== 404) break;
         }
-        lastError = data.error || lastError;
-        if (res.status !== 404) break;
       } catch (error) {
         lastError = error.message || lastError;
         break;
       }
-      await sleep(600);
+      await sleep(500);
+    }
+    if (cached && cached.markdown && cacheIsNewer(cached, remote)) return;
+    if (remote) {
+      window.AndeanPost.mount(root, remote);
+      return;
     }
     if (!(cached && cached.markdown)) root.textContent = lastError;
   }

@@ -3,6 +3,13 @@
  * Drafts are stored in Netlify Blobs, so Create draft works with the studio
  * cookie alone. When GITHUB_TOKEN is set on the site, the same save is also
  * committed and Netlify rebuilds the public page.
+ *
+ * Images use the same store under media/studio/<id>.<ext>. Markdown points at
+ * /media/studio/<id>, which this function serves until a build copies the blob
+ * into the static site. The id is unguessable. Page markdown stays behind the
+ * studio cookie; image bytes are public so a published article can show them.
+ *
+ * Deferred: map blocks, chart blocks, tag admin, duplicate/archive CMS.
  */
 "use strict";
 
@@ -54,6 +61,147 @@ function titleOf(text, fallback) {
 function kindOf(text) {
   const match = String(text || "").match(/^layout:\s*layouts\/([a-z0-9-]+)\.njk/m);
   return match ? match[1] : "page";
+}
+
+function fieldOf(text, key) {
+  const match = String(text || "").match(new RegExp("^" + key + ":\\s*(.*)$", "m"));
+  return match ? match[1].trim().replace(/^"(.*)"$/, "$1") : "";
+}
+
+const IMAGE_TYPES = {
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/jpg": "jpg",
+  "image/webp": "webp",
+  "image/svg+xml": "svg"
+};
+
+const EXT_TYPES = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  gif: "image/gif",
+  webp: "image/webp",
+  svg: "image/svg+xml",
+  avif: "image/avif"
+};
+
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_IMAGE_EDGE = 4096;
+
+function pngSize(buf) {
+  if (buf.length < 24 || buf.toString("ascii", 1, 4) !== "PNG") return null;
+  const width = buf.readUInt32BE(16);
+  const height = buf.readUInt32BE(20);
+  let animated = false;
+  let i = 8;
+  while (i + 8 <= buf.length) {
+    const len = buf.readUInt32BE(i);
+    const type = buf.toString("ascii", i + 4, i + 8);
+    if (type === "acTL") animated = true;
+    if (type === "IDAT" || type === "IEND") break;
+    if (len > buf.length) break;
+    i += 12 + len;
+  }
+  return { width: width, height: height, animated: animated };
+}
+
+function jpegSize(buf) {
+  if (buf.length < 4 || buf[0] !== 0xff || buf[1] !== 0xd8) return null;
+  let i = 2;
+  while (i + 9 < buf.length) {
+    if (buf[i] !== 0xff) {
+      i += 1;
+      continue;
+    }
+    const marker = buf[i + 1];
+    if (marker === 0xd8 || marker === 0xd9) {
+      i += 2;
+      continue;
+    }
+    if (i + 4 > buf.length) return null;
+    const len = buf.readUInt16BE(i + 2);
+    const sof = marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc;
+    if (sof) {
+      return { width: buf.readUInt16BE(i + 7), height: buf.readUInt16BE(i + 5), animated: false };
+    }
+    i += 2 + len;
+  }
+  return null;
+}
+
+function webpSize(buf) {
+  if (buf.length < 25 || buf.toString("ascii", 0, 4) !== "RIFF" || buf.toString("ascii", 8, 12) !== "WEBP") return null;
+  const chunk = buf.toString("ascii", 12, 16);
+  if (chunk === "VP8X" && buf.length >= 30) {
+    return {
+      width: 1 + buf.readUIntLE(24, 3),
+      height: 1 + buf.readUIntLE(27, 3),
+      animated: (buf[20] & 0x20) !== 0
+    };
+  }
+  if (chunk === "VP8L" && buf[20] === 0x2f) {
+    const bits = buf.readUInt32LE(21);
+    return { width: 1 + (bits & 0x3fff), height: 1 + ((bits >> 14) & 0x3fff), animated: false };
+  }
+  if (chunk === "VP8 ") {
+    const start = buf.indexOf(Buffer.from([0x9d, 0x01, 0x2a]), 20);
+    if (start < 0 || start + 7 > buf.length) return null;
+    return {
+      width: buf.readUInt16LE(start + 3) & 0x3fff,
+      height: buf.readUInt16LE(start + 5) & 0x3fff,
+      animated: false
+    };
+  }
+  return null;
+}
+
+function rasterSize(buf, ext) {
+  if (ext === "png") return pngSize(buf);
+  if (ext === "jpg") return jpegSize(buf);
+  if (ext === "webp") return webpSize(buf);
+  return null;
+}
+
+function imageProblem(bytes, ext) {
+  if (bytes.length > MAX_IMAGE_BYTES) return "That image is over 5 MB.";
+  if (ext === "svg") return "";
+  const size = rasterSize(bytes, ext);
+  if (!size || !size.width || !size.height) return "Could not read that image.";
+  if (size.animated) return "Animated images are not supported.";
+  if (Math.max(size.width, size.height) > MAX_IMAGE_EDGE) return "That image is over 4096px on the long edge.";
+  return "";
+}
+
+function sanitizeSvg(text) {
+  const cleaned = String(text)
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<foreignObject[\s\S]*?<\/foreignObject>/gi, "")
+    .replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+    .replace(/javascript:/gi, "");
+  if (!/<svg[\s>]/i.test(cleaned)) throw new Error("That SVG could not be read.");
+  return cleaned;
+}
+
+function mediaName(value) {
+  const name = String(value || "");
+  if (!/^[a-z0-9][a-z0-9.-]{0,120}$/.test(name) || name.includes("..")) return "";
+  return name;
+}
+
+function blankText(template, title, slug) {
+  const today = new Date().toISOString().slice(0, 10);
+  const lines = [
+    "---",
+    "layout: " + template.layout,
+    "permalink: /notes/" + slug + "/",
+    "published: false",
+    'title: "' + title.replace(/"/g, '\\"') + '"',
+    "subtitle: \"\"",
+    "updated: " + today
+  ];
+  if (template.id === "guide") lines.push("series: Field guide");
+  lines.push("---", "", "");
+  return lines.join("\n");
 }
 
 async function starterText(template, title, slug) {
@@ -109,6 +257,33 @@ async function githubWrite(path, text, message, sha) {
   return true;
 }
 
+async function githubWriteBytes(filePath, bytes, message) {
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) return false;
+  const remote = await githubFile(filePath);
+  const payload = {
+    message: message,
+    content: Buffer.from(bytes).toString("base64"),
+    branch: BRANCH
+  };
+  if (remote && remote.sha) payload.sha = remote.sha;
+  const res = await fetch(
+    "https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + filePath,
+    {
+      method: "PUT",
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json",
+        "User-Agent": "andean-studio"
+      },
+      body: JSON.stringify(payload)
+    }
+  );
+  if (!res.ok) return false;
+  return true;
+}
+
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -141,8 +316,44 @@ async function rawFile(path) {
   return res.text();
 }
 
+async function openStore(event) {
+  if (event.blobs) connectLambda(event);
+  return getStore("studio");
+}
+
+async function serveMedia(event) {
+  const name = mediaName(event.queryStringParameters && event.queryStringParameters.media);
+  if (!name) return json(404, { error: "Not found." });
+  let store;
+  try {
+    store = await openStore(event);
+  } catch (e) {
+    return json(404, { error: "Not found." });
+  }
+  try {
+    const found = await store.getWithMetadata("media/studio/" + name, { type: "arrayBuffer" });
+    if (!found || found.data == null) return json(404, { error: "Not found." });
+    const ext = (name.split(".").pop() || "").toLowerCase();
+    const type = (found.metadata && found.metadata.contentType) || EXT_TYPES[ext] || "application/octet-stream";
+    return {
+      statusCode: 200,
+      headers: {
+        "content-type": type,
+        "cache-control": "public, max-age=31536000, immutable"
+      },
+      isBase64Encoded: true,
+      body: Buffer.from(found.data).toString("base64")
+    };
+  } catch (e) {
+    return json(404, { error: "Not found." });
+  }
+}
+
+exports.imageProblem = imageProblem;
+
 exports.handler = async function (event) {
   if (event.httpMethod === "OPTIONS") return json(204, {});
+  if (event.httpMethod === "GET") return serveMedia(event);
   if (event.httpMethod !== "POST") return json(405, { error: "POST only." });
   if (!unlocked(event)) return json(401, { error: "Enter the studio code first." });
 
@@ -155,8 +366,7 @@ exports.handler = async function (event) {
 
   let store;
   try {
-    if (event.blobs) connectLambda(event);
-    store = getStore("studio");
+    store = await openStore(event);
   } catch (e) {
     return json(500, { error: "The studio store is not available on this server. " + (e.message || "") });
   }
@@ -173,6 +383,7 @@ exports.handler = async function (event) {
           path: blob.key,
           title: titleOf(text),
           kind: kindOf(text),
+          updated: fieldOf(text, "updated"),
           text: text,
           url: "/editor/draft/?path=" + encodeURIComponent(blob.key),
           publicUrl: noteUrl(blob.key, text),
@@ -195,7 +406,7 @@ exports.handler = async function (event) {
       const existing = await readBlob(store, path, 0);
       if (existing) return json(409, { error: "A draft with that title already exists." });
       if (await rawFile(path)) return json(409, { error: "A page with that title already exists." });
-      const text = await starterText(template, title, slug);
+      const text = body.blank ? blankText(template, title, slug) : await starterText(template, title, slug);
       await store.set(path, text);
       const committed = await githubWrite(path, text, "content: update " + title, null);
       return json(200, {
@@ -217,6 +428,32 @@ exports.handler = async function (event) {
       const raw = await rawFile(path);
       if (raw != null) return json(200, { path: path, text: raw, source: "repo" });
       return json(404, { error: "That file is not in the studio yet." });
+    }
+
+    if (body.action === "upload") {
+      const type = String(body.contentType || "").toLowerCase();
+      const ext = IMAGE_TYPES[type];
+      if (!ext) return json(400, { error: "Use a JPEG, PNG, WebP, or an SVG diagram." });
+      let bytes;
+      try {
+        bytes = Buffer.from(String(body.data || ""), "base64");
+      } catch (e) {
+        return json(400, { error: "Could not read that image." });
+      }
+      if (!bytes.length) return json(400, { error: "That image was empty." });
+      const problem = imageProblem(bytes, ext);
+      if (problem) return json(400, { error: problem });
+      if (ext === "svg") {
+        bytes = Buffer.from(sanitizeSvg(bytes.toString("utf8")), "utf8");
+      }
+      const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+      const name = id + "." + ext;
+      const key = "media/studio/" + name;
+      await store.set(key, bytes, { metadata: { contentType: EXT_TYPES[ext] } });
+      try {
+        await githubWriteBytes(key, bytes, "content: add image " + name);
+      } catch (e) { /* blob is enough until the next build copies it */ }
+      return json(200, { url: "/media/studio/" + name, path: key });
     }
 
     if (body.action === "write") {

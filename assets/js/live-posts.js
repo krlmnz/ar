@@ -10,16 +10,29 @@
     return kind === "guide" ? "Field guide" : "Essay";
   }
 
-  function has(url) {
-    var links = list.querySelectorAll("a.guide-entry");
-    for (var i = 0; i < links.length; i++) {
-      if (links[i].pathname === url || links[i].getAttribute("href") === url) return true;
+  function cachedTitle(url) {
+    var match = String(url || "").match(/\/notes\/([a-z0-9-]+)\/?$/);
+    if (!match) return "";
+    try {
+      var doc = JSON.parse(sessionStorage.getItem("ar-note:" + match[1]) || "null");
+      if (!doc || !doc.savedAt || Date.now() - Number(doc.savedAt) > 20000) return "";
+      return doc.title || "";
+    } catch (e) {
+      return "";
     }
-    return false;
   }
 
   function add(post) {
-    if (!post || !post.url || has(post.url)) return;
+    if (!post || !post.url) return;
+    var titleText = cachedTitle(post.url) || post.title || "Untitled";
+    var links = list.querySelectorAll("a.guide-entry");
+    for (var i = 0; i < links.length; i++) {
+      if (links[i].pathname === post.url || links[i].getAttribute("href") === post.url) {
+        var existing = links[i].querySelector(".guide-entry__title");
+        if (existing) existing.textContent = titleText;
+        return;
+      }
+    }
     var link = document.createElement("a");
     link.className = "guide-entry";
     link.href = post.url;
@@ -28,7 +41,7 @@
     over.textContent = label(post.kind);
     var title = document.createElement("div");
     title.className = "guide-entry__title";
-    title.textContent = post.title || "Untitled";
+    title.textContent = titleText;
     link.appendChild(over);
     link.appendChild(title);
     if (post.subtitle) {

@@ -43,6 +43,7 @@ seo:
       <div class="section-label">Library</div>
       <h2 class="section-title">Pages</h2>
       <p class="studio-hint" id="library-note">A draft stays off the home page until you publish it.</p>
+      <input class="studio-search" id="library-search" type="search" placeholder="Search title or kind" aria-label="Search pages">
       <div id="library"></div>
       <form class="studio-form" id="open-form" style="max-width: 560px; margin-top: 24px">
         <div class="section-label">Open anything</div>
@@ -55,33 +56,125 @@ seo:
     </div>
 
     <div id="view-edit" hidden>
-      <div class="section-label" id="edit-kicker">Edit</div>
-      <h2 class="section-title" id="edit-title">Edit page</h2>
-      <form class="studio-form" id="edit-form">
-        <label for="edit-heading">Title</label>
-        <input type="text" id="edit-heading">
-        <label for="edit-body">Markdown</label>
-        <textarea id="edit-body" spellcheck="false"></textarea>
-        <div class="studio-actions">
-          <button type="button" id="save-draft">Save draft</button>
-          <button type="button" class="primary" id="publish">Publish</button>
-          <button type="button" id="unpublish">Unpublish</button>
+      <article id="studio-doc" class="tpl tpl--center studio-doc">
+        <div class="studio-docbar">
+          <div class="studio-docmeta">
+            <button type="button" class="studio-back" id="back-library">← Pages</button>
+            <label class="studio-kind">
+              <span class="sr-only">Kind</span>
+              <select id="doc-kind" aria-label="Page kind"></select>
+            </label>
+            <p class="studio-status" id="save-status" aria-live="polite"></p>
+            <div class="studio-actions">
+              <a class="studio-preview" id="preview-link" href="/editor/draft/">{% icon "eye", size=16 %}<span>Preview</span></a>
+              <div class="studio-menu studio-publish" data-menu="publish">
+                <button type="button" class="primary" id="publish">Publish</button>
+                <button type="button" class="primary studio-menu__trigger studio-publish__more" id="publish-more" hidden aria-haspopup="menu" aria-expanded="false" aria-label="Publish actions">{% icon "caret-down", size=14 %}</button>
+                <div class="studio-menu__panel studio-publish__panel" id="publish-panel" role="menu" hidden>
+                  <button type="button" role="menuitem" class="studio-publish__danger" id="unpublish">Unpublish</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="studio-toolbar" role="toolbar" aria-label="Formatting">
+            <div class="studio-toolbar__group">
+              <button type="button" class="icon-btn icon-btn--touch" data-cmd="undo" aria-label="Undo" aria-keyshortcuts="Meta+Z">{% icon "arrow-counter-clockwise", size=16 %}</button>
+              <button type="button" class="icon-btn icon-btn--touch" data-cmd="redo" aria-label="Redo" aria-keyshortcuts="Meta+Shift+Z">{% icon "arrow-clockwise", size=16 %}</button>
+            </div>
+            <span class="studio-toolbar__sep" aria-hidden="true"></span>
+            <div class="studio-toolbar__group">
+              <div class="studio-menu" data-menu="heading">
+                <button type="button" class="icon-btn icon-btn--touch studio-menu__trigger" aria-haspopup="menu" aria-expanded="false" aria-pressed="false" aria-label="Text style">
+                  <span class="studio-toolbar__h" id="heading-label">H</span>
+                  {% icon "caret-down", size=12, class="studio-caret" %}
+                </button>
+                <div class="studio-menu__panel" role="menu" hidden>
+                  <button type="button" role="menuitemradio" data-cmd="paragraph" class="studio-menu__item--p" aria-checked="false">Paragraph</button>
+                  <button type="button" role="menuitemradio" data-cmd="h2" class="studio-menu__item--h2" aria-checked="false">Heading 2</button>
+                  <button type="button" role="menuitemradio" data-cmd="h3" class="studio-menu__item--h3" aria-checked="false">Heading 3</button>
+                </div>
+              </div>
+              <div class="studio-menu" data-menu="list">
+                <button type="button" class="icon-btn icon-btn--touch studio-menu__trigger" aria-haspopup="menu" aria-expanded="false" aria-pressed="false" aria-label="List">
+                  {% icon "list-bullets", size=16 %}
+                  {% icon "caret-down", size=12, class="studio-caret" %}
+                </button>
+                <div class="studio-menu__panel" role="menu" hidden>
+                  <button type="button" role="menuitemradio" data-cmd="bullet" aria-checked="false">{% icon "list-bullets", size=16 %}<span>Bullet list</span></button>
+                  <button type="button" role="menuitemradio" data-cmd="ordered" aria-checked="false">{% icon "list-numbers", size=16 %}<span>Numbered list</span></button>
+                </div>
+              </div>
+              <button type="button" class="icon-btn icon-btn--touch" data-cmd="ordered" aria-label="Numbered list" aria-pressed="false">{% icon "list-numbers", size=16 %}</button>
+              <button type="button" class="icon-btn icon-btn--touch" data-cmd="quote" aria-label="Quote" aria-pressed="false">{% icon "quotes", size=16 %}</button>
+            </div>
+            <span class="studio-toolbar__sep" aria-hidden="true"></span>
+            <div class="studio-toolbar__group">
+              <button type="button" class="icon-btn icon-btn--touch" data-cmd="bold" aria-label="Bold" aria-keyshortcuts="Meta+B" aria-pressed="false">{% icon "text-b", size=16 %}</button>
+              <button type="button" class="icon-btn icon-btn--touch" data-cmd="italic" aria-label="Italic" aria-keyshortcuts="Meta+I" aria-pressed="false">{% icon "text-italic", size=16 %}</button>
+              <button type="button" class="icon-btn icon-btn--touch" data-cmd="strike" aria-label="Strikethrough" aria-pressed="false">{% icon "text-strikethrough", size=16 %}</button>
+              <button type="button" class="icon-btn icon-btn--touch" data-cmd="code" aria-label="Inline code" aria-pressed="false">{% icon "code", size=16 %}</button>
+              <button type="button" class="icon-btn icon-btn--touch" data-cmd="underline" aria-label="Underline" aria-pressed="false">{% icon "text-underline", size=16 %}</button>
+              <button type="button" class="icon-btn icon-btn--touch" data-cmd="highlight" aria-label="Highlight" aria-pressed="false">{% icon "highlighter", size=16 %}</button>
+              <button type="button" class="icon-btn icon-btn--touch" data-cmd="link" aria-label="Link" aria-pressed="false">{% icon "link", size=16 %}</button>
+            </div>
+            <span class="studio-toolbar__sep" aria-hidden="true"></span>
+            <div class="studio-toolbar__group">
+              <button type="button" class="icon-btn icon-btn--touch" data-cmd="superscript" aria-label="Superscript" aria-pressed="false">{% icon "text-superscript", size=16 %}</button>
+              <button type="button" class="icon-btn icon-btn--touch" data-cmd="subscript" aria-label="Subscript" aria-pressed="false">{% icon "text-subscript", size=16 %}</button>
+            </div>
+            <span class="studio-toolbar__sep" aria-hidden="true"></span>
+            <div class="studio-toolbar__group">
+              <button type="button" class="icon-btn icon-btn--touch" data-cmd="alignLeft" aria-label="Align left" aria-pressed="true">{% icon "text-align-left", size=16 %}</button>
+              <button type="button" class="icon-btn icon-btn--touch" data-cmd="alignCenter" aria-label="Align center" aria-pressed="false">{% icon "text-align-center", size=16 %}</button>
+              <button type="button" class="icon-btn icon-btn--touch" data-cmd="alignRight" aria-label="Align right" aria-pressed="false">{% icon "text-align-right", size=16 %}</button>
+              <button type="button" class="icon-btn icon-btn--touch" data-cmd="alignJustify" aria-label="Justify" aria-pressed="false">{% icon "text-align-justify", size=16 %}</button>
+            </div>
+            <span class="studio-toolbar__sep" aria-hidden="true"></span>
+            <div class="studio-menu studio-add" data-menu="add">
+              <button type="button" class="icon-btn icon-btn--touch studio-menu__trigger studio-toolbar__add" aria-haspopup="menu" aria-expanded="false" aria-label="Add">
+                {% icon "plus", size=16 %}
+                <span>Add</span>
+              </button>
+              <div class="studio-menu__panel" role="menu" hidden>
+                <button type="button" role="menuitem" data-cmd="image">{% icon "image", size=16 %}<span class="studio-menu__item-copy"><span>Image</span><span class="studio-menu__note">Fills the column (~72ch). Prefer 3:2 or 16:9, long edge 1600–2400px. Max 5 MB, 4096px.</span></span></button>
+                <button type="button" role="menuitem" data-cmd="codeBlock">{% icon "code-block", size=16 %}<span>Code block</span></button>
+                <button type="button" role="menuitem" data-cmd="rule">{% icon "minus", size=16 %}<span>Divider</span></button>
+              </div>
+            </div>
+            <span class="studio-toolbar__sep" aria-hidden="true"></span>
+            <div class="studio-toolbar__group">
+              <button type="button" class="icon-btn icon-btn--touch" id="markdown-toggle" aria-pressed="false" aria-label="Markdown">{% icon "markdown-logo", size=16 %}</button>
+            </div>
+          </div>
+          <form class="studio-link" id="link-form" hidden>
+            <label class="sr-only" for="link-url">Link address</label>
+            <input id="link-url" type="text" placeholder="https://" inputmode="url" autocomplete="off" spellcheck="false">
+            <button type="submit" class="icon-btn icon-btn--touch" aria-label="Apply link">{% icon "check", size=16 %}</button>
+          </form>
         </div>
-      </form>
+
+        <header class="page-header">
+          <div class="page-header__type" id="doc-series" contenteditable="true" role="textbox" aria-label="Series" data-placeholder="Series" hidden></div>
+          <h1 class="page-header__title studio-title" id="doc-title" contenteditable="true" role="textbox" aria-label="Title" data-placeholder="Title"></h1>
+          <p class="page-header__subtitle studio-subtitle" id="doc-subtitle" contenteditable="true" role="textbox" aria-label="Subtitle" data-placeholder="Subtitle"></p>
+          <div class="page-header__meta" id="doc-meta" hidden>
+            <span id="doc-updated"></span>
+          </div>
+        </header>
+        <div class="prose" id="doc-body"></div>
+        <textarea class="studio-markdown" id="doc-markdown" hidden spellcheck="false" aria-label="Markdown body"></textarea>
+      </article>
+      <input type="file" id="image-file" accept="image/jpeg,image/png,image/webp,image/svg+xml,.svg" hidden>
     </div>
 
     <div id="view-new" hidden>
-      <div class="section-label">New page</div>
-      <h2 class="section-title">Start from a template</h2>
-      <form class="studio-form" id="new-form" style="max-width: 560px">
-        <label for="new-kind">Template</label>
-        <select id="new-kind"></select>
-        <p class="studio-hint" id="new-kind-when"></p>
-        <label for="new-title">Title</label>
-        <input type="text" id="new-title" required>
+      <form class="studio-new" id="new-form">
+        <label class="studio-new__label" for="new-title">New page</label>
+        <input id="new-title" type="text" required placeholder="Title" autocomplete="off">
         <div class="studio-actions">
-          <button type="button" class="primary" id="create-draft">Create draft</button>
+          <button class="primary" type="submit" id="create-draft">Start writing</button>
         </div>
+        <p class="studio-hint">A blank page. Change essay or field guide anytime while you write.</p>
       </form>
     </div>
 
@@ -90,4 +183,4 @@ seo:
 </div>
 
 <script id="studio-templates" type="application/json">{{ templates | dump | safe }}</script>
-<script src="/assets/js/editor.js" defer></script>
+<script src="/assets/js/editor.bundle.js" defer></script>

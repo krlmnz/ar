@@ -26,6 +26,7 @@
 
   function inline(value) {
     return escape(value)
+      .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, '<img src="$2" alt="$1">')
       .replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2">$1</a>')
       .replace(/`([^`]+)`/g, "<code>$1</code>")
       .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
@@ -64,8 +65,15 @@
       if (/^```/.test(line)) {
         closeList();
         closeQuote();
-        html.push("<pre><code>");
+        var lang = line.replace(/^```/, "").trim().replace(/[^a-z0-9_+-]/gi, "");
+        html.push("<pre><code" + (lang ? ' class="language-' + lang + '"' : "") + ">");
         fence = true;
+        return;
+      }
+      if (/^(---|\*\*\*|___)\s*$/.test(line)) {
+        closeList();
+        closeQuote();
+        html.push("<hr>");
         return;
       }
       if (/^>\s?/.test(line)) {

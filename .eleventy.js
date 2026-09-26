@@ -1,12 +1,15 @@
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 const yaml = require('js-yaml');
 const markdownIt = require('markdown-it');
 const markdownItAnchor = require('markdown-it-anchor');
 const explicitHeadingIds = require('./lib/headings');
+const editorMarks = require('./lib/editor-marks');
 const prose = require('./lib/prose');
 
 module.exports = function(eleventyConfig) {
+  execFileSync(process.execPath, [path.join(__dirname, 'scripts/kit-icon-btn.js')], { stdio: 'inherit' });
   // Inline SVG icons, resolved from the @phosphor-icons/core package.
   // Nothing to download — every Phosphor icon is already available by name.
   //
@@ -78,7 +81,8 @@ module.exports = function(eleventyConfig) {
         symbol: '#'
       })
     })
-    .use(explicitHeadingIds));
+    .use(explicitHeadingIds)
+    .use(editorMarks));
 
   // Turn place collection items into the feature shape the map engine reads.
   eleventyConfig.addFilter('toFeatures', (items) => (items || [])
@@ -276,6 +280,7 @@ module.exports = function(eleventyConfig) {
   // Passthrough copy
   eleventyConfig.addPassthroughCopy('content/**/*.{jpg,jpeg,png,webp,svg,gif}');
   eleventyConfig.addPassthroughCopy('assets/');
+  eleventyConfig.addPassthroughCopy('media/studio');
   eleventyConfig.addPassthroughCopy('robots.txt');
 
   // Internal docs and scaffolds. Input is the repo root, so a markdown file
