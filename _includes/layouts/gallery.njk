@@ -1,28 +1,27 @@
 ---
 layout: layouts/base.njk
 ---
-{# GALLERY — image-led page. Figures fall back to a labelled placeholder until
-   real photography exists, so the layout is usable before the shoot.
-   Front matter: title, overline, subtitle, figures: [{src, alt, caption}] #}
+{# GALLERY — an image on its own line, then an italic caption.
+   Anything before the first image is the intro. Anything after is a close. #}
 
 {% if crumbs %}{% include "partials/breadcrumbs.njk" %}{% endif %}
+
+{% set gallery = content | gallery %}
+{% set overline = overline or "Gallery" %}
 
 <article class="tpl tpl--gallery">
   {% include "partials/page-header.njk" %}
 
-  {% if content %}
-  <div class="prose content-column">
-    {{ content | safe }}
-  </div>
+  {% if gallery.intro %}
+  <div class="prose content-column">{{ gallery.intro | safe }}</div>
   {% endif %}
 
-  {% if figures and figures.length %}
-  {# The first figure runs full width as the opener, the rest tile beneath it. #}
+  {% if gallery.figures.length %}
   <div class="figure-grid figure-grid--feature">
-    {% for fig in figures %}
+    {% for fig in gallery.figures %}
     <figure class="figure{{ ' figure--feature' if loop.first }}">
       {% if fig.src %}
-        <img src="{{ fig.src }}" alt="{{ fig.alt }}" loading="lazy" decoding="async" style="width:100%;height:auto;display:block">
+        <img src="{{ fig.src }}" alt="{{ fig.alt }}" loading="lazy" decoding="async">
       {% else %}
         <div class="placeholder-img" role="img" aria-label="{{ fig.alt or fig.caption }}">
           {% icon "image", size=24 %}
@@ -32,5 +31,9 @@ layout: layouts/base.njk
     </figure>
     {% endfor %}
   </div>
+  {% endif %}
+
+  {% if gallery.tail %}
+  <div class="prose content-column">{{ gallery.tail | safe }}</div>
   {% endif %}
 </article>

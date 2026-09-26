@@ -3,6 +3,8 @@ const path = require('path');
 const yaml = require('js-yaml');
 const markdownIt = require('markdown-it');
 const markdownItAnchor = require('markdown-it-anchor');
+const explicitHeadingIds = require('./lib/headings');
+const prose = require('./lib/prose');
 
 module.exports = function(eleventyConfig) {
   // Inline SVG icons, resolved from the @phosphor-icons/core package.
@@ -66,19 +68,26 @@ module.exports = function(eleventyConfig) {
     .trim()
     .replace(/\s+/g, '-');
 
-  eleventyConfig.setLibrary('md', markdownIt({ html: true }).use(markdownItAnchor, {
-    level: [2, 3, 4],
-    slugify,
-    permalink: markdownItAnchor.permalink.ariaHidden({
-      placement: 'after',
-      class: 'heading-anchor',
-      symbol: '#'
+  eleventyConfig.setLibrary('md', markdownIt({ html: true })
+    .use(markdownItAnchor, {
+      level: [2, 3, 4],
+      slugify,
+      permalink: markdownItAnchor.permalink.ariaHidden({
+        placement: 'after',
+        class: 'heading-anchor',
+        symbol: '#'
+      })
     })
-  }));
+    .use(explicitHeadingIds));
 
   // Turn place collection items into the feature shape the map engine reads.
   eleventyConfig.addFilter('toFeatures', (items) => (items || [])
-    .filter(i => i && i.data && i.data.coordinates)
+    .filter(i => {
+      const c = i && i.data && i.data.coordinates;
+      if (!c || c.lat == null || c.lng == null) return false;
+      // An unedited starter sits at 0,0. Leave it off every map.
+      return !(Number(c.lat) === 0 && Number(c.lng) === 0);
+    })
     .map(i => ({
       id: i.data.slug,
       title: i.data.title,
@@ -87,7 +96,8 @@ module.exports = function(eleventyConfig) {
       subtitle: i.data.subtitle || '',
       url: `/places/${i.data.slug}/`,
       lng: i.data.coordinates.lng,
-      lat: i.data.coordinates.lat
+      lat: i.data.coordinates.lat,
+      sample: !!i.data.sample
     })));
 
   // Resolve a list of place slugs to full collection items, dropping misses.
@@ -128,23 +138,10 @@ module.exports = function(eleventyConfig) {
       .sort((a, b) => a.data.title.localeCompare(b.data.title));
   });
 
-  eleventyConfig.addCollection('guides', collection => {
+  eleventyConfig.addCollection('demos', collection => {
     return collection
-      .getFilteredByGlob('content/guides/*.md')
+      .getFilteredByGlob('content/demos/*.md')
       .filter(item => item.data.published !== false)
-      .sort((a, b) => (a.data.title || '').localeCompare(b.data.title || ''));
-  });
-
-  eleventyConfig.addCollection('practical', collection => {
-    return collection
-      .getFilteredByGlob('content/practical/*.md')
-      .filter(item => item.data.published !== false)
-      .sort((a, b) => (a.data.title || '').localeCompare(b.data.title || ''));
-  });
-
-  eleventyConfig.addCollection('templates', collection => {
-    return collection
-      .getFilteredByGlob('content/templates/*.md')
       .sort((a, b) => (a.data.order || 99) - (b.data.order || 99));
   });
 
@@ -241,18 +238,34 @@ module.exports = function(eleventyConfig) {
     return d.toISOString().split('T')[0];
   });
 
+  eleventyConfig.addFilter('lessons', prose.lessons);
+  eleventyConfig.addFilter('faq', prose.asFaq);
+  eleventyConfig.addFilter('days', prose.asDays);
+  eleventyConfig.addFilter('gallery', prose.asGallery);
+  eleventyConfig.addFilter('pad2', (n) => String(n).padStart(2, '0'));
+  eleventyConfig.addFilter('h2s', (items) => (items || []).filter((h) => h.level === 2));
+  eleventyConfig.addFilter('countPlaces', (days, places) => {
+    const slugs = new Set((places || []).map((p) => p.data.slug));
+    return (days || []).filter((d) => d.place && slugs.has(d.place)).length;
+  });
+  eleventyConfig.addFilter('striptags', (s) => String(s || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
+
   // Icons are inlined at build time, so re-read them when they change
   eleventyConfig.addWatchTarget('assets/icons/');
   eleventyConfig.on('eleventy.beforeWatch', () => iconCache.clear());
 
   // Passthrough copy
-  eleventyConfig.addPassthroughCopy('content/places/**/*.{jpg,jpeg,png,webp,svg}');
+  eleventyConfig.addPassthroughCopy('content/**/*.{jpg,jpeg,png,webp,svg,gif}');
   eleventyConfig.addPassthroughCopy('assets/');
   eleventyConfig.addPassthroughCopy('robots.txt');
 
-  // Exclude internal docs from build
+  // Internal docs and scaffolds. Input is the repo root, so a markdown file
+  // here would otherwise publish (this is how /WRITING/ and /_starters/ leaked).
   eleventyConfig.ignores.add('DESIGN-SYSTEM.md');
   eleventyConfig.ignores.add('README.md');
+  eleventyConfig.ignores.add('WRITING.md');
+  eleventyConfig.ignores.add('_starters/**');
+  eleventyConfig.ignores.add('lib/**');
 
   // Template options
   return {

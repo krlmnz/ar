@@ -1,24 +1,26 @@
 ---
-# PRACTICAL — the things a traveller needs to know before landing.
-# DRAFT. While this is false the place is kept out of the directory, every
-# map, and all region/tag pages — but the page itself still builds so you can
-# preview it. Flip to true (or delete the line) to publish.
-#
-# This matters: an unedited place with 0,0 coordinates would otherwise stretch
-# every map on the site from Chile to the Gulf of Guinea.
+layout: layouts/practical.njk
 published: false
-
 title: "__TITLE__"
-slug: __SLUG__
-subtitle: ""
-seo:
-  title: ""
-  description: ""
+# subtitle: ""
+# needs:                       # or write a "You'll need" list in the body
+#   - ""
+# tip: ""                      # or use a blockquote in the body
 updated: __DATE__
 ---
 
-Lead with the single most useful sentence.
+One paragraph on why this is worth doing in this order.
 
-## The essentials
+## You'll need
 
-Then the detail.
+- The thing you forget
+- The thing you can buy there
+- The thing you can't
+
+## Do this
+
+1. The first move.
+2. The one people skip.
+3. The last thing, while you still have light.
+
+> The sentence only a local would bother to say.

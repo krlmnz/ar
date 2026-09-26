@@ -5,12 +5,13 @@ pagination:
   size: 1
   alias: tagSlug
   resolve: keys
+  addAllPagesToCollections: true
 permalink: "/tags/{{ tagSlug }}/"
 eleventyComputed:
   title: "{{ (tagInfo[tagSlug].label if tagInfo[tagSlug] else tagSlug) | safe }}"
   seo:
-    title: "{{ (tagInfo[tagSlug].label if tagInfo[tagSlug] else tagSlug) | safe }} in Chile — Andean Road"
-    description: "{{ (tagInfo[tagSlug].description if tagInfo[tagSlug] else 'Places in Chile tagged ' + tagSlug + '.') | safe }}"
+    title: "{{ (tagInfo[tagSlug].label if tagInfo[tagSlug] else tagSlug) | safe }} — Andean Road"
+    description: "{{ (tagInfo[tagSlug].description if tagInfo[tagSlug] else 'Places tagged ' + tagSlug + '.') | safe }}"
 ---
 
 {% set tag = tagInfo[tagSlug] %}

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-label="A ridgeline and a road">
+  <rect width="800" height="450" fill="#f4f1ea"/>
+  <path d="M0 310 L160 180 L280 250 L420 90 L560 220 L700 140 L800 200 V450 H0 Z" fill="#e7e2d8"/>
+  <path d="M0 310 L160 180 L280 250 L420 90 L560 220 L700 140 L800 200" fill="none" stroke="#171717" stroke-width="3"/>
+  <path d="M40 360 H760" stroke="#1d5fd0" stroke-width="4"/>
+  <circle cx="160" cy="360" r="7" fill="#f4f1ea" stroke="#171717" stroke-width="3"/>
+  <circle cx="420" cy="360" r="7" fill="#f4f1ea" stroke="#171717" stroke-width="3"/>
+  <circle cx="700" cy="360" r="7" fill="#f4f1ea" stroke="#171717" stroke-width="3"/>
+</svg>

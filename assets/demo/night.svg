@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-label="A dark field, a few lights, and one peak">
+  <rect width="800" height="450" fill="#f4f1ea"/>
+  <path d="M0 300 H800 V450 H0 Z" fill="#171717"/>
+  <path d="M460 300 L560 120 L660 300" fill="#f4f1ea" stroke="#171717" stroke-width="3"/>
+  <g fill="#1d5fd0">
+    <circle cx="80" cy="360" r="3"/>
+    <circle cx="140" cy="390" r="2.5"/>
+    <circle cx="210" cy="350" r="3"/>
+    <circle cx="280" cy="400" r="2"/>
+    <circle cx="340" cy="370" r="3"/>
+    <circle cx="720" cy="380" r="2.5"/>
+    <circle cx="760" cy="340" r="2"/>
+  </g>
+</svg>

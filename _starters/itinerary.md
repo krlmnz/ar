@@ -1,14 +1,23 @@
 ---
-# ITINERARY — a numbered sequence. Days, stops, steps.
 layout: layouts/itinerary.njk
+published: false
 title: "__TITLE__"
-subtitle: ""
-overline: Itinerary
-steps:
-  - overline: Day 01 · Friday  # optional label
-    title: ""                  # required
-    body: ""                   # optional
-    place: ""                  # optional — a slug from content/places/
+# subtitle: ""
+updated: __DATE__
 ---
 
-The markdown here is the introduction. The sequence comes from front matter.
+A few lines on the shape of the trip. The headings below become the timeline.
+
+## Day 1 — Where you start
+
+What the day is actually for. Not a schedule — a reason to be there.
+
+place: a-place-slug
+
+## Day 2 — The long middle
+
+`place: slug` on its own line links a published place. Delete the line if there isn't one yet.
+
+## Day 3 — Turn around
+
+Leave while the day still feels finished.

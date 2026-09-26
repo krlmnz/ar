@@ -1,14 +1,21 @@
 ---
 layout: layouts/base.njk
+needsMap: true
 ---
+{# PLACE — a destination.
+   Required once you publish: title, slug, type, subtitle, region, coordinates.
+   published: false keeps the page previewable and off listings, maps, and the sitemap.
+   Map pin is omitted when coordinates are missing or still 0,0. #}
 
 {% set regionData = regions[region] if regions and region %}
-{% set crumbs = [
-  {label: "Regions", url: "/regions/" },
-  {label: regionData.label if regionData else region, url: "/regions/" + region + "/" if region},
-  {label: title}
-] %}
-{% include "partials/breadcrumbs.njk" %}
+{% if page.url and "/places/" in page.url %}
+  {% set crumbs = [
+    {label: "Places", url: "/places/" },
+    {label: regionData.label if regionData else region, url: "/regions/" + region + "/" if region},
+    {label: title}
+  ] %}
+{% endif %}
+{% if crumbs %}{% include "partials/breadcrumbs.njk" %}{% endif %}
 
 {% set m = [] %}
 {% if regionData %}{% set m = (m.push(regionData.label), m) %}{% endif %}
@@ -18,9 +25,38 @@ layout: layouts/base.njk
 {% if reservations and reservations != "none" %}{% set m = (m.push("Reservations " + reservations), m) %}{% endif %}
 {% set overline = type | replace("-", " ") %}
 {% set meta = m %}
+{% set hasPin = coordinates and (coordinates.lat != 0 or coordinates.lng != 0) %}
 
-<article>
+<article class="tpl tpl--place">
+  {% if sample %}
+  <p class="sample-flag">Sample place — delete it when you add your own. New places start as <code>published: false</code>.</p>
+  {% endif %}
+
   {% include "partials/page-header.njk" %}
+
+  {% if hasPin %}
+  <div class="place-map">
+    {% set mapLabel = title %}
+    {% include "partials/map-shell.njk" %}
+  </div>
+  {% set mapConfig = {
+    token: mapbox.token,
+    style: mapbox.style,
+    mapId: "map",
+    mode: "pins",
+    fit: 72,
+    features: [{
+      id: slug or title,
+      title: title,
+      type: type or "",
+      subtitle: subtitle or "",
+      url: page.url,
+      lng: coordinates.lng,
+      lat: coordinates.lat
+    }]
+  } %}
+  {% include "partials/map-embed.njk" %}
+  {% endif %}
 
   <div class="prose content-column">
     {{ content | safe }}
@@ -28,7 +64,7 @@ layout: layouts/base.njk
 
   {% if tip %}
   <div class="tip content-column">
-    <p><strong>Pro tip —</strong> {{ tip }}</p>
+    <p><strong>Tip —</strong> {{ tip }}</p>
   </div>
   {% endif %}
 
@@ -37,10 +73,12 @@ layout: layouts/base.njk
     <h2 class="subhead">Phrases you'll need</h2>
     <div class="phrase-list">
       {% for p in spanish.useful_phrases %}
+      {% if p.phrase %}
       <div class="phrase-item">
         <span class="phrase-item__text">"{{ p.phrase }}"</span>
         <span class="phrase-item__meaning">{{ p.meaning }}</span>
       </div>
+      {% endif %}
       {% endfor %}
     </div>
     {% if spanish.pronunciation %}
@@ -60,20 +98,37 @@ layout: layouts/base.njk
   </div>
   {% endif %}
 
-  {% if tags and tags.length %}
+  {% if audience and audience.length %}
   <div class="content-column section-block">
-    <h2 class="subhead">More like this</h2>
+    <h2 class="subhead">Good for</h2>
     <div class="tag-row">
-      {% for t in tags %}
-      <a href="/tags/{{ t }}/" class="tag">{{ tagInfo[t].label if tagInfo[t] else t | replace("-", " ") }}</a>
+      {% for key in audience %}
+      <span class="tag">{{ audiences[key].label if audiences[key] else key }}</span>
       {% endfor %}
     </div>
   </div>
   {% endif %}
 
-  {% if google_maps %}
+  {% if tags and tags.length %}
+  <div class="content-column section-block">
+    <h2 class="subhead">More like this</h2>
+    <div class="tag-row">
+      {% for t in tags %}
+        {% if collections.byTag[t] %}
+        <a href="/tags/{{ t }}/" class="tag">{{ tagInfo[t].label if tagInfo[t] else t | replace("-", " ") }}</a>
+        {% else %}
+        <span class="tag">{{ tagInfo[t].label if tagInfo[t] else t | replace("-", " ") }}</span>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if google_maps or website %}
   <div class="content-column section-block btn-row">
+    {% if google_maps %}
     <a href="{{ google_maps }}" target="_blank" rel="noopener" class="btn btn--filled">View on Google Maps</a>
+    {% endif %}
     {% if website %}
     <a href="{{ website }}" target="_blank" rel="noopener" class="btn">Visit website</a>
     {% endif %}
@@ -96,15 +151,14 @@ layout: layouts/base.njk
   {% endif %}
 </article>
 
-{# JSON-LD #}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TouristAttraction",
   "name": {{ title | dump | replace("</", "<\\/") | safe }},
   "description": {{ (subtitle or description or "") | dump | replace("</", "<\\/") | safe }},
-  {% if coordinates %}"geo": {"@type": "GeoCoordinates", "latitude": {{ coordinates.lat }}, "longitude": {{ coordinates.lng }}},{% endif %}
+  {% if hasPin %}"geo": {"@type": "GeoCoordinates", "latitude": {{ coordinates.lat }}, "longitude": {{ coordinates.lng }}},{% endif %}
   "address": {"@type": "PostalAddress", "addressCountry": "CL"},
-  "url": "{{ site.url }}/places/{{ slug }}/"
+  "url": "{{ site.url }}{{ page.url }}"
 }
 </script>

@@ -1,13 +1,24 @@
 ---
-# FAQ — questions and answers. Renders a no-JS accordion and emits FAQPage
-# structured data so search engines can show the answers directly.
 layout: layouts/faq.njk
+published: false
 title: "__TITLE__"
-subtitle: ""
-overline: FAQ
-faqs:
-  - q: ""
-    a: ""
+# subtitle: ""
+updated: __DATE__
 ---
 
-Optional intro. The questions come from front matter.
+A line of context, if the questions need one. Each heading below becomes a question.
+
+## The question people actually ask?
+
+The short answer. A second sentence if the first one would be coy.
+
+## And the follow-up?
+
+Another answer. Lists are fine.
+
+- Yes, this
+- No, not that
+
+## What if I don't have time?
+
+Say so, and say what to cut.

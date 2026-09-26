@@ -1,26 +1,24 @@
 ---
-# GUIDE — a multi-day itinerary in the original guides collection.
-# DRAFT. While this is false the place is kept out of the directory, every
-# map, and all region/tag pages — but the page itself still builds so you can
-# preview it. Flip to true (or delete the line) to publish.
-#
-# This matters: an unedited place with 0,0 coordinates would otherwise stretch
-# every map on the site from Chile to the Gulf of Guinea.
+layout: layouts/guide.njk
 published: false
-
 title: "__TITLE__"
-slug: __SLUG__
-duration: "3 days"
-description: ""
-places: []                     # slugs, in order
-seo:
-  title: ""
-  description: ""
+# series: Field guide          # small label above the title
+# subtitle: ""                  # the line under the title
+# cover: true                   # poster header. Omit for a plain title.
+# cover_meta: ""                # one line along the bottom of the cover
 updated: __DATE__
 ---
 
-Open with who this trip is for and why this order.
+The sentence that opens the page. Then a heading for every section you want in the contents rail.
 
-## Day one
+## First section
 
-What happens.
+Write the section in ordinary markdown. Lists, quotes, and `code` all work.
+
+## Second section (#second)
+
+Add `(#an-id)` at the end of a heading when you want a specific link, instead of the one made from the title.
+
+## Third section
+
+Three sections is enough for the rail to feel like a guide. Add as many as the piece needs.

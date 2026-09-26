@@ -1,101 +1,42 @@
-# Writing for Andean Road
+# Writing a page
 
-Everything on this site is a markdown file. You never touch a template.
-
-## The loop
+This file is for you. It is not published.
 
 ```bash
-npm start                                   # dev server, live reload
-npm run new -- place "Termas de Chillán"    # scaffold a file
+npm run new -- <kind> "Title"
 ```
 
-Then edit the file, watch it in the browser, and flip `published: true` when
-it's ready.
+Kinds: `guide`, `reference`, `center`, `dispatch`, `place`, `practical`, `faq`, `gallery`, `itinerary`, `route`, `story`, `browse`.
 
-## Scaffolding
+The command writes a markdown file with the layout set and `published: false`. Open it, replace the sample sentences, and preview with `npm start`. Nothing lists the page, and the sitemap skips it, until you change that line to `published: true`.
 
-`npm run new -- <kind> "<Title>"` creates the file in the right folder, with a
-slug, today's date, and the front matter that layout actually reads. Every field
-is commented. It never overwrites.
+## What each template expects
 
-| Kind | Makes | Use it for |
-|---|---|---|
-| `place` | `content/places/<slug>/index.md` | Somewhere you'd send a friend |
-| `guide` | `content/guides/<slug>.md` | A multi-day itinerary |
-| `practical` | `content/practical/<slug>.md` | Money, driving, language |
-| `article` | `content/<slug>.md` | An essay, read once |
-| `manual` | `content/<slug>.md` | Long reference people return to |
-| `itinerary` | `content/<slug>.md` | A numbered sequence |
-| `faq` | `content/<slug>.md` | Questions and answers |
-| `reference` | `content/<slug>.md` | A table of facts |
-| `gallery` | `content/<slug>.md` | Photographs |
-| `simple` | `content/<slug>.md` | About, colophon, thanks |
-| `story` | `content/<slug>.md` | Scrollytelling over a map |
-| `route` | `content/<slug>.md` | A road trip with a drawn line |
-| `neighborhood` | `content/<slug>.md` | One walkable area |
-| `area` | `content/<slug>.md` | Several regions compared |
-| `browse` | `content/<slug>.md` | Map + list finder |
+The body is markdown. Layouts read headings, lists, quotes, and images. You should not need a `<div>` in a post.
 
-Starters live in `_starters/` — edit those to change what every new file gets.
+- **guide** — each `##` is a section in the left rail. `## Title (#id)` sets the link. `cover: true` adds the poster header.
+- **reference** — `##`, `###`, a `>` quote, a list. No sidebar.
+- **center** — a title and a few paragraphs.
+- **dispatch** — `overline`, `subtitle` (the standfirst), `byline`. The first paragraph is the lead.
+- **place** — `type`, `region`, `coordinates`, and the optional facts in the starter. A pin appears when the coordinates are real.
+- **practical** — a "You'll need" list, then a numbered list. A blockquote becomes the tip.
+- **faq** — each `##` is a question.
+- **gallery** — an image on its own line, then an italic caption.
+- **itinerary** — `## Day 1 — Title`. A line that says `place: slug` links a published place.
+- **route** — `stops` in the front matter (a place slug, or a title with `lng` and `lat`). The markdown is the intro under the map.
+- **story** — advanced. `steps` carry the text and the camera (`lng`, `lat`, `zoom`, `pitch`, `bearing`).
+- **browse** — `source: places` or `source: demos`, or a `cards` list. `showMap: true` puts places beside a map.
 
-## Places are the spine
+## Places
 
-A place is the only content type other things point at. Add one and it appears
-in the directory, on every map, and in its region, tag and audience pages —
-no other file needs editing.
-
-Guides, routes, neighbourhood and area pages all reference places **by slug**.
-They never copy coordinates. Change a place's location once and every map
-follows.
-
-```yaml
-stops:
-  - place: casa-del-bosque    # the slug, not the name
+```bash
+npm run new -- place "Termas de Chillán"
 ```
 
-If a slug doesn't match anything, the reference is quietly skipped — no broken
-link, no failed build. So check your spelling.
+That writes `content/places/<slug>/index.md`. Fill in `type`, `region`, and real coordinates before you publish. `0,0` is treated as unfinished and kept off every map.
 
-## Publishing
+Regions live in `_data/regions.json`. Tags live in `_data/tagInfo.json`. Icons for place types live in `_data/placeIcons.json`.
 
-New places, guides and practical pages start at `published: false`. That keeps
-them out of the directory and off every map while you write, but the page still
-builds so you can preview it at its own URL.
+## Demos
 
-Flip to `true` when you're ready. **This matters more than it looks:** an
-unedited place still has `0,0` coordinates, and a published one would stretch
-every map on the site from Chile to the Gulf of Guinea.
-
-## Rules that will bite you
-
-**Dates go unquoted.** `updated: 2026-07-21`, never `"2026-07-21"`. YAML hands
-a quoted date to the template as a string and the build fails.
-
-**Coordinates:** right-click the spot in Google Maps, copy the two numbers. Chile
-is negative on both axes — `lat: -33.4489`, `lng: -70.6693`.
-
-**Subtitles do the selling.** They appear on cards, in map popups, and in search
-results. Not "a restaurant in Bellavista" but the reason to go.
-
-**A neighbourhood page must actually be a neighbourhood.** The map frames
-whatever you give it, so one out-of-town slug pulls the camera back to regional
-scale and the page stops meaning anything.
-
-**New place type?** Add it to `_data/placeIcons.json` or it falls back to a
-generic pin. New region? `_data/regions.json`. New tag? `_data/tagInfo.json`.
-
-**Every heading gets a linkable anchor.** Write them as things a reader would
-scan for — they become navigation, and on `manual` pages they become the
-contents rail.
-
-## Front matter that's optional everywhere
-
-Only `layout` and `title` are ever required (places also need `slug`, `type`,
-`region` and `coordinates`). Everything else disappears cleanly when omitted —
-a half-filled page never renders an empty heading or a stray rule. Delete the
-fields you don't need rather than leaving them blank.
-
-## Seeing your options
-
-`/templates/` lists every layout with a live example. Each one documents its own
-front matter on the page.
+`/demo/<kind>/` is the gallery's example of each template, not a folder you add posts to. Your pages go in `content/` and publish at `/<slug>/`, or under `/places/<slug>/`.

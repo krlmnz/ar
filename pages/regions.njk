@@ -4,23 +4,20 @@ permalink: /regions/
 title: Regions
 seo:
   title: "Regions — Andean Road"
-  description: "Chile by region: Santiago, Casablanca Valley wine country, the Central Coast, the Andes, Pomaire, and the Lake District."
+  description: "Places grouped by region. Empty until a published place names one."
 ---
 
 <div class="hero">
   <div class="hero-overline">By geography</div>
   <h1 class="hero-title">Regions</h1>
-  <p class="hero-lede">Chile is long — 2,600 miles of it. Here's the country broken into the pieces you'd actually plan a trip around.</p>
+  <p class="hero-lede">The regions a place can belong to. A published place with <code>region:</code> set shows up under its name.</p>
 </div>
 
 <hr class="rule rule--heavy">
 
 <section class="section">
   {% for slug, region in regions %}
-    {% set count = 0 %}
-    {% for item in collections.places %}
-      {% if item.data.region == slug %}{% set count = count + 1 %}{% endif %}
-    {% endfor %}
+    {% set count = (collections.byRegion[slug] or []) | length %}
   <a href="/regions/{{ slug }}/" class="guide-entry">
     <div class="guide-entry__overline">{{ count }} place{{ "s" if count != 1 }}</div>
     <div class="guide-entry__title">{{ region.label }}</div>

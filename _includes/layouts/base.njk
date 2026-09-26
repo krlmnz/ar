@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"{% if not mapbox.token %} class="no-map"{% endif %}>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +8,7 @@
   <meta name="description" content="{% if seo and seo.description %}{{ seo.description }}{% elif description %}{{ description }}{% else %}{{ site.description }}{% endif %}">
 
   <link rel="canonical" href="{{ site.url }}{{ page.url }}">
+  {% if published == false %}<meta name="robots" content="noindex">{% endif %}
 
   <meta property="og:title" content="{% if seo and seo.title %}{{ seo.title }}{% elif title %}{{ title }}{% endif %}">
   <meta property="og:description" content="{% if seo and seo.description %}{{ seo.description }}{% elif description %}{{ description }}{% endif %}">
@@ -40,7 +41,7 @@
     })();
   </script>
 
-  {% if page.url == "/map/" %}
+  {% if needsMap %}
   <link rel="preconnect" href="https://api.mapbox.com">
   <link rel="preconnect" href="https://events.mapbox.com">
   {% endif %}
@@ -54,15 +55,18 @@
 
   {% if fieldGuide %}
   <div class="shell field-guide">
+    {% include "partials/demo-note.njk" %}
     {{ content | safe }}
   </div>
   {% elif fullBleed %}
   <main id="main-content" class="bleed">
+    {% include "partials/demo-note.njk" %}
     {{ content | safe }}
   </main>
   {% else %}
   <div class="shell">
     <main id="main-content" class="reading{{ ' reading--wide' if wide }}">
+      {% include "partials/demo-note.njk" %}
       {{ content | safe }}
     </main>
   </div>

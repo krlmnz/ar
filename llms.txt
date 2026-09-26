@@ -1,36 +1,19 @@
-# Andean Road - AI Assistant Information
+# Andean Road
 
-**Andean Road** is a personal travel guide to Chile, crafted by your bilingual best friend. This is an Eleventy static site designed to help travelers discover the beauty, culture, and practical wisdom needed to explore Chile.
+Andean Road is an Eleventy starter for designed pages. Twelve templates share one visual system. A new page is ordinary markdown plus light front matter.
 
-## Site Structure
+## Templates
 
-The site is organized into three primary content areas:
+guide, reference, center, dispatch, place, practical, faq, gallery, itinerary, route, story, browse.
 
-- **Places** (`/places/`): Detailed guides to specific destinations, regions, and attractions across Chile. Each place includes descriptions, practical information, and curated recommendations.
-- **Guides** (`/guides/`): Thematic travel guides covering topics like hiking, wine regions, cultural experiences, and seasonal travel tips.
-- **Practical Tips** (`/practical/`): Essential travel information including transportation, accommodation, language, safety, budgeting, and other logistical guidance.
+The gallery is `/templates/`. One demo of each template is at `/demo/<kind>/`. The homepage is a hub into those pages.
 
-## Content Organization
+## Places
 
-Places are tagged, categorized by region, and grouped by audience (backpackers, luxury travelers, families, etc.). All content is in English and Spanish.
+Published places live at `/places/<slug>/` and on the places map. `published: false` keeps a page out of listings, maps, and the sitemap. The page URL still builds for preview.
 
-## API Endpoints
+## Stack
 
-The site exposes the following JSON endpoints for developers and AI assistants:
+Eleventy 2, Nunjucks, Markdown, CSS custom properties, Mapbox via `assets/js/andean-map.js`.
 
-- `/api/places.json` — Complete list of all places with metadata (title, region, audience, tags, slug)
-- `/api/guides.json` — List of all guides with summaries
-
-## Deployment
-
-Hosted on Netlify with automatic builds from git. Site uses Nunjucks templating and Markdown for content authoring.
-
-## Technical Stack
-
-- **Static Site Generator**: Eleventy 2.x
-- **Templating**: Nunjucks (njk)
-- **Content Format**: Markdown with YAML frontmatter
-- **Styling**: Custom CSS (responsive design)
-- **Hosting**: Netlify
-
-For more information, visit https://andean-road.com
+https://andean-road.com

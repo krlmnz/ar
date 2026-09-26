@@ -1,13 +1,26 @@
 ---
-# REFERENCE — facts people look up rather than read.
 layout: layouts/reference.njk
+published: false
 title: "__TITLE__"
-subtitle: ""
-overline: Reference
-rows:
-  - label: ""                  # left column
-    value: ""                  # right column
-    note: ""                   # optional caveat beneath
+# overline: Essay
+# subtitle: ""
+updated: __DATE__
 ---
 
-Optional intro, then the rows carry the facts.
+Open with the claim. This template has no sidebar — the type does the work.
+
+## A first movement
+
+Paragraphs, then a list if the reader needs to scan:
+
+- One thing that matters
+- Another
+- The exception
+
+## A line worth setting apart
+
+> The sentence you want read twice.
+
+## Where it lands
+
+Close shorter than you opened. Headings, quotes, and lists are the whole toolkit.

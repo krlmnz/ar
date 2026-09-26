@@ -1,0 +1,15 @@
+---
+layout: layouts/base.njk
+---
+{# DISPATCH — magazine article.
+   Front matter: title, overline, subtitle (standfirst), byline, updated.
+   The first paragraph of the markdown is the lead. #}
+
+{% if crumbs %}{% include "partials/breadcrumbs.njk" %}{% endif %}
+
+<article class="tpl tpl--dispatch">
+  {% include "partials/page-header.njk" %}
+  <div class="prose">
+    {{ content | safe }}
+  </div>
+</article>

@@ -1,7 +1,7 @@
 {
   "name": "andean-road",
   "version": "1.0.0",
-  "description": "A personal travel guide to Chile \u2014 by your bilingual best friend",
+  "description": "Andean Road — a twelve-template Eleventy starter",
   "scripts": {
     "start": "npx @11ty/eleventy --serve",
     "build": "npx @11ty/eleventy",

@@ -1,31 +1,14 @@
 ---
 layout: layouts/base.njk
 ---
-{# REFERENCE — a scannable table of facts: prices, times, phrases, packing.
-   Front matter: title, overline, subtitle, rows: [{label, value, note}] #}
+{# REFERENCE — long-form, type-led. No sidebar.
+   Front matter: title, overline, subtitle. Body is markdown: h2, h3, quotes, lists. #}
 
 {% if crumbs %}{% include "partials/breadcrumbs.njk" %}{% endif %}
 
 <article class="tpl tpl--reference">
   {% include "partials/page-header.njk" %}
-
-  {% if content %}
-  <div class="prose content-column">
+  <div class="prose">
     {{ content | safe }}
   </div>
-  {% endif %}
-
-  {% if rows and rows.length %}
-  <div class="reference-list reference-list--table">
-    {% for row in rows %}
-    <div class="reference-item">
-      <div class="reference-item__label">{{ row.label }}</div>
-      <div>
-        <div class="reference-item__value">{{ row.value }}</div>
-        {% if row.note %}<div class="reference-item__annotation">{{ row.note }}</div>{% endif %}
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
 </article>

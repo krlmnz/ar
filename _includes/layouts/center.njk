@@ -1,0 +1,14 @@
+---
+layout: layouts/base.njk
+---
+{# CENTER — title and body in a calm column. Lowest friction.
+   Front matter: title, subtitle. Everything else is markdown. #}
+
+{% if crumbs %}{% include "partials/breadcrumbs.njk" %}{% endif %}
+
+<article class="tpl tpl--center">
+  {% include "partials/page-header.njk" %}
+  <div class="prose">
+    {{ content | safe }}
+  </div>
+</article>

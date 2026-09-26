@@ -1,13 +1,15 @@
 ---
-# GALLERY — image-led. First figure runs full width, the rest tile.
 layout: layouts/gallery.njk
+published: false
 title: "__TITLE__"
-subtitle: ""
-overline: Photo essay
-figures:
-  - src: ""                    # omit for a labelled placeholder
-    alt: ""                    # required — describes the image for screen readers
-    caption: ""                # optional — visible text beneath
+# subtitle: ""
+updated: __DATE__
 ---
 
-Optional intro. `alt` and `caption` do different jobs — write both.
+A short intro. It sits above the grid. Delete it if the pictures should start the page.
+
+![Describe the picture](/assets/demo/ridge.svg)
+*The caption. Italics on the line after the image.*
+
+![Describe the next one](/assets/demo/coast.svg)
+*Captions stay short. The alt text is for someone who can't see the image.*

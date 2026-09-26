@@ -1,50 +1,15 @@
 ---
-layout: layouts/base.njk
+layout: layouts/browse.njk
 permalink: /places/
-title: All Places
+title: Places
+overline: Directory
+subtitle: Published places, with a pin for each one that has coordinates. Drafts stay off this map.
+source: places
+showMap: true
+needsMap: true
 seo:
-  title: "All Places — Andean Road"
-  description: "Every place worth going in Chile — restaurants, vineyards, hot springs, volcanoes and museums, grouped by region."
+  title: Places — Andean Road
+  description: Published places on Andean Road. Drafts are previewable and stay off the directory and the map.
 ---
 
-<div class="hero">
-  <div class="hero-overline">The full list</div>
-  <h1 class="hero-title">Places</h1>
-  <p class="hero-lede">Every place on this site, grouped by region. {{ collections.places | length }} in total — each one somewhere I've actually been.</p>
-</div>
-
-<hr class="rule rule--heavy">
-
-{% for slug, region in regions %}
-  {% set placesHere = [] %}
-  {% for item in collections.places %}
-    {% if item.data.region == slug %}{% set placesHere = (placesHere.push(item), placesHere) %}{% endif %}
-  {% endfor %}
-
-  {% if placesHere | length %}
-  <section class="section">
-    <div class="section-label">{{ region.description }}</div>
-    <div class="section-title">
-      <a href="/regions/{{ slug }}/" style="color:inherit;text-decoration:none">{{ region.label }}</a>
-    </div>
-
-    {% for item in placesHere %}
-      {% include "partials/place-entry.njk" %}
-    {% endfor %}
-  </section>
-  {% endif %}
-{% endfor %}
-
-<hr class="rule rule--section">
-
-<section class="section">
-  <div class="section-label">Another way in</div>
-  <div class="section-title">Browse by trip style</div>
-  <div class="section-description">Same places, sorted by the kind of trip you're planning.</div>
-
-  <div class="practical-list">
-    {% for slug, audience in audiences %}
-    <a href="/for/{{ slug }}/" class="practical-link">{{ audience.label }}</a>
-    {% endfor %}
-  </div>
-</section>
+Two samples are included so the route, story, and this map have somewhere to point. Delete them when yours are ready.

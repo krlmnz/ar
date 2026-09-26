@@ -5,12 +5,13 @@ pagination:
   size: 1
   alias: regionSlug
   resolve: keys
+  addAllPagesToCollections: true
 permalink: "/regions/{{ regionSlug }}/"
 eleventyComputed:
   title: "{{ regions[regionSlug].label | safe }}"
   seo:
     title: "{{ regions[regionSlug].label | safe }} — Andean Road"
-    description: "{{ regions[regionSlug].description | safe }}. Where to eat, stay and go."
+    description: "{{ regions[regionSlug].description | safe }}."
 ---
 
 {% set region = regions[regionSlug] %}
@@ -23,12 +24,16 @@ eleventyComputed:
 
 <hr class="rule rule--heavy">
 
+{% set here = collections.byRegion[regionSlug] or [] %}
+
 <section class="section">
-  {% for item in collections.places %}
-    {% if item.data.region == regionSlug %}
-      {% include "partials/place-entry.njk" %}
-    {% endif %}
+  {% if here | length == 0 %}
+  <p class="empty-note">No published places in this region yet.</p>
+  {% else %}
+  {% for item in here %}
+    {% include "partials/place-entry.njk" %}
   {% endfor %}
+  {% endif %}
 </section>
 
 <hr class="rule rule--section">

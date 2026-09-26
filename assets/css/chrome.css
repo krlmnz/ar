@@ -1,4 +1,4 @@
-/* Shared chrome from the MapLibre Roadtrip visual guide:
+/* Shared chrome — header, themes, field-guide frame, footer.
    header, reading preferences, shell, cover, lesson column. */
 
 html { color-scheme: light; scroll-behavior: smooth; }
@@ -720,6 +720,9 @@ code { font: 14px/1.55 var(--font-mono); }
 @media (max-width: 720px) {
   .view-trigger__label,
   .view-trigger__theme { display: none; }
+  .site-header__inner { padding-inline: var(--space-1); gap: var(--space-1); }
+  .site-nav a { padding-inline: 6px; }
+  .demo-note { overflow-wrap: anywhere; }
 }
 
 @media (max-width: 680px) {

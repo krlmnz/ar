@@ -1,43 +1,39 @@
 ---
 layout: layouts/base.njk
 ---
-{# ITINERARY — numbered days or steps. The markdown body is the intro; the
-   sequence comes from front matter so it stays structured data.
-   Front matter: title, overline, subtitle, steps: [{overline, title, body, place}] #}
+{# ITINERARY — each h2 is a day. "Day 1 — Title" splits into the overline and title.
+   A line that is only `place: slug` links that day to a published place. #}
 
 {% if crumbs %}{% include "partials/breadcrumbs.njk" %}{% endif %}
+
+{% set trip = content | days %}
+{% set overline = overline or "Itinerary" %}
 
 <article class="tpl tpl--itinerary">
   {% include "partials/page-header.njk" %}
 
-  {% if content %}
-  <div class="prose content-column">
-    {{ content | safe }}
-  </div>
+  {% if trip.intro %}
+  <div class="prose content-column">{{ trip.intro | safe }}</div>
   {% endif %}
 
-  {% if steps and steps.length %}
-  {% set placeCount = 0 %}
-  {% for s in steps %}{% if s.place %}{% set placeCount = placeCount + 1 %}{% endif %}{% endfor %}
+  {% if trip.days.length %}
+  {% set linkedCount = trip.days | countPlaces(collections.places) %}
   <div class="itin-summary">
-    <span>{{ steps | length }} {{ "stop" if steps | length == 1 else "stops" }}</span>
-    {% if placeCount %}<span>{{ placeCount }} linked {{ "place" if placeCount == 1 else "places" }}</span>{% endif %}
+    <span>{{ trip.days | length }} {{ "day" if trip.days | length == 1 else "days" }}</span>
+    {% if linkedCount %}<span>{{ linkedCount }} linked {{ "place" if linkedCount == 1 else "places" }}</span>{% endif %}
   </div>
 
-  {# role="list" restores list semantics that list-style:none strips in Safari #}
   <ol class="steps steps--timeline" role="list">
-    {% for step in steps %}
-    <li class="step">
+    {% for day in trip.days %}
+    <li class="step" id="{{ day.id }}">
       <div>
-        {% if step.overline %}<div class="step__overline">{{ step.overline }}</div>{% endif %}
-        <h2 class="step__title">{{ step.title }}</h2>
-        {% if step.body %}<p class="step__body">{{ step.body }}</p>{% endif %}
-        {% if step.place %}
-          {% set linked = collections.places | findBySlug(step.place) %}
+        {% if day.overline %}<div class="step__overline">{{ day.overline }}</div>{% endif %}
+        <h2 class="step__title">{{ day.title }}</h2>
+        {% if day.html %}<div class="step__body prose">{{ day.html | safe }}</div>{% endif %}
+        {% if day.place %}
+          {% set linked = collections.places | findBySlug(day.place) %}
           {% if linked %}
-          <p class="step__body">
-            <a href="/places/{{ linked.data.slug }}/">{{ linked.data.title }} →</a>
-          </p>
+          <p class="step__body"><a href="{{ linked.url }}">{{ linked.data.title }} →</a></p>
           {% endif %}
         {% endif %}
       </div>

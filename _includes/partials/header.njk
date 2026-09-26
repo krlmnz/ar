@@ -18,11 +18,9 @@
     </a>
 
     <nav class="site-nav" aria-label="Primary">
-      <a href="/chile/" {% if page.url == "/chile/" %}aria-current="page"{% endif %}>Chile</a>
-      <a href="/guides/" {% if page.url.indexOf("/guides/") == 0 %}aria-current="page"{% endif %}>Guides</a>
+      <a href="/templates/" {% if page.url.indexOf("/templates/") == 0 or page.url.indexOf("/demo/") == 0 %}aria-current="page"{% endif %}>Templates</a>
       <a href="/places/" {% if page.url.indexOf("/places/") == 0 %}aria-current="page"{% endif %}>Places</a>
-      <a href="/map/" {% if page.url == "/map/" %}aria-current="page"{% endif %}>Map</a>
-      <a href="/practical/" {% if page.url.indexOf("/practical/") == 0 %}aria-current="page"{% endif %}>Practical</a>
+      <a href="/regions/" {% if page.url.indexOf("/regions/") == 0 %}aria-current="page"{% endif %}>Regions</a>
     </nav>
 
     <details class="view-menu" id="viewMenu">

@@ -1,6 +1,6 @@
 {# Usage: {% set place = item %} {% include "partials/place-card.njk" %} #}
 <a href="/places/{{ place.data.slug }}/" class="card">
-  <div class="card__overline">{{ place.data.type | replace("-", " ") }}</div>
+  <div class="card__overline">{% if place.data.sample %}Sample · {% endif %}{{ place.data.type | replace("-", " ") }}</div>
   <div class="card__title">{{ place.data.title }}</div>
   <div class="card__description">{{ place.data.subtitle }}</div>
 </a>

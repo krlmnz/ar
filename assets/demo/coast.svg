@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-label="Bands of water and a boat">
+  <rect width="800" height="450" fill="#f4f1ea"/>
+  <path d="M0 160 H800" stroke="#171717" stroke-width="2"/>
+  <path d="M0 210 H800 M0 270 H800 M0 330 H800 M0 390 H800" stroke="#171717" stroke-width="1.5" opacity=".45"/>
+  <path d="M90 250 C160 210 230 290 310 250 C390 210 460 290 540 248" fill="none" stroke="#1d5fd0" stroke-width="3"/>
+  <path d="M520 150 L560 230 L480 230 Z" fill="#171717"/>
+  <path d="M470 230 H590" stroke="#171717" stroke-width="3"/>
+</svg>

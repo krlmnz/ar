@@ -1,6 +1,6 @@
 {# Usage: {% set item = place %}{% include "partials/place-entry.njk" %} #}
 <a href="/places/{{ item.data.slug }}/" class="place-entry">
-  <div class="place-entry__overline">{{ item.data.type | replace("-", " ") }}</div>
+  <div class="place-entry__overline">{% if item.data.sample %}Sample · {% endif %}{{ item.data.type | replace("-", " ") }}</div>
   <div class="place-entry__name">{{ item.data.title }}</div>
   <div class="place-entry__description">{{ item.data.subtitle }}</div>
   <div class="place-entry__meta">

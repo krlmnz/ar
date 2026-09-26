@@ -1,34 +1,59 @@
 ---
 layout: layouts/base.njk
+fieldGuide: true
 ---
+{# FIELD GUIDE — multi-part explainer.
+   The contents rail is built from h2s. Add (#id) on a heading for an explicit slug.
+   cover: true opts into the poster header (series, subtitle, cover_meta).
+   The body is ordinary markdown. #}
 
-{% set crumbs = [
-  {label: "Guides", url: "/guides/" },
-  {label: title}
-] %}
-{% include "partials/breadcrumbs.njk" %}
+{% if crumbs %}{% include "partials/breadcrumbs.njk" %}{% endif %}
+{% set headings = content | toc %}
 
-{% set overline = "Guide · " + duration if duration else "Guide" %}
-
-<article>
-  {% include "partials/page-header.njk" %}
-
-  <div class="prose content-column">
-    {{ content | safe }}
-  </div>
-
-  {% if places and places.length %}
-  <div class="section-block">
-    <hr class="rule">
-    <h2 class="subhead">Places in this guide</h2>
-    <div class="place-grid">
-      {% for placeSlug in places %}
-        {% set place = collections.places | findBySlug(placeSlug) %}
-        {% if place %}
-          {% include "partials/place-card.njk" %}
-        {% endif %}
-      {% endfor %}
+{% if cover %}
+<header class="cover" aria-labelledby="title">
+  <div class="cover-copy">
+    <div>
+      {% if series %}<div class="series">{{ series }}</div>{% endif %}
+      <h1 id="title">{{ title }}</h1>
+      {% if subtitle or description %}<p>{{ subtitle or description }}</p>{% endif %}
     </div>
+    {% if cover_meta %}
+    <div class="cover-meta"><span>{{ cover_meta }}</span></div>
+    {% endif %}
   </div>
-  {% endif %}
-</article>
+  <div class="cover-art" aria-hidden="true">
+    <svg class="cover-mark" viewBox="0 0 300 380" role="img">
+      <rect x="2" y="2" width="296" height="376" fill="none" stroke="var(--line)" stroke-width="3"/>
+      <path d="M40 250 L150 90 L260 250" fill="none" stroke="var(--ink)" stroke-width="3"/>
+      <path d="M78 250 L150 150 L222 250" fill="var(--panel)" stroke="var(--line)" stroke-width="3"/>
+      <path d="M48 268 H252" stroke="var(--accent)" stroke-width="4"/>
+      <g fill="var(--panel)" stroke="var(--line)" stroke-width="3">
+        <circle cx="70" cy="268" r="7"/>
+        <circle cx="150" cy="268" r="7"/>
+        <circle cx="230" cy="268" r="7"/>
+      </g>
+    </svg>
+  </div>
+</header>
+{% endif %}
+
+<div class="layout">
+  <nav class="toc" aria-label="Contents">
+    <h2>Contents</h2>
+    {% for h in headings | h2s %}
+      <a href="#{{ h.id }}">{{ loop.index | pad2 }} {{ h.text }}</a>
+    {% endfor %}
+  </nav>
+
+  <main id="main-content" class="prose guide-body">
+    {% if not cover %}
+    <header class="page-header">
+      {% if series or overline %}<div class="page-header__type">{{ series or overline }}</div>{% endif %}
+      <h1 class="page-header__title" id="title">{{ title }}</h1>
+      {% if subtitle %}<p class="page-header__subtitle">{{ subtitle }}</p>{% endif %}
+    </header>
+    {% endif %}
+    {{ content | lessons | safe }}
+  </main>
+</div>

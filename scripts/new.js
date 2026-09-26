@@ -2,41 +2,26 @@
 /* Scaffold a new page from a starter.
  *
  *   npm run new -- place "Termas de Chillán"
- *   npm run new -- article "Why Chileans eat at eleven"
- *   npm run new -- story "The Potters of Pomaire"
+ *   npm run new -- dispatch "Dinner at ten"
+ *   npm run new -- story "The hill, then the sea"
  *
  * Creates the file in the right folder with a slug, today's date, and the
- * front matter that layout actually reads. Never overwrites.
+ * front matter that layout actually reads. Never overwrites. New pages start
+ * as published: false.
  */
 'use strict';
 
 const fs = require('fs');
 const path = require('path');
+const TEMPLATES = require('../_data/templates');
 
 const ROOT = path.join(__dirname, '..');
 const STARTERS = path.join(ROOT, '_starters');
 
-// kind -> where it goes. `dir: true` means content/<folder>/<slug>/index.md
-const KINDS = {
-  place:        { starter: 'place.md',            out: 'content/places',    dir: true },
-  guide:        { starter: 'guide.md',            out: 'content/guides' },
-  practical:    { starter: 'practical.md',        out: 'content/practical' },
-  article:      { starter: 'article.md',          out: 'content' },
-  manual:       { starter: 'manual.md',           out: 'content' },
-  itinerary:    { starter: 'itinerary.md',        out: 'content' },
-  faq:          { starter: 'faq.md',              out: 'content' },
-  reference:    { starter: 'reference.md',        out: 'content' },
-  gallery:      { starter: 'gallery.md',          out: 'content' },
-  simple:       { starter: 'simple.md',           out: 'content' },
-  story:        { starter: 'map-story.md',        out: 'content' },
-  route:        { starter: 'map-route.md',        out: 'content' },
-  neighborhood: { starter: 'map-neighborhood.md', out: 'content' },
-  area:         { starter: 'map-area.md',         out: 'content' },
-  browse:       { starter: 'map-split.md',        out: 'content' }
-};
+const KINDS = Object.fromEntries(TEMPLATES.map((t) => [t.id, t]));
 
 const slugify = (s) => s
-  .normalize('NFD').replace(/[̀-ͯ]/g, '')   // Pucón -> Pucon
+  .normalize('NFD').replace(/[̀-ͯ]/g, '')
   .toLowerCase()
   .replace(/[^\w\s-]/g, '')
   .trim()
@@ -46,8 +31,12 @@ const slugify = (s) => s
 function usage(msg) {
   if (msg) console.error(`\n  ${msg}\n`);
   console.error('  Usage:  npm run new -- <kind> "<Title>"\n');
-  console.error('  Kinds:  ' + Object.keys(KINDS).join(', ') + '\n');
-  console.error('  Example: npm run new -- place "Termas de Chillán"\n');
+  console.error('  Kinds:');
+  TEMPLATES.forEach((t) => {
+    const tag = t.advanced ? '  (advanced)' : '';
+    console.error(`    ${t.id.padEnd(12)} ${t.title}${tag}`);
+  });
+  console.error('\n  Example: npm run new -- place "Termas de Chillán"\n');
   process.exit(1);
 }
 
@@ -86,11 +75,11 @@ const body = fs.readFileSync(starterPath, 'utf8')
 fs.mkdirSync(path.dirname(target), { recursive: true });
 fs.writeFileSync(target, body);
 
-const url = spec.dir ? `/${path.basename(spec.out)}/${slug}/` : `/${slug}/`;
+const url = spec.dir ? `/places/${slug}/` : `/${slug}/`;
 console.log(`
   Created  ${path.relative(ROOT, target)}
   Preview  http://localhost:8080${url}   (npm start)
 
-  The file has comments explaining every field. Delete the ones you don't need —
-  every optional field disappears cleanly when omitted.
+  published is false, so this page stays out of listings, maps, and the sitemap
+  until you flip it. The comments in the file explain every field.
 `);

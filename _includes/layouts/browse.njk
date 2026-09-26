@@ -1,0 +1,133 @@
+---
+layout: layouts/base.njk
+fullBleed: true
+---
+{# BROWSE — a hub of cards, not a long essay.
+   source: places | demos. Or pass cards: [{title, url, kicker, summary}].
+   showMap: true with source: places turns it into the split index
+   (cards beside a map). featured: [] draws a row of lead cards above the grid. #}
+
+{% set entries = [] %}
+{% if source == "places" %}
+  {% for item in collections.places %}
+    {% set entries = (entries.push({
+      url: item.url,
+      title: item.data.title,
+      kicker: ("Sample · " if item.data.sample else "") + (item.data.type | replace("-", " ")),
+      summary: item.data.subtitle,
+      sample: item.data.sample
+    }), entries) %}
+  {% endfor %}
+{% elif source == "demos" %}
+  {% for item in collections.demos %}
+    {% set entries = (entries.push({
+      url: item.url,
+      title: item.data.title,
+      kicker: item.data.kind or item.fileSlug,
+      summary: item.data.summary or item.data.subtitle
+    }), entries) %}
+  {% endfor %}
+{% endif %}
+
+{% if cards %}
+  {% for card in cards %}
+    {% set entries = (entries.push(card), entries) %}
+  {% endfor %}
+{% endif %}
+
+{% set feats = collections.places | toFeatures if source == "places" and showMap else [] %}
+{% set useMap = feats.length > 0 %}
+
+{% if useMap %}
+  {% set mapConfig = {
+    token: mapbox.token,
+    style: mapbox.style,
+    mapId: "map",
+    mode: "pins",
+    fit: 72,
+    features: feats
+  } %}
+  <section class="mapsplit">
+    <div class="mapsplit__panel">
+      <header class="mappanel__head">
+        {% if overline %}<div class="mappanel__overline">{{ overline }}</div>{% endif %}
+        <h1 class="mappanel__title">{{ title }}</h1>
+        {% if subtitle %}<p class="mappanel__sub">{{ subtitle }}</p>{% endif %}
+        <div class="mappanel__meta">
+          <span>{{ feats | length }} {{ "place" if feats | length == 1 else "places" }}</span>
+          <button type="button" class="linkbtn" data-map-reset>Reset map</button>
+        </div>
+      </header>
+      {% if content %}
+      <div class="prose mappanel__intro">{{ content | safe }}</div>
+      {% endif %}
+      <ul class="mapcards mapcards--stack">
+        {% for f in feats %}
+        <li>
+          <article class="mapcard" data-feature="{{ f.id }}">
+            <button type="button" class="mapcard__hit" data-goto="{{ f.id }}" aria-pressed="false"
+                    aria-label="Show {{ f.title }} on the map">
+              <span class="mapcard__icon">
+                {% set iconName = placeIcons[f.type] or placeIcons._default %}
+                {% icon iconName, weight="fill", size=18 %}
+              </span>
+              <span class="mapcard__body">
+                <span class="mapcard__overline">{% if f.sample %}Sample · {% endif %}{{ f.type | replace("-", " ") }}</span>
+                <span class="mapcard__title">{{ f.title }}</span>
+                <span class="mapcard__sub">{{ f.subtitle }}</span>
+              </span>
+            </button>
+            <a class="mapcard__link" href="{{ f.url }}">Read more <span aria-hidden="true">→</span></a>
+          </article>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="mapsplit__map">
+      {% set mapLabel = title %}
+      {% include "partials/map-shell.njk" %}
+    </div>
+  </section>
+  {% include "partials/map-embed.njk" %}
+{% else %}
+  <div class="hub wrap">
+    <header class="hero">
+      {% if overline %}<div class="hero-overline">{{ overline }}</div>{% endif %}
+      <h1 class="hero-title">{{ title }}</h1>
+      {% if subtitle %}<p class="hero-lede">{{ subtitle }}</p>{% endif %}
+    </header>
+
+    {% if content %}
+    <div class="prose hub__intro">{{ content | safe }}</div>
+    {% endif %}
+
+    {% if featured and featured.length %}
+    <div class="hub-feature">
+      {% for card in featured %}
+      <a class="guide-entry" href="{{ card.url }}">
+        {% if card.kicker %}<div class="guide-entry__overline">{{ card.kicker }}</div>{% endif %}
+        <div class="guide-entry__title">{{ card.title }}</div>
+        {% if card.summary %}<div class="guide-entry__description">{{ card.summary }}</div>{% endif %}
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if entries.length %}
+    {% if source == "demos" and featured and featured.length %}
+    <h2 class="subhead">Demos</h2>
+    {% endif %}
+    <div class="hub-grid">
+      {% for card in entries %}
+      <a class="card hub-card" href="{{ card.url }}">
+        {% if card.kicker %}<div class="card__overline">{{ card.kicker }}</div>{% endif %}
+        <div class="card__title">{{ card.title }}</div>
+        {% if card.summary %}<div class="card__description">{{ card.summary }}</div>{% endif %}
+      </a>
+      {% endfor %}
+    </div>
+    {% elif not featured %}
+    <p class="empty-note">Nothing here yet. <code>npm run new -- place "A place"</code> adds the first one. It stays off this page until <code>published: true</code>.</p>
+    {% endif %}
+  </div>
+{% endif %}

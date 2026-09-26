@@ -1,31 +1,33 @@
 ---
 layout: layouts/base.njk
 ---
+{# PRACTICAL — do this.
+   Write a "You'll need" heading and a list, then a numbered list for the steps.
+   A blockquote becomes the tip. Optional front matter: needs (list), tip (string). #}
 
-{% set crumbs = [
-  {label: "Practical", url: "/practical/" },
-  {label: title}
-] %}
-{% include "partials/breadcrumbs.njk" %}
+{% if crumbs %}{% include "partials/breadcrumbs.njk" %}{% endif %}
 
-{% set overline = "Practical" %}
+{% set overline = overline or "Practical" %}
 
-<article>
+<article class="tpl tpl--practical">
   {% include "partials/page-header.njk" %}
 
-  <div class="prose content-column">
+  {% if needs and needs.length %}
+  <div class="content-column section-block needs">
+    <h2 class="subhead">You'll need</h2>
+    <ul class="needs__list">
+      {% for item in needs %}<li>{{ item }}</li>{% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <div class="prose">
     {{ content | safe }}
   </div>
 
-  <div class="section-block">
-    <hr class="rule">
-    <h2 class="subhead">More practical info</h2>
-    <div class="practical-list">
-      {% for p in collections.practical %}
-        {% if p.data.slug != slug %}
-        <a href="/practical/{{ p.data.slug }}/" class="practical-link">{{ p.data.title }}</a>
-        {% endif %}
-      {% endfor %}
-    </div>
+  {% if tip %}
+  <div class="tip content-column">
+    <p><strong>Tip —</strong> {{ tip }}</p>
   </div>
+  {% endif %}
 </article>
