@@ -45,4 +45,4 @@ Regions live in `_data/regions.json`. Tags live in `_data/tagInfo.json`. Icons f
 
 ## Demos
 
-`/demo/<kind>/` is the gallery's example of each template, not a folder you add posts to. Your pages go in `content/` and publish at `/<slug>/`, or under `/places/<slug>/`.
+`/editor/templates/<kind>/` is the private gallery's example of each template, not a folder you add posts to. Your pages go in `content/` and publish at `/<slug>/`, or under `/places/<slug>/`. Open any repo file in the studio — including drafts — by pasting its path.

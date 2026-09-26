@@ -43,3 +43,16 @@ from = "/places/:slug"
 to = "/places/:slug/"
 status = 301
 force = true
+
+# The public template gallery and demo URLs moved behind the studio gate.
+[[redirects]]
+from = "/templates/*"
+to = "/editor/templates/:splat"
+status = 301
+force = true
+
+[[redirects]]
+from = "/demo/*"
+to = "/editor/templates/:splat"
+status = 301
+force = true

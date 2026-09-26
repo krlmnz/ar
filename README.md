@@ -99,4 +99,4 @@ See [WRITING.md](WRITING.md). It is a local note for authors. It is not part of 
 
 A page can set `theme:` (`light`, `night`, `note`, `signal`, `news`, `draft`) so first-time visitors land in that atmosphere. A saved Customize view preference still wins; **Reset to page theme** clears it. See WRITING.md.
 
-The writing studio lives in [`editor/`](editor/README.md). It is a separate Next.js app for `editor.andean-road.com` and does not replace this Eleventy build.
+The writing studio lives at `/editor/` on this same site. It asks for the studio code once and remembers the browser with a cookie. The twelve template previews live under `/editor/templates/` — private, noindexed, and out of the sitemap. Saving in the studio commits markdown to the repo through the GitHub API (token stays in the browser's localStorage) and Netlify rebuilds from that commit.
