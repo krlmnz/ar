@@ -721,6 +721,11 @@ function init() {
     });
   });
 
+  $('back-library').addEventListener('click', () => {
+    show('library');
+    loadLibrary();
+  });
+
   if (unlocked()) loadLibrary();
 
   $('open-form').addEventListener('submit', (event) => {

@@ -58,6 +58,19 @@ seo:
     <div id="view-edit" hidden>
       <article id="studio-doc" class="tpl tpl--center studio-doc">
         <div class="studio-docbar">
+          <div class="studio-docmeta">
+            <button type="button" class="studio-back" id="back-library">← Pages</button>
+            <label class="studio-kind">
+              <span class="sr-only">Kind</span>
+              <select id="doc-kind" aria-label="Page kind"></select>
+            </label>
+            <p class="studio-status" id="save-status" aria-live="polite"></p>
+            <div class="studio-actions">
+              <a id="preview-link" href="/editor/draft/">Preview</a>
+              <button type="button" class="primary" id="publish">Publish</button>
+              <button type="button" id="unpublish">Unpublish</button>
+            </div>
+          </div>
           <div class="studio-toolbar" role="toolbar" aria-label="Formatting">
             <div class="studio-toolbar__group">
               <button type="button" data-cmd="undo" aria-label="Undo" aria-keyshortcuts="Meta+Z">{% icon "arrow-counter-clockwise", size=18 %}</button>
@@ -118,7 +131,7 @@ seo:
                 <span>Add</span>
               </button>
               <div class="studio-menu__panel" role="menu" hidden>
-                <button type="button" role="menuitem" data-cmd="image">{% icon "image", size=16 %}<span>Image</span></button>
+                <button type="button" role="menuitem" data-cmd="image">{% icon "image", size=16 %}<span class="studio-menu__item-copy"><span>Image</span><span class="studio-menu__note">Up to 2.5 MB. Large photos slow the page.</span></span></button>
                 <button type="button" role="menuitem" data-cmd="codeBlock">{% icon "code-block", size=16 %}<span>Code block</span></button>
                 <button type="button" role="menuitem" data-cmd="rule">{% icon "minus", size=16 %}<span>Divider</span></button>
               </div>
@@ -134,18 +147,6 @@ seo:
             <button type="submit">Apply</button>
             <button type="button" id="link-remove">Remove</button>
           </form>
-          <div class="studio-docmeta">
-            <label class="studio-kind">
-              <span class="sr-only">Kind</span>
-              <select id="doc-kind" aria-label="Page kind"></select>
-            </label>
-            <p class="studio-status" id="save-status" aria-live="polite"></p>
-            <div class="studio-actions">
-              <a id="preview-link" href="/editor/draft/">Preview</a>
-              <button type="button" class="primary" id="publish">Publish</button>
-              <button type="button" id="unpublish">Unpublish</button>
-            </div>
-          </div>
         </div>
 
         <header class="page-header">
