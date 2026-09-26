@@ -246,6 +246,7 @@ function libraryRow(page) {
   title.append(name, path);
 
   const status = document.createElement('td');
+  status.className = 'studio-table__status';
   const pill = document.createElement('span');
   if (page.locked) {
     pill.className = 'pill';
@@ -257,9 +258,11 @@ function libraryRow(page) {
   status.appendChild(pill);
 
   const type = document.createElement('td');
+  type.className = 'studio-table__kind';
   type.textContent = kindLabel(page.kind);
 
   const updated = document.createElement('td');
+  updated.className = 'studio-table__updated';
   updated.textContent = pageUpdated(page) || '—';
 
   const actions = document.createElement('td');
@@ -275,6 +278,12 @@ function libraryRow(page) {
     site.textContent = 'Site';
     actions.appendChild(site);
   }
+  const edit = document.createElement('button');
+  edit.type = 'button';
+  edit.className = 'studio-table__edit';
+  edit.textContent = 'Edit';
+  edit.addEventListener('click', () => openEditor(page));
+  actions.appendChild(edit);
 
   tr.append(title, status, type, updated, actions);
   return tr;

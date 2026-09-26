@@ -292,8 +292,21 @@
   white-space: nowrap;
 }
 
-.studio-table__actions a {
+.studio-table__actions a,
+.studio-table__actions button {
   margin-right: 12px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-text);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.studio-table__actions a:last-child,
+.studio-table__actions button:last-child {
+  margin-right: 0;
 }
 
 .studio-new {
@@ -369,32 +382,59 @@
   gap: 1px;
 }
 
-.studio-toolbar button {
-  display: grid;
+/* Quiet icon button. .icon-btn is 28×28 / 16px glyph.
+   .icon-btn--touch, and the toolbar at the phone breakpoint, is 44×44 / 20px. */
+.icon-btn {
+  display: inline-grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  flex: none;
+  width: var(--icon-btn-size);
+  height: var(--icon-btn-size);
+  min-width: var(--icon-btn-size);
+  min-height: var(--icon-btn-size);
   padding: 0;
   color: var(--text-2);
   background: transparent;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
 }
 
-.studio-toolbar button:hover {
+.icon-btn .icon {
+  width: var(--icon-btn-glyph);
+  height: var(--icon-btn-glyph);
+}
+
+.icon-btn--touch {
+  width: var(--icon-btn-size-touch);
+  height: var(--icon-btn-size-touch);
+  min-width: var(--icon-btn-size-touch);
+  min-height: var(--icon-btn-size-touch);
+}
+
+.icon-btn--touch .icon {
+  width: var(--icon-btn-glyph-touch);
+  height: var(--icon-btn-glyph-touch);
+}
+
+.icon-btn:hover:not(:disabled) {
   color: var(--text);
   background: var(--surface-2);
 }
 
-.studio-toolbar button[aria-pressed="true"] {
+.icon-btn[aria-pressed="true"] {
   color: var(--text);
   background: var(--surface-2);
 }
 
-.studio-toolbar button:disabled {
+.icon-btn:disabled {
   opacity: 0.35;
   cursor: default;
+}
+
+.icon-btn:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
 }
 
 .studio-toolbar__sep {
@@ -416,23 +456,30 @@
   position: relative;
 }
 
-.studio-menu__trigger {
-  display: flex !important;
-  align-items: center;
-  gap: 1px;
-  width: auto !important;
-  padding: 0 6px !important;
+.studio-menu__trigger.icon-btn {
+  display: inline-flex;
+  width: auto;
+  gap: 2px;
+  padding-inline: 8px;
 }
 
-.studio-toolbar__add {
-  gap: 4px !important;
-  padding: 0 10px 0 8px !important;
+.studio-toolbar__add.icon-btn {
+  gap: 4px;
+  padding-inline: 10px 12px;
   font: 600 var(--text-ui)/1 var(--font-ui);
   letter-spacing: -0.01em;
+  color: var(--text);
 }
 
-.studio-caret {
+.icon-btn .studio-caret {
+  width: 12px;
+  height: 12px;
   opacity: 0.7;
+}
+
+.icon-btn--touch .studio-caret {
+  width: 14px;
+  height: 14px;
 }
 
 .studio-menu__panel {
@@ -467,6 +514,14 @@
   font: 500 var(--text-ui)/1.25 var(--font-ui);
   text-align: left;
   white-space: normal;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.studio-menu__panel button:hover {
+  background: var(--surface-2);
 }
 
 .studio-menu__panel button .icon {
@@ -762,7 +817,129 @@
 }
 
 @media (max-width: 720px) {
+  .studio-bar {
+    gap: 8px;
+  }
+
+  .studio-bar button,
+  .studio-bar a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--control-height-touch);
+    padding: 8px 14px;
+  }
+
+  .studio-bar #forget {
+    border-color: transparent;
+    background: transparent;
+    color: var(--text-2);
+    font-weight: 500;
+  }
+
+  .studio-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .studio-table tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 10px;
+    padding: 14px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .studio-table th,
+  .studio-table td {
+    display: block;
+    width: auto;
+    padding: 0;
+    border: 0;
+  }
+
+  .studio-table th[scope="row"] {
+    flex: 1 0 100%;
+  }
+
+  .studio-table__title {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: var(--control-height-touch);
+  }
+
+  td.studio-table__actions {
+    display: flex;
+    flex: 1 0 100%;
+    gap: 8px;
+    white-space: normal;
+  }
+
+  .studio-table__actions a,
+  .studio-table__actions button {
+    display: inline-flex;
+    flex: 1 1 0;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: var(--control-height-touch);
+    margin: 0;
+    padding: 8px 10px;
+    font: 600 var(--text-ui)/1 var(--font-ui);
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+
+  .studio-table__edit {
+    color: var(--bg);
+    background: var(--text);
+    border-color: var(--text);
+  }
+
   .studio-docmeta .studio-actions {
     margin-left: 0;
+  }
+
+  .studio-toolbar {
+    gap: 4px;
+  }
+
+  .studio-toolbar__group {
+    gap: 2px;
+  }
+}
+
+/* Wide screens that are not a coarse pointer use the compact icon button.
+   Phone widths and touch pointers keep .icon-btn--touch (44×44, 20px glyph). */
+@media (min-width: 721px) and (not (pointer: coarse)) {
+  .studio-toolbar .icon-btn--touch {
+    width: var(--icon-btn-size);
+    height: var(--icon-btn-size);
+    min-width: var(--icon-btn-size);
+    min-height: var(--icon-btn-size);
+  }
+
+  .studio-toolbar .icon-btn--touch .icon {
+    width: var(--icon-btn-glyph);
+    height: var(--icon-btn-glyph);
+  }
+
+  .studio-toolbar .studio-menu__trigger.icon-btn--touch {
+    width: auto;
+    min-width: var(--icon-btn-size);
+  }
+
+  .studio-toolbar .icon-btn--touch .studio-caret {
+    width: 12px;
+    height: 12px;
   }
 }
