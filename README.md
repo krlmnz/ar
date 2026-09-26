@@ -66,6 +66,17 @@ Two sample places ship with the starter so the route, story, and places map have
 - **Explicit heading ids:** `## The land (#land)`
 - **Maps read place coordinates from the place files.** A route or story lists slugs, or a title plus `lng` / `lat` when there is no page yet.
 
+## Map atelier
+
+A separate tool at `/atelier/` for sketching a map: add places, pick a palette, copy a guest link or an iframe. It does not use the writing studio at `/editor/`, and it does not need a Mapbox token.
+
+```bash
+npm start
+# http://localhost:8080/atelier/
+```
+
+The basemap is OpenFreeMap Liberty (OpenMapTiles / OpenStreetMap), so it runs without a key. Search and click-to-add names use the public Photon geocoder. Limits and the MapTiler swap path are in `assets/atelier/js/config.mjs`. A shared map is `/atelier/guest/#v=…` — the hash is the document, and there is no backend.
+
 ## Maps
 
 `assets/js/andean-map.js` is the engine behind place pins, routes, stories, and the places index. Layouts emit a JSON config and call nothing. Modes are `pins`, `route`, and `story`.
