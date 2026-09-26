@@ -38,13 +38,9 @@ for = "/*.svg"
 [headers.values]
 Cache-Control = "public, max-age=31536000, immutable"
 
-[[redirects]]
-from = "/places/:slug"
-to = "/places/:slug/"
-status = 301
-force = true
-
 # The public template gallery and demo URLs moved behind the studio gate.
+# Do not force a trailing slash on /places/:slug — Netlify already does that,
+# and force = true matches the slashed URL and redirects it to itself.
 [[redirects]]
 from = "/templates/*"
 to = "/editor/templates/:splat"
