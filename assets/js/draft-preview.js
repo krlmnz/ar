@@ -18,9 +18,18 @@
     try { return sessionStorage.getItem("ar-draft:" + path); } catch (e) { return null; }
   }
 
+  function cacheIsNewer(path, cached, remote) {
+    if (!cached || !remote || cached === remote) return false;
+    var at = 0;
+    try { at = Number(sessionStorage.getItem("ar-draft-at:" + path) || 0); } catch (e) { at = 0; }
+    return at > 0 && Date.now() - at < 20000;
+  }
+
   async function load(path) {
     var lastError = "Could not open the draft.";
-    for (var i = 0; i < 2; i++) {
+    var cached = fromCache(path);
+    var remote = null;
+    for (var i = 0; i < 6; i++) {
       try {
         var res = await window.fetch("/api/studio", {
           method: "POST",
@@ -28,16 +37,21 @@
           body: JSON.stringify({ action: "read", path: path })
         });
         var data = await res.json();
-        if (res.ok && data.text) return data.text;
-        lastError = data.error || lastError;
-        if (res.status !== 404) break;
+        if (res.ok && data.text) {
+          remote = data.text;
+          if (!cacheIsNewer(path, cached, remote)) return remote;
+        } else {
+          lastError = data.error || lastError;
+          if (res.status !== 404) break;
+        }
       } catch (error) {
         lastError = error.message || lastError;
         break;
       }
       await sleep(400);
     }
-    var cached = fromCache(path);
+    if (cached && cacheIsNewer(path, cached, remote)) return cached;
+    if (remote) return remote;
     if (cached) return cached;
     throw new Error(lastError);
   }

@@ -124,7 +124,10 @@ function setEditable(el, value) {
 function watchEditable(el) {
   el.addEventListener('input', () => {
     el.dataset.empty = plainText(el) ? 'false' : 'true';
-    if (!hydrating) scheduleSave();
+    if (!hydrating) {
+      syncPublishChrome();
+      scheduleSave();
+    }
   });
   el.addEventListener('paste', (event) => {
     event.preventDefault();
@@ -171,6 +174,7 @@ function cacheDraft(path, text, isPublished) {
     if (!slug) return;
     const parts = splitFrontMatter(text);
     const layout = frontValue(parts.front, 'layout');
+    sessionStorage.setItem('ar-draft-at:' + path, String(Date.now()));
     sessionStorage.setItem('ar-note:' + slug, JSON.stringify({
       slug,
       title: frontValue(parts.front, 'title') || 'Untitled',
@@ -180,7 +184,8 @@ function cacheDraft(path, text, isPublished) {
       cover: /^cover:\s*true\s*$/m.test(parts.front),
       cover_meta: frontValue(parts.front, 'cover_meta'),
       markdown: parts.body,
-      published: !!isPublished
+      published: !!isPublished,
+      savedAt: Date.now()
     }));
   } catch (e) { /* private mode */ }
 }
@@ -353,15 +358,31 @@ function bodyMarkdown() {
   return surface ? surface.getMarkdown() : '';
 }
 
-function snapshot() {
-  return JSON.stringify({
+function editorState() {
+  return {
     title: plainText($('doc-title')),
     subtitle: plainText($('doc-subtitle')),
     series: $('doc-series').hidden ? frontValue(current && current.front, 'series') : plainText($('doc-series')),
     kind: $('doc-kind').value,
     published,
     body: bodyMarkdown().replace(/\s+$/, '')
-  });
+  };
+}
+
+function snapshot() {
+  return JSON.stringify(editorState());
+}
+
+function isDirty() {
+  if (!current || hydrating || !lastSnapshot) return false;
+  let saved;
+  try { saved = JSON.parse(lastSnapshot); } catch (e) { return true; }
+  const now = editorState();
+  return saved.title !== now.title
+    || saved.subtitle !== now.subtitle
+    || saved.series !== now.series
+    || saved.kind !== now.kind
+    || saved.body !== now.body;
 }
 
 function buildText(nextPublished, verb) {
@@ -403,6 +424,7 @@ async function persist(nextPublished, verb) {
     return;
   }
   setStatus('saving');
+  const wasLive = publishedFlag(current.front);
   const data = await api({ action: 'write', path: current.path, text, verb });
   const parts = splitFrontMatter(data.text || text);
   current.front = parts.front;
@@ -416,8 +438,9 @@ async function persist(nextPublished, verb) {
   syncPublishChrome();
   if (verb === 'publish') {
     const publicUrl = noteUrl(current.path);
-    if (publicUrl) notice('Published. It is on the site now.', false, { url: publicUrl, label: 'View on the site' });
-    else notice('Published.', false, { url: current.url, label: 'Preview' });
+    const message = wasLive ? 'Updated.' : 'Published. It is on the site now.';
+    if (publicUrl) notice(message, false, { url: publicUrl, label: 'View on the site' });
+    else notice(message, false, { url: current.url, label: 'Preview' });
   } else if (verb === 'unpublish') {
     notice('Unpublished. It is a draft again.', false, { url: current.url, label: 'Preview' });
   }
@@ -435,10 +458,13 @@ function scheduleSave() {
 }
 
 function flushSoon() {
-  if (!current || hydrating) return;
+  if (!current || hydrating) return Promise.resolve();
   window.clearTimeout(saveTimer);
-  if (snapshot() === lastSnapshot) return;
-  enqueue(() => persist(published, 'update')).catch((error) => setStatus('error', error.message));
+  if (snapshot() === lastSnapshot) return Promise.resolve();
+  return enqueue(() => persist(published, 'update')).catch((error) => {
+    setStatus('error', error.message);
+    throw error;
+  });
 }
 
 function ensureSurface() {
@@ -452,7 +478,10 @@ function ensureSurface() {
         setStatus('error', error.message || 'Could not add that image.');
         return;
       }
-      if (!hydrating && !markdownMode) scheduleSave();
+      if (!hydrating && !markdownMode) {
+        syncPublishChrome();
+        scheduleSave();
+      }
     }
   });
   return surface;
@@ -515,12 +544,12 @@ function fillEditor(page, text) {
   $('doc-updated').textContent = updated;
   $('doc-meta').hidden = !updated;
   $('preview-link').href = current.url;
-  syncPublishChrome();
   surface.setMarkdown(parts.body || '', false);
   $('doc-markdown').value = surface.getMarkdown();
   closeLinkForm();
   lastSnapshot = snapshot();
   hydrating = false;
+  syncPublishChrome();
   setStatus('saved');
   show('edit');
   surface.focus();
@@ -575,7 +604,10 @@ function syncPublishChrome() {
   const panel = $('publish-panel');
   const split = document.querySelector('.studio-publish');
   if (!button || !more || !split) return;
-  button.textContent = published ? 'Published' : 'Publish';
+  const live = published && publishedFlag(current && current.front);
+  if (!published) button.textContent = 'Publish';
+  else if (live && isDirty()) button.textContent = 'Update';
+  else button.textContent = 'Published';
   more.hidden = !published;
   split.classList.toggle('is-published', published);
   if (!published && panel) {
@@ -806,11 +838,21 @@ function init() {
     if (kind === 'guide' && !plainText($('doc-series'))) setEditable($('doc-series'), 'Field guide');
     applyDocChrome(kind);
     rememberKind(kind);
+    syncPublishChrome();
     scheduleSave();
   });
 
+  $('preview-link').addEventListener('click', (event) => {
+    if (!isDirty()) return;
+    event.preventDefault();
+    const href = $('preview-link').href;
+    flushSoon().then(() => { window.location.assign(href); }).catch((error) => {
+      notice(error.message, true);
+    });
+  });
+
   $('publish').addEventListener('click', () => {
-    if (published) return;
+    if (published && !isDirty()) return;
     if (!plainText($('doc-title'))) {
       notice('Give the page a title first.', true);
       return;
