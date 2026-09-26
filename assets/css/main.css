@@ -437,6 +437,41 @@ blockquote.callout p {
   max-width: none;
 }
 
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--border-strong);
+  margin: var(--space-4) 0;
+}
+
+.prose img {
+  max-width: 100%;
+  height: auto;
+}
+
+.prose figure {
+  margin: var(--space-3) 0;
+}
+
+.prose figure img {
+  display: block;
+  width: 100%;
+}
+
+.prose figcaption {
+  margin-top: var(--space-1);
+  color: var(--text-2);
+  font: var(--text-caption-weight) var(--text-caption)/var(--text-caption-lh) var(--font-ui);
+}
+
+.prose figure.figure--center {
+  max-width: 38rem;
+  margin-inline: auto;
+}
+
+.prose figure.figure--full {
+  max-width: none;
+}
+
 /* ======================== */
 /* Hero section */
 /* ======================== */

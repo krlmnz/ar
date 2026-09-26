@@ -47,6 +47,13 @@ to = "/.netlify/functions/studio"
 status = 200
 force = true
 
+# Draft images live in Netlify Blobs until a build copies them into the site.
+# A real file at this path wins, because the redirect is not forced.
+[[redirects]]
+from = "/media/studio/*"
+to = "/.netlify/functions/studio?media=:splat"
+status = 200
+
 [[redirects]]
 from = "/api/posts"
 to = "/.netlify/functions/posts"

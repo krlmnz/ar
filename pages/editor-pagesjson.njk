@@ -4,11 +4,11 @@ eleventyExcludeFromCollections: true
 ---
 {%- set rows = [] -%}
 {%- for item in collections.previews -%}
-{%- set rows = (rows.push({path: item.inputPath | replace("./", ""), title: item.data.title, url: item.url, kind: item.fileSlug, published: true, locked: true}), rows) -%}
+{%- set rows = (rows.push({path: item.inputPath | replace("./", ""), title: item.data.title, url: item.url, kind: item.fileSlug, updated: item.data.updated or "", published: true, locked: true}), rows) -%}
 {%- endfor -%}
 {%- for item in collections.posts -%}
 {%- set kind = "center" -%}
 {%- if item.data.layout == "layouts/guide.njk" -%}{%- set kind = "guide" -%}{%- endif -%}
-{%- set rows = (rows.push({path: item.inputPath | replace("./", ""), title: item.data.title, url: item.url, kind: kind, published: item.data.published, locked: false}), rows) -%}
+{%- set rows = (rows.push({path: item.inputPath | replace("./", ""), title: item.data.title, url: item.url, kind: kind, updated: item.data.updated or "", published: item.data.published, locked: false}), rows) -%}
 {%- endfor -%}
 {{ rows | json | safe }}

@@ -14,6 +14,17 @@ module.exports = {
       let count = 0;
       for (const blob of listed.blobs || []) {
         const key = String(blob.key || "");
+        if (key.startsWith("media/studio/") && !key.includes("..")) {
+          const dest = path.resolve(process.cwd(), key);
+          const mediaRoot = path.resolve(process.cwd(), "media/studio");
+          if (dest !== mediaRoot && !dest.startsWith(mediaRoot + path.sep)) continue;
+          const data = await store.get(key, { type: "arrayBuffer" });
+          if (data == null) continue;
+          fs.mkdirSync(path.dirname(dest), { recursive: true });
+          fs.writeFileSync(dest, Buffer.from(data));
+          count += 1;
+          continue;
+        }
         if (!key.startsWith("content/") || key.includes("..") || !key.endsWith(".md")) continue;
         const dest = path.resolve(process.cwd(), key);
         if (dest !== root && !dest.startsWith(root + path.sep)) continue;

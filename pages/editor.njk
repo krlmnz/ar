@@ -43,6 +43,7 @@ seo:
       <div class="section-label">Library</div>
       <h2 class="section-title">Pages</h2>
       <p class="studio-hint" id="library-note">A draft stays off the home page until you publish it.</p>
+      <input class="studio-search" id="library-search" type="search" placeholder="Search title or kind" aria-label="Search pages">
       <div id="library"></div>
       <form class="studio-form" id="open-form" style="max-width: 560px; margin-top: 24px">
         <div class="section-label">Open anything</div>
@@ -55,33 +56,71 @@ seo:
     </div>
 
     <div id="view-edit" hidden>
-      <div class="section-label" id="edit-kicker">Edit</div>
-      <h2 class="section-title" id="edit-title">Edit page</h2>
-      <form class="studio-form" id="edit-form">
-        <label for="edit-heading">Title</label>
-        <input type="text" id="edit-heading">
-        <label for="edit-body">Markdown</label>
-        <textarea id="edit-body" spellcheck="false"></textarea>
-        <div class="studio-actions">
-          <button type="button" id="save-draft">Save draft</button>
-          <button type="button" class="primary" id="publish">Publish</button>
-          <button type="button" id="unpublish">Unpublish</button>
+      <article id="studio-doc" class="tpl tpl--center studio-doc">
+        <div class="studio-docbar">
+          <div class="studio-toolbar" role="toolbar" aria-label="Formatting">
+            <button type="button" data-cmd="bold" aria-label="Bold" aria-keyshortcuts="Meta+B" aria-pressed="false">{% icon "text-b", size=18 %}</button>
+            <button type="button" data-cmd="italic" aria-label="Italic" aria-keyshortcuts="Meta+I" aria-pressed="false">{% icon "text-italic", size=18 %}</button>
+            <span class="studio-toolbar__sep" aria-hidden="true"></span>
+            <button type="button" data-cmd="h2" aria-label="Heading 2" aria-pressed="false">{% icon "text-h-two", size=18 %}</button>
+            <button type="button" data-cmd="h3" aria-label="Heading 3" aria-pressed="false">{% icon "text-h-three", size=18 %}</button>
+            <span class="studio-toolbar__sep" aria-hidden="true"></span>
+            <button type="button" data-cmd="bullet" aria-label="Bullet list" aria-pressed="false">{% icon "list-bullets", size=18 %}</button>
+            <button type="button" data-cmd="ordered" aria-label="Numbered list" aria-pressed="false">{% icon "list-numbers", size=18 %}</button>
+            <button type="button" data-cmd="quote" aria-label="Quote" aria-pressed="false">{% icon "quotes", size=18 %}</button>
+            <span class="studio-toolbar__sep" aria-hidden="true"></span>
+            <button type="button" data-cmd="link" aria-label="Link" aria-pressed="false">{% icon "link", size=18 %}</button>
+            <button type="button" data-cmd="rule" aria-label="Divider">{% icon "minus", size=18 %}</button>
+            <button type="button" data-cmd="image" aria-label="Image">{% icon "image", size=18 %}</button>
+            <button type="button" data-cmd="code" aria-label="Code block" aria-pressed="false">{% icon "code-block", size=18 %}</button>
+            <span class="studio-toolbar__sep" aria-hidden="true"></span>
+            <button type="button" data-cmd="undo" aria-label="Undo" aria-keyshortcuts="Meta+Z">{% icon "arrow-counter-clockwise", size=18 %}</button>
+            <button type="button" data-cmd="redo" aria-label="Redo" aria-keyshortcuts="Meta+Shift+Z">{% icon "arrow-clockwise", size=18 %}</button>
+            <span class="studio-toolbar__sep" aria-hidden="true"></span>
+            <button type="button" class="studio-toolbar__text" id="markdown-toggle" aria-pressed="false">Markdown</button>
+          </div>
+          <form class="studio-link" id="link-form" hidden>
+            <label class="sr-only" for="link-url">Link address</label>
+            <input id="link-url" type="url" placeholder="https://" inputmode="url" autocomplete="off">
+            <button type="submit">Apply</button>
+            <button type="button" id="link-remove">Remove</button>
+          </form>
+          <div class="studio-docmeta">
+            <label class="studio-kind">
+              <span class="sr-only">Kind</span>
+              <select id="doc-kind" aria-label="Page kind"></select>
+            </label>
+            <p class="studio-status" id="save-status" aria-live="polite"></p>
+            <div class="studio-actions">
+              <a id="preview-link" href="/editor/draft/">Preview</a>
+              <button type="button" class="primary" id="publish">Publish</button>
+              <button type="button" id="unpublish">Unpublish</button>
+            </div>
+          </div>
         </div>
-      </form>
+
+        <header class="page-header">
+          <div class="page-header__type" id="doc-series" contenteditable="true" role="textbox" aria-label="Series" data-placeholder="Series" hidden></div>
+          <h1 class="page-header__title studio-title" id="doc-title" contenteditable="true" role="textbox" aria-label="Title" data-placeholder="Title"></h1>
+          <p class="page-header__subtitle studio-subtitle" id="doc-subtitle" contenteditable="true" role="textbox" aria-label="Subtitle" data-placeholder="Subtitle"></p>
+          <div class="page-header__meta" id="doc-meta" hidden>
+            <span id="doc-updated"></span>
+          </div>
+        </header>
+        <div class="prose" id="doc-body"></div>
+        <textarea class="studio-markdown" id="doc-markdown" hidden spellcheck="false" aria-label="Markdown body"></textarea>
+      </article>
+      <input type="file" id="image-file" accept="image/*,.svg" hidden>
     </div>
 
     <div id="view-new" hidden>
-      <div class="section-label">New page</div>
-      <h2 class="section-title">Start from a template</h2>
-      <form class="studio-form" id="new-form" style="max-width: 560px">
-        <label for="new-kind">Template</label>
-        <select id="new-kind"></select>
-        <p class="studio-hint" id="new-kind-when"></p>
-        <label for="new-title">Title</label>
-        <input type="text" id="new-title" required>
+      <form class="studio-new" id="new-form">
+        <label class="studio-new__label" for="new-title">New page</label>
+        <input id="new-title" type="text" required placeholder="Title" autocomplete="off">
         <div class="studio-actions">
-          <button type="button" class="primary" id="create-draft">Create draft</button>
+          <button class="primary" type="submit" id="create-draft">Start writing</button>
         </div>
+        <p class="studio-hint">A blank page. Change essay or field guide anytime while you write.</p>
       </form>
     </div>
 
@@ -90,4 +129,4 @@ seo:
 </div>
 
 <script id="studio-templates" type="application/json">{{ templates | dump | safe }}</script>
-<script src="/assets/js/editor.js" defer></script>
+<script src="/assets/js/editor.bundle.js" defer></script>

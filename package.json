@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Andean Road — a twelve-template Eleventy starter",
   "scripts": {
-    "start": "npx @11ty/eleventy --serve",
-    "build": "npx @11ty/eleventy",
+    "start": "node scripts/bundle-editor.js && npx @11ty/eleventy --serve",
+    "build": "node scripts/bundle-editor.js && npx @11ty/eleventy",
     "debug": "DEBUG=Eleventy* npx @11ty/eleventy",
     "new": "node scripts/new.js"
   },
@@ -16,6 +16,14 @@
     "markdown-it-anchor": "^8.6.7"
   },
   "devDependencies": {
-    "@phosphor-icons/core": "^2.1.1"
+    "@phosphor-icons/core": "^2.1.1",
+    "@tiptap/core": "^3.31.3",
+    "@tiptap/extension-code-block": "^3.31.3",
+    "@tiptap/extension-heading": "^3.31.3",
+    "@tiptap/extension-placeholder": "^3.31.3",
+    "@tiptap/markdown": "^3.31.3",
+    "@tiptap/pm": "^3.31.3",
+    "@tiptap/starter-kit": "^3.31.3",
+    "esbuild": "^0.28.2"
   }
 }

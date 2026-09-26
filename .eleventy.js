@@ -276,6 +276,7 @@ module.exports = function(eleventyConfig) {
   // Passthrough copy
   eleventyConfig.addPassthroughCopy('content/**/*.{jpg,jpeg,png,webp,svg,gif}');
   eleventyConfig.addPassthroughCopy('assets/');
+  eleventyConfig.addPassthroughCopy('media/studio');
   eleventyConfig.addPassthroughCopy('robots.txt');
 
   // Internal docs and scaffolds. Input is the repo root, so a markdown file
