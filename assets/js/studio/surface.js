@@ -29,17 +29,63 @@ export function looksLikeMarkdown(text) {
   );
 }
 
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_IMAGE_EDGE = 4096;
+const WARN_IMAGE_EDGE = 2400;
+
+function fileType(file) {
+  let type = (file && file.type ? file.type : '').toLowerCase();
+  if (type === 'image/jpg') type = 'image/jpeg';
+  if (!type && file && /\.svg$/i.test(file.name || '')) type = 'image/svg+xml';
+  return type;
+}
+
 function imageFiles(list) {
   return [...(list || [])].filter((file) => {
     if (!file) return false;
-    if ((file.type || '').startsWith('image/')) return true;
-    return /\.svg$/i.test(file.name || '');
+    const type = fileType(file);
+    if (type === 'image/jpeg' || type === 'image/png' || type === 'image/webp' || type === 'image/svg+xml') return true;
+    return (type || '').startsWith('image/') || /\.(gif|avif|svg|jpe?g|png|webp)$/i.test(file.name || '');
   });
+}
+
+function measureImage(file) {
+  const url = URL.createObjectURL(file);
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const width = img.naturalWidth || 0;
+      const height = img.naturalHeight || 0;
+      URL.revokeObjectURL(url);
+      resolve({ width, height });
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Could not read that image.'));
+    };
+    img.src = url;
+  });
+}
+
+function imageWarning(size) {
+  const edge = Math.max(size.width, size.height);
+  const tall = size.width > 0 && size.height / size.width > 5 / 4;
+  if (edge > WARN_IMAGE_EDGE && tall) {
+    return 'Still added. It is over 2400px and taller than 4:5. About 1600–2400px, in 3:2 or 16:9, fills the column.';
+  }
+  if (edge > WARN_IMAGE_EDGE) {
+    return 'Still added. The long edge is over 2400px. About 1600–2400px fills the column.';
+  }
+  if (tall) {
+    return 'Still added. Taller than 4:5. A 3:2 or 16:9 landscape fits the column better.';
+  }
+  return '';
 }
 
 export function mountEditor(element, hooks) {
   const uploadImage = hooks.uploadImage;
   const onChange = hooks.onChange || function () {};
+  const onWarn = hooks.onWarn || function () {};
 
   const editor = new Editor({
     element,
@@ -124,22 +170,61 @@ export function mountEditor(element, hooks) {
     if (changed) editor.view.dispatch(tr);
   }
 
+  function removeSrc(src) {
+    const { state } = editor;
+    let tr = state.tr;
+    const cuts = [];
+    state.doc.descendants((node, pos) => {
+      if (node.type.name === 'figure' && node.attrs.src === src) cuts.push({ pos, size: node.nodeSize });
+    });
+    cuts.reverse().forEach((cut) => { tr = tr.delete(cut.pos, cut.pos + cut.size); });
+    if (cuts.length) editor.view.dispatch(tr);
+  }
+
+  async function prepareImage(file) {
+    const type = fileType(file);
+    if (type !== 'image/jpeg' && type !== 'image/png' && type !== 'image/webp' && type !== 'image/svg+xml') {
+      throw new Error('Use a JPEG, PNG, WebP, or an SVG diagram.');
+    }
+    if (file.size > MAX_IMAGE_BYTES) throw new Error('That image is over 5 MB.');
+    if (type === 'image/svg+xml') return { width: 0, height: 0 };
+    const size = await measureImage(file);
+    const edge = Math.max(size.width, size.height);
+    if (!edge) throw new Error('Could not read that image.');
+    if (edge > MAX_IMAGE_EDGE) throw new Error('That image is over 4096px on the long edge.');
+    const warning = imageWarning(size);
+    if (warning) onWarn(warning);
+    return size;
+  }
+
   async function insertFiles(files) {
     for (const file of files) {
+      let size;
+      try {
+        size = await prepareImage(file);
+      } catch (error) {
+        onChange(error);
+        continue;
+      }
       const preview = URL.createObjectURL(file);
       const alt = (file.name || '').replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ');
       editor.chain().focus().insertFigure({
         src: preview,
         alt: alt === 'paste' ? '' : alt,
         caption: '',
-        layout: 'center'
+        layout: 'column',
+        width: size.width || 0,
+        height: size.height || 0,
+        decorative: false
       }).run();
       try {
         const url = await uploadImage(file);
         replaceSrc(preview, url);
-        URL.revokeObjectURL(preview);
       } catch (error) {
+        removeSrc(preview);
         onChange(error);
+      } finally {
+        URL.revokeObjectURL(preview);
       }
     }
   }

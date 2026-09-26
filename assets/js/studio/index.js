@@ -433,6 +433,7 @@ function ensureSurface() {
     surface = mountEditor($('doc-body'), {
     uploadImage,
     onSelection: syncToolbar,
+    onWarn(message) { notice(message, false); },
     onChange(error) {
       if (error) {
         setStatus('error', error.message || 'Could not add that image.');
@@ -445,9 +446,13 @@ function ensureSurface() {
 }
 
 async function uploadImage(file) {
-  let type = file.type || '';
+  let type = (file.type || '').toLowerCase();
+  if (type === 'image/jpg') type = 'image/jpeg';
   if (!type && /\.svg$/i.test(file.name || '')) type = 'image/svg+xml';
-  if (!type.startsWith('image/')) throw new Error('That image type is not supported.');
+  if (type !== 'image/jpeg' && type !== 'image/png' && type !== 'image/webp' && type !== 'image/svg+xml') {
+    throw new Error('Use a JPEG, PNG, WebP, or an SVG diagram.');
+  }
+  if (file.size > 5 * 1024 * 1024) throw new Error('That image is over 5 MB.');
   const data = await blobToBase64(file);
   const result = await api({
     action: 'upload',

@@ -131,7 +131,7 @@ seo:
                 <span>Add</span>
               </button>
               <div class="studio-menu__panel" role="menu" hidden>
-                <button type="button" role="menuitem" data-cmd="image">{% icon "image", size=16 %}<span class="studio-menu__item-copy"><span>Image</span><span class="studio-menu__note">Up to 2.5 MB. Large photos slow the page.</span></span></button>
+                <button type="button" role="menuitem" data-cmd="image">{% icon "image", size=16 %}<span class="studio-menu__item-copy"><span>Image</span><span class="studio-menu__note">Fills the column (~72ch). Prefer 3:2 or 16:9, long edge 1600–2400px. Max 5 MB, 4096px.</span></span></button>
                 <button type="button" role="menuitem" data-cmd="codeBlock">{% icon "code-block", size=16 %}<span>Code block</span></button>
                 <button type="button" role="menuitem" data-cmd="rule">{% icon "minus", size=16 %}<span>Divider</span></button>
               </div>
@@ -160,7 +160,7 @@ seo:
         <div class="prose" id="doc-body"></div>
         <textarea class="studio-markdown" id="doc-markdown" hidden spellcheck="false" aria-label="Markdown body"></textarea>
       </article>
-      <input type="file" id="image-file" accept="image/*,.svg" hidden>
+      <input type="file" id="image-file" accept="image/jpeg,image/png,image/webp,image/svg+xml,.svg" hidden>
     </div>
 
     <div id="view-new" hidden>

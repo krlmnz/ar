@@ -451,6 +451,7 @@
 .studio-add .studio-menu__panel {
   left: auto;
   right: 0;
+  width: 16.5rem;
 }
 
 .studio-menu__panel button {
@@ -465,7 +466,7 @@
   color: var(--text);
   font: 500 var(--text-ui)/1.25 var(--font-ui);
   text-align: left;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .studio-menu__panel button .icon {
@@ -690,9 +691,32 @@
 
 .studio-figure__tools {
   display: none;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
   margin-top: var(--space-1);
+}
+
+.studio-figure__hint {
+  flex: 1 0 100%;
+  margin: 0;
+  color: var(--text-2);
+  font: 400 var(--text-xs)/1.35 var(--font-ui);
+}
+
+.studio-figure__decorative {
+  padding: 6px 8px;
+  font: 600 var(--text-xs)/1 var(--font-ui);
+  color: var(--text-2);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.studio-figure__decorative[aria-pressed="true"] {
+  color: var(--text);
+  background: var(--surface-2);
 }
 
 .studio-figure.is-selected .studio-figure__tools,

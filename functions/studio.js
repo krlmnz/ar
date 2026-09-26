@@ -72,10 +72,8 @@ const IMAGE_TYPES = {
   "image/png": "png",
   "image/jpeg": "jpg",
   "image/jpg": "jpg",
-  "image/gif": "gif",
   "image/webp": "webp",
-  "image/svg+xml": "svg",
-  "image/avif": "avif"
+  "image/svg+xml": "svg"
 };
 
 const EXT_TYPES = {
@@ -86,6 +84,93 @@ const EXT_TYPES = {
   svg: "image/svg+xml",
   avif: "image/avif"
 };
+
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_IMAGE_EDGE = 4096;
+
+function pngSize(buf) {
+  if (buf.length < 24 || buf.toString("ascii", 1, 4) !== "PNG") return null;
+  const width = buf.readUInt32BE(16);
+  const height = buf.readUInt32BE(20);
+  let animated = false;
+  let i = 8;
+  while (i + 8 <= buf.length) {
+    const len = buf.readUInt32BE(i);
+    const type = buf.toString("ascii", i + 4, i + 8);
+    if (type === "acTL") animated = true;
+    if (type === "IDAT" || type === "IEND") break;
+    if (len > buf.length) break;
+    i += 12 + len;
+  }
+  return { width: width, height: height, animated: animated };
+}
+
+function jpegSize(buf) {
+  if (buf.length < 4 || buf[0] !== 0xff || buf[1] !== 0xd8) return null;
+  let i = 2;
+  while (i + 9 < buf.length) {
+    if (buf[i] !== 0xff) {
+      i += 1;
+      continue;
+    }
+    const marker = buf[i + 1];
+    if (marker === 0xd8 || marker === 0xd9) {
+      i += 2;
+      continue;
+    }
+    if (i + 4 > buf.length) return null;
+    const len = buf.readUInt16BE(i + 2);
+    const sof = marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc;
+    if (sof) {
+      return { width: buf.readUInt16BE(i + 7), height: buf.readUInt16BE(i + 5), animated: false };
+    }
+    i += 2 + len;
+  }
+  return null;
+}
+
+function webpSize(buf) {
+  if (buf.length < 25 || buf.toString("ascii", 0, 4) !== "RIFF" || buf.toString("ascii", 8, 12) !== "WEBP") return null;
+  const chunk = buf.toString("ascii", 12, 16);
+  if (chunk === "VP8X" && buf.length >= 30) {
+    return {
+      width: 1 + buf.readUIntLE(24, 3),
+      height: 1 + buf.readUIntLE(27, 3),
+      animated: (buf[20] & 0x20) !== 0
+    };
+  }
+  if (chunk === "VP8L" && buf[20] === 0x2f) {
+    const bits = buf.readUInt32LE(21);
+    return { width: 1 + (bits & 0x3fff), height: 1 + ((bits >> 14) & 0x3fff), animated: false };
+  }
+  if (chunk === "VP8 ") {
+    const start = buf.indexOf(Buffer.from([0x9d, 0x01, 0x2a]), 20);
+    if (start < 0 || start + 7 > buf.length) return null;
+    return {
+      width: buf.readUInt16LE(start + 3) & 0x3fff,
+      height: buf.readUInt16LE(start + 5) & 0x3fff,
+      animated: false
+    };
+  }
+  return null;
+}
+
+function rasterSize(buf, ext) {
+  if (ext === "png") return pngSize(buf);
+  if (ext === "jpg") return jpegSize(buf);
+  if (ext === "webp") return webpSize(buf);
+  return null;
+}
+
+function imageProblem(bytes, ext) {
+  if (bytes.length > MAX_IMAGE_BYTES) return "That image is over 5 MB.";
+  if (ext === "svg") return "";
+  const size = rasterSize(bytes, ext);
+  if (!size || !size.width || !size.height) return "Could not read that image.";
+  if (size.animated) return "Animated images are not supported.";
+  if (Math.max(size.width, size.height) > MAX_IMAGE_EDGE) return "That image is over 4096px on the long edge.";
+  return "";
+}
 
 function sanitizeSvg(text) {
   const cleaned = String(text)
@@ -264,6 +349,8 @@ async function serveMedia(event) {
   }
 }
 
+exports.imageProblem = imageProblem;
+
 exports.handler = async function (event) {
   if (event.httpMethod === "OPTIONS") return json(204, {});
   if (event.httpMethod === "GET") return serveMedia(event);
@@ -346,7 +433,7 @@ exports.handler = async function (event) {
     if (body.action === "upload") {
       const type = String(body.contentType || "").toLowerCase();
       const ext = IMAGE_TYPES[type];
-      if (!ext) return json(400, { error: "That image type is not supported." });
+      if (!ext) return json(400, { error: "Use a JPEG, PNG, WebP, or an SVG diagram." });
       let bytes;
       try {
         bytes = Buffer.from(String(body.data || ""), "base64");
@@ -354,7 +441,8 @@ exports.handler = async function (event) {
         return json(400, { error: "Could not read that image." });
       }
       if (!bytes.length) return json(400, { error: "That image was empty." });
-      if (bytes.length > 2.5 * 1024 * 1024) return json(400, { error: "That image is too large." });
+      const problem = imageProblem(bytes, ext);
+      if (problem) return json(400, { error: problem });
       if (ext === "svg") {
         bytes = Buffer.from(sanitizeSvg(bytes.toString("utf8")), "utf8");
       }
