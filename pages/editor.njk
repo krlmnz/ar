@@ -66,9 +66,14 @@ seo:
             </label>
             <p class="studio-status" id="save-status" aria-live="polite"></p>
             <div class="studio-actions">
-              <a id="preview-link" href="/editor/draft/">Preview</a>
-              <button type="button" class="primary" id="publish">Publish</button>
-              <button type="button" id="unpublish">Unpublish</button>
+              <a class="studio-preview" id="preview-link" href="/editor/draft/">{% icon "eye", size=16 %}<span>Preview</span></a>
+              <div class="studio-menu studio-publish" data-menu="publish">
+                <button type="button" class="primary" id="publish">Publish</button>
+                <button type="button" class="primary studio-menu__trigger studio-publish__more" id="publish-more" hidden aria-haspopup="menu" aria-expanded="false" aria-label="Publish actions">{% icon "caret-down", size=14 %}</button>
+                <div class="studio-menu__panel studio-publish__panel" id="publish-panel" role="menu" hidden>
+                  <button type="button" role="menuitem" class="studio-publish__danger" id="unpublish">Unpublish</button>
+                </div>
+              </div>
             </div>
           </div>
           <div class="studio-toolbar" role="toolbar" aria-label="Formatting">

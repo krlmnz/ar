@@ -388,6 +388,9 @@ async function persist(nextPublished, verb) {
   if (!current) return;
   const title = plainText($('doc-title'));
   if (!title) {
+    if (verb === 'publish') published = false;
+    if (verb === 'unpublish') published = true;
+    syncPublishChrome();
     setStatus('error', 'Give the page a title first.');
     if (verb !== 'update') notice('Give the page a title first.', true);
     return;
@@ -410,6 +413,7 @@ async function persist(nextPublished, verb) {
   $('doc-updated').textContent = updated;
   $('doc-meta').hidden = !updated;
   setStatus('saved');
+  syncPublishChrome();
   if (verb === 'publish') {
     const publicUrl = noteUrl(current.path);
     if (publicUrl) notice('Published. It is on the site now.', false, { url: publicUrl, label: 'View on the site' });
@@ -511,6 +515,7 @@ function fillEditor(page, text) {
   $('doc-updated').textContent = updated;
   $('doc-meta').hidden = !updated;
   $('preview-link').href = current.url;
+  syncPublishChrome();
   surface.setMarkdown(parts.body || '', false);
   $('doc-markdown').value = surface.getMarkdown();
   $('link-form').hidden = true;
@@ -564,8 +569,23 @@ function closeMenus() {
   });
 }
 
+function syncPublishChrome() {
+  const button = $('publish');
+  const more = $('publish-more');
+  const panel = $('publish-panel');
+  const split = document.querySelector('.studio-publish');
+  if (!button || !more || !split) return;
+  button.textContent = published ? 'Published' : 'Publish';
+  more.hidden = !published;
+  split.classList.toggle('is-published', published);
+  if (!published && panel) {
+    panel.hidden = true;
+    more.setAttribute('aria-expanded', 'false');
+  }
+}
+
 function toggleMenu(menu) {
-  if (!menu || markdownMode) return;
+  if (!menu || (markdownMode && menu.dataset.menu !== 'publish')) return;
   const panel = menu.querySelector('.studio-menu__panel');
   const willOpen = panel && panel.hidden;
   closeMenus();
@@ -765,21 +785,31 @@ function init() {
   });
 
   $('publish').addEventListener('click', () => {
+    if (published) return;
+    if (!plainText($('doc-title'))) {
+      notice('Give the page a title first.', true);
+      return;
+    }
     window.clearTimeout(saveTimer);
     const previous = published;
     published = true;
+    syncPublishChrome();
     enqueue(() => persist(true, 'publish')).catch((error) => {
       published = previous;
+      syncPublishChrome();
       setStatus('error', error.message);
       notice(error.message, true);
     });
   });
   $('unpublish').addEventListener('click', () => {
+    closeMenus();
     window.clearTimeout(saveTimer);
     const previous = published;
     published = false;
+    syncPublishChrome();
     enqueue(() => persist(false, 'unpublish')).catch((error) => {
       published = previous;
+      syncPublishChrome();
       setStatus('error', error.message);
       notice(error.message, true);
     });
