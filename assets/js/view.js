@@ -17,19 +17,30 @@
     localStorage.setItem('roadtrip-size', String(baseSize));
   }
 
-  function setTheme(theme) {
-    root.dataset.theme = theme;
+  const themes = ['light', 'night', 'note', 'signal', 'news', 'draft'];
+
+  function applyTheme(theme, persist) {
+    const next = themes.indexOf(theme) === -1 ? 'light' : theme;
+    root.dataset.theme = next;
     if (themeSelect) {
-      themeSelect.value = theme;
+      themeSelect.value = next;
       if (currentThemeLabel) {
         const selected = themeSelect.options[themeSelect.selectedIndex];
-        currentThemeLabel.textContent = selected ? selected.text : theme;
+        currentThemeLabel.textContent = selected ? selected.text : next;
       }
     }
-    localStorage.setItem('roadtrip-theme', theme);
+    if (persist) localStorage.setItem('roadtrip-theme', next);
     document.querySelectorAll('[data-theme-choice]').forEach((button) => {
-      button.setAttribute('aria-pressed', String(button.dataset.themeChoice === theme));
+      button.setAttribute('aria-pressed', String(button.dataset.themeChoice === next));
     });
+    const reset = document.querySelector('#resetPageTheme');
+    if (reset) {
+      const pageTheme = root.dataset.pageTheme;
+      const saved = localStorage.getItem('roadtrip-theme');
+      const usingPage = !saved || (pageTheme && saved === pageTheme);
+      reset.disabled = !pageTheme || usingPage;
+      reset.textContent = reset.disabled ? 'Using page theme' : 'Reset to page theme';
+    }
   }
 
   function setPlain(on) {
@@ -40,12 +51,17 @@
   }
 
   setBaseSize(baseSize);
-  if (themeSelect) setTheme(root.dataset.theme || 'light');
+  applyTheme(root.dataset.theme || 'light', false);
   if (plainToggle) setPlain(root.dataset.plain !== 'off');
 
-  themeSelect?.addEventListener('change', (event) => setTheme(event.target.value));
+  themeSelect?.addEventListener('change', (event) => applyTheme(event.target.value, true));
   document.querySelectorAll('[data-theme-choice]').forEach((button) => {
-    button.addEventListener('click', () => setTheme(button.dataset.themeChoice));
+    button.addEventListener('click', () => applyTheme(button.dataset.themeChoice, true));
+  });
+  document.querySelector('#resetPageTheme')?.addEventListener('click', () => {
+    localStorage.removeItem('roadtrip-theme');
+    const pageTheme = root.dataset.pageTheme;
+    applyTheme(themes.indexOf(pageTheme) === -1 ? 'light' : pageTheme, false);
   });
   plainToggle?.addEventListener('click', () => setPlain(root.dataset.plain !== 'on'));
   document.querySelector('#fontUp')?.addEventListener('click', () => setBaseSize(baseSize + 1));

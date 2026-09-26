@@ -1417,7 +1417,14 @@ summary:focus-visible {
   box-shadow: inset 0 -10px 0 color-mix(in srgb, var(--highlight) 60%, transparent);
 }
 
-.callout b { font-family: var(--font-ui); }
+mark {
+  background: var(--highlight);
+  color: inherit;
+  padding: 0 .12em;
+  border-radius: .15em;
+}
+
+callout b { font-family: var(--font-ui); }
 
 .callout__label {
   font-family: var(--font-ui);

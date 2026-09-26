@@ -249,6 +249,25 @@ html[data-theme="draft"] body {
   pointer-events: none;
 }
 
+.reset-theme {
+  grid-column: 1 / -1;
+  justify-self: start;
+  margin-top: var(--space-05);
+  min-height: var(--control-height-sm);
+  padding: var(--space-025) var(--space-1);
+  color: var(--accent-text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font: 700 var(--text-sm)/1 var(--font-ui);
+  cursor: pointer;
+}
+.reset-theme:disabled {
+  color: var(--text-2);
+  cursor: default;
+  opacity: .7;
+}
+
 .setting-toggle {
   min-width: 50px;
   min-height: var(--control-height-sm);

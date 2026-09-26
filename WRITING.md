@@ -27,6 +27,12 @@ The body is markdown. Layouts read headings, lists, quotes, and images. You shou
 - **story** — advanced. `steps` carry the text and the camera (`lng`, `lat`, `zoom`, `pitch`, `bearing`).
 - **browse** — `source: places` or `source: demos`, or a `cards` list. `showMap: true` puts places beside a map.
 
+## Page theme
+
+Add `theme:` to the front matter when a page should open in a particular atmosphere. Ids: `light` (Light / Minimal), `night`, `note`, `signal`, `news`, `draft`. Leave it out to use the site default, which is Light / Minimal.
+
+On the first visit — when `roadtrip-theme` is not in `localStorage` — the page theme is applied before paint. If the visitor has already chosen a theme in Customize view, that choice stays. The view menu then offers **Reset to page theme**, which clears the saved preference and returns to this page's theme.
+
 ## Places
 
 ```bash

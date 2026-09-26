@@ -58,6 +58,9 @@
             </select>
             <svg class="view-trigger__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 9 5 5 5-5"/></svg>
           </div>
+          {% if theme %}
+          <button type="button" class="reset-theme" id="resetPageTheme">Reset to page theme</button>
+          {% endif %}
         </div>
 
         <div class="view-setting">

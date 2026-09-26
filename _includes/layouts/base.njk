@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"{% if not mapbox.token %} class="no-map"{% endif %}>
+<html lang="en"{% if theme %} data-page-theme="{{ theme | escape }}"{% endif %}{% if not mapbox.token %} class="no-map"{% endif %}>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,12 +27,14 @@
   <script>
     (function () {
       var root = document.documentElement;
+      var themes = ['light', 'night', 'note', 'signal', 'news', 'draft'];
       var theme = localStorage.getItem('roadtrip-theme');
       if (!theme) {
         var legacy = localStorage.getItem('theme');
         if (legacy === 'dark') theme = 'night';
       }
-      var themes = ['light', 'night', 'note', 'signal', 'news', 'draft'];
+      // A page `theme` is the default only when the visitor has not saved one.
+      if (!theme) theme = root.getAttribute('data-page-theme');
       root.dataset.theme = themes.indexOf(theme) === -1 ? 'light' : theme;
       root.dataset.plain = localStorage.getItem('roadtrip-plain') === 'off' ? 'off' : 'on';
       var size = Number(localStorage.getItem('roadtrip-size')) || 17;
