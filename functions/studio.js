@@ -143,7 +143,7 @@ exports.handler = async function (event) {
       const pages = [];
       for (const blob of listed.blobs || []) {
         if (!String(blob.key).startsWith("content/") || !String(blob.key).endsWith(".md")) continue;
-        const text = await store.get(blob.key, { type: "text" });
+        const text = await store.get(blob.key, { type: "text", consistency: "strong" });
         pages.push({
           path: blob.key,
           title: titleOf(text),
@@ -166,7 +166,7 @@ exports.handler = async function (event) {
       if (!slug) return json(400, { error: "That title makes an empty slug. Try plainer characters." });
       const path = template.dir ? template.out + "/" + slug + "/index.md" : template.out + "/" + slug + ".md";
       safePath(path);
-      const existing = await store.get(path, { type: "text" });
+      const existing = await store.get(path, { type: "text", consistency: "strong" });
       if (existing) return json(409, { error: "A draft with that title already exists." });
       if (await rawFile(path)) return json(409, { error: "A page with that title already exists." });
       const text = await starterText(template, title, slug);
@@ -184,7 +184,7 @@ exports.handler = async function (event) {
 
     if (body.action === "read") {
       const path = safePath(body.path);
-      const blob = await store.get(path, { type: "text" });
+      const blob = await store.get(path, { type: "text", consistency: "strong" });
       if (blob != null) return json(200, { path: path, text: blob, source: "studio" });
       const remote = await githubFile(path);
       if (remote) return json(200, { path: path, text: remote.text, sha: remote.sha, source: "github" });
