@@ -14,6 +14,6 @@ Published places live at `/places/<slug>/` and on the places map. `published: fa
 
 ## Stack
 
-Eleventy 2, Nunjucks, Markdown, CSS custom properties. Published pages use Mapbox via `assets/js/andean-map.js`. Map atelier at `/atelier/` uses MapLibre and does not need a Mapbox token.
+Eleventy 2, Nunjucks, Markdown, CSS custom properties, Mapbox via `assets/js/andean-map.js`.
 
 https://andean-road.com
