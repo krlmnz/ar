@@ -35,21 +35,24 @@ function forget() {
   document.cookie = COOKIE + '; Max-Age=0; Path=/; SameSite=Lax';
 }
 
-function notice(message, isError, link) {
+function notice(message, kind, link) {
   const box = $('notice');
+  const tone = kind === true || kind === 'error' ? 'error' : (kind === 'success' || kind === 'warn' ? kind : 'info');
   box.hidden = false;
-  box.setAttribute('class', 'studio-notice' + (isError ? ' studio-notice--error' : ''));
-  if (isError) box.setAttribute('role', 'alert');
-  else box.removeAttribute('role');
+  box.className = 'alert alert--' + tone;
+  box.setAttribute('role', tone === 'error' ? 'alert' : 'status');
   box.innerHTML = '';
-  box.appendChild(document.createTextNode(message));
+  const body = document.createElement('div');
+  body.className = 'alert__body';
+  body.appendChild(document.createTextNode(message));
   if (link) {
-    box.appendChild(document.createTextNode(' '));
+    body.appendChild(document.createTextNode(' '));
     const a = document.createElement('a');
     a.href = link.url;
     a.textContent = link.label;
-    box.appendChild(a);
+    body.appendChild(a);
   }
+  box.appendChild(body);
   box.scrollIntoView({ block: 'nearest' });
 }
 
@@ -442,10 +445,10 @@ async function persist(nextPublished, verb) {
   if (verb === 'publish') {
     const publicUrl = noteUrl(current.path);
     const message = wasLive ? 'Updated.' : 'Published. It is on the site now.';
-    if (publicUrl) notice(message, false, { url: publicUrl, label: 'View on the site' });
-    else notice(message, false, { url: current.url, label: 'Preview' });
+    if (publicUrl) notice(message, 'success', { url: publicUrl, label: 'View on the site' });
+    else notice(message, 'success', { url: current.url, label: 'Preview' });
   } else if (verb === 'unpublish') {
-    notice('Unpublished. It is a draft again.', false, { url: current.url, label: 'Preview' });
+    notice('Unpublished. It is a draft again.', 'info', { url: current.url, label: 'Preview' });
   }
   loadLibrary(true);
 }
@@ -479,7 +482,7 @@ function ensureSurface() {
     surface = mountEditor($('doc-body'), {
     uploadImage,
     onSelection: syncToolbar,
-    onWarn(message) { notice(message, false); },
+    onWarn(message) { notice(message, 'warn'); },
     onChange(error) {
       if (error) {
         const message = error.message || 'Could not add that image.';
@@ -971,8 +974,9 @@ function init() {
       $('app').hidden = false;
       loadLibrary();
     } else {
+      $('gate-field').classList.add('field--invalid');
+      $('gate-code').setAttribute('aria-invalid', 'true');
       $('gate-error').hidden = false;
-      $('gate-error').setAttribute('role', 'alert');
     }
   });
 

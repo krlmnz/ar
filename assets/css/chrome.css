@@ -322,8 +322,7 @@ html[data-theme="draft"] body {
 .site-nav a:focus-visible,
 .copy:focus-visible,
 .theme-chip:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: none;
   box-shadow: var(--focus-ring);
 }
 

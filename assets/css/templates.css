@@ -292,8 +292,7 @@
 .tpl-card:hover { border-color: var(--border-strong); background: var(--surface-2); }
 
 .tpl-card:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: none;
   box-shadow: var(--focus-ring);
 }
 
