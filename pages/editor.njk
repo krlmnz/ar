@@ -21,9 +21,11 @@ seo:
     <div class="section-label">Sign in</div>
     <h2 class="section-title">Enter the code</h2>
     <form class="studio-form" id="gate-form" style="max-width: 420px">
-      <label for="gate-code">Studio code</label>
-      <input type="password" id="gate-code" inputmode="numeric" autocomplete="off" required>
-      <p class="studio-notice studio-notice--error" id="gate-error" hidden>That code did not match.</p>
+      <div class="field" id="gate-field">
+        <label class="field__label" for="gate-code">Studio code</label>
+        <input class="input" type="password" id="gate-code" inputmode="numeric" autocomplete="off" required aria-describedby="gate-error">
+        <p class="field__error" id="gate-error" hidden>That code did not match.</p>
+      </div>
       <div class="studio-actions">
         <button class="primary" type="submit">Enter</button>
       </div>
@@ -71,7 +73,7 @@ seo:
                 <button type="button" class="primary" id="publish">Publish</button>
                 <button type="button" class="primary studio-menu__trigger studio-publish__more" id="publish-more" hidden aria-haspopup="menu" aria-expanded="false" aria-label="Publish actions">{% icon "caret-down", size=14 %}</button>
                 <div class="studio-menu__panel studio-publish__panel" id="publish-panel" role="menu" hidden>
-                  <button type="button" role="menuitem" class="studio-publish__danger" id="unpublish">Unpublish</button>
+                  <button type="button" role="menuitem" class="menu-list__item menu-list__item--danger" id="unpublish">Unpublish</button>
                 </div>
               </div>
             </div>
@@ -164,7 +166,7 @@ seo:
         <div class="prose" id="doc-body"></div>
         <textarea class="studio-markdown" id="doc-markdown" hidden spellcheck="false" aria-label="Markdown body"></textarea>
       </article>
-      <input type="file" id="image-file" accept="image/jpeg,image/png,image/webp,image/svg+xml,.svg" hidden>
+      <input type="file" id="image-file" class="visually-hidden" accept="image/jpeg,image/png,image/webp,image/svg+xml,.jpg,.jpeg,.png,.webp,.svg">
     </div>
 
     <div id="view-new" hidden>
@@ -178,7 +180,7 @@ seo:
       </form>
     </div>
 
-    <div class="studio-notice" id="notice" hidden></div>
+    <div class="alert" id="notice" hidden></div>
   </section>
 </div>
 

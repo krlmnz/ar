@@ -6,7 +6,7 @@
  * Deferred, on purpose: map blocks, chart blocks, nested structured sections,
  * duplicate/archive/tag admin, and a full content-directory CMS.
  */
-import { mountEditor } from './surface.js';
+import { mountEditor, fileType, imageFiles } from './surface.js';
 import {
   splitFrontMatter,
   frontValue,
@@ -35,19 +35,24 @@ function forget() {
   document.cookie = COOKIE + '; Max-Age=0; Path=/; SameSite=Lax';
 }
 
-function notice(message, isError, link) {
+function notice(message, kind, link) {
   const box = $('notice');
+  const tone = kind === true || kind === 'error' ? 'error' : (kind === 'success' || kind === 'warn' ? kind : 'info');
   box.hidden = false;
-  box.setAttribute('class', 'studio-notice' + (isError ? ' studio-notice--error' : ''));
+  box.className = 'alert alert--' + tone;
+  box.setAttribute('role', tone === 'error' ? 'alert' : 'status');
   box.innerHTML = '';
-  box.appendChild(document.createTextNode(message));
+  const body = document.createElement('div');
+  body.className = 'alert__body';
+  body.appendChild(document.createTextNode(message));
   if (link) {
-    box.appendChild(document.createTextNode(' '));
+    body.appendChild(document.createTextNode(' '));
     const a = document.createElement('a');
     a.href = link.url;
     a.textContent = link.label;
-    box.appendChild(a);
+    body.appendChild(a);
   }
+  box.appendChild(body);
   box.scrollIntoView({ block: 'nearest' });
 }
 
@@ -146,8 +151,8 @@ function watchEditable(el) {
 function setStatus(state, detail) {
   const el = $('save-status');
   if (!el) return;
-  const labels = { saving: 'Saving…', saved: 'Saved', error: 'Error saving' };
-  el.textContent = labels[state] || '';
+  const labels = { saving: 'Saving…', saved: 'Saved' };
+  el.textContent = state === 'error' ? (detail || 'Could not save.') : (labels[state] || '');
   el.className = 'studio-status' + (state ? ' studio-status--' + state : '');
   el.title = detail || '';
 }
@@ -440,10 +445,10 @@ async function persist(nextPublished, verb) {
   if (verb === 'publish') {
     const publicUrl = noteUrl(current.path);
     const message = wasLive ? 'Updated.' : 'Published. It is on the site now.';
-    if (publicUrl) notice(message, false, { url: publicUrl, label: 'View on the site' });
-    else notice(message, false, { url: current.url, label: 'Preview' });
+    if (publicUrl) notice(message, 'success', { url: publicUrl, label: 'View on the site' });
+    else notice(message, 'success', { url: current.url, label: 'Preview' });
   } else if (verb === 'unpublish') {
-    notice('Unpublished. It is a draft again.', false, { url: current.url, label: 'Preview' });
+    notice('Unpublished. It is a draft again.', 'info', { url: current.url, label: 'Preview' });
   }
   loadLibrary(true);
 }
@@ -453,7 +458,9 @@ function scheduleSave() {
   window.clearTimeout(saveTimer);
   saveTimer = window.setTimeout(() => {
     enqueue(() => persist(published, 'update')).catch((error) => {
-      setStatus('error', error.message);
+      const message = error.message || 'Could not save.';
+      setStatus('error', message);
+      notice(message, true);
     });
   }, 700);
 }
@@ -463,7 +470,9 @@ function flushSoon() {
   window.clearTimeout(saveTimer);
   if (snapshot() === lastSnapshot) return Promise.resolve();
   return enqueue(() => persist(published, 'update')).catch((error) => {
-    setStatus('error', error.message);
+    const message = error.message || 'Could not save.';
+    setStatus('error', message);
+    notice(message, true);
     throw error;
   });
 }
@@ -473,10 +482,12 @@ function ensureSurface() {
     surface = mountEditor($('doc-body'), {
     uploadImage,
     onSelection: syncToolbar,
-    onWarn(message) { notice(message, false); },
+    onWarn(message) { notice(message, 'warn'); },
     onChange(error) {
       if (error) {
-        setStatus('error', error.message || 'Could not add that image.');
+        const message = error.message || 'Could not add that image.';
+        notice(message, true);
+        setStatus('error', message);
         return;
       }
       if (!hydrating && !markdownMode) {
@@ -489,35 +500,23 @@ function ensureSurface() {
 }
 
 async function uploadImage(file) {
-  let type = (file.type || '').toLowerCase();
-  if (type === 'image/jpg') type = 'image/jpeg';
-  if (!type && /\.svg$/i.test(file.name || '')) type = 'image/svg+xml';
+  const type = fileType(file);
   if (type !== 'image/jpeg' && type !== 'image/png' && type !== 'image/webp' && type !== 'image/svg+xml') {
     throw new Error('Use a JPEG, PNG, WebP, or an SVG diagram.');
   }
   if (file.size > 5 * 1024 * 1024) throw new Error('That image is over 5 MB.');
-  const data = await blobToBase64(file);
-  const result = await api({
-    action: 'upload',
-    name: file.name || 'image',
-    contentType: type,
-    data
+  const res = await window.fetch('/api/studio', {
+    method: 'POST',
+    headers: { 'content-type': type },
+    body: file
   });
-  if (!result.url) throw new Error('Could not store that image.');
-  return result.url;
-}
-
-function blobToBase64(blob) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const value = String(reader.result || '');
-      const comma = value.indexOf(',');
-      resolve(comma === -1 ? value : value.slice(comma + 1));
-    };
-    reader.onerror = () => reject(new Error('Could not read that image.'));
-    reader.readAsDataURL(blob);
-  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    if (res.status === 413) throw new Error('That image is too large to upload.');
+    throw new Error(data.error || 'Could not store that image.');
+  }
+  if (!data.url) throw new Error('Could not store that image.');
+  return data.url;
 }
 
 function fillEditor(page, text) {
@@ -637,6 +636,81 @@ function syncDocbarHeight() {
   document.documentElement.style.setProperty('--studio-docbar-h', bar.offsetHeight + 'px');
 }
 
+let appliedClearance = 0;
+let revealQueued = false;
+
+function barClearance() {
+  const bar = document.querySelector('.studio-docbar');
+  if (!bar) return 0;
+  return Math.ceil(bar.getBoundingClientRect().bottom) + 16;
+}
+
+function syncCaretClearance() {
+  const studio = $('studio');
+  const composing = !!(studio && studio.classList.contains('is-composing'));
+  const root = document.documentElement;
+  if (!composing) {
+    root.style.removeProperty('scroll-padding-top');
+    root.style.removeProperty('scroll-padding-bottom');
+    if (appliedClearance && surface && surface.editor) {
+      surface.editor.view.setProps({ scrollThreshold: 0, scrollMargin: 5 });
+    }
+    appliedClearance = 0;
+    return;
+  }
+  syncDocbarHeight();
+  const px = barClearance();
+  root.style.scrollPaddingTop = px + 'px';
+  root.style.scrollPaddingBottom = '16px';
+  if (surface && surface.editor && px !== appliedClearance) {
+    appliedClearance = px;
+    surface.editor.view.setProps({
+      scrollThreshold: { top: px, bottom: 16, left: 0, right: 0 },
+      scrollMargin: { top: px, bottom: 20, left: 0, right: 0 }
+    });
+  }
+}
+
+function caretRect(active) {
+  const sel = window.getSelection();
+  if (sel && sel.rangeCount && active && active.contains(sel.anchorNode)) {
+    const range = sel.getRangeAt(0);
+    const rects = range.getClientRects();
+    const rect = rects.length ? rects[rects.length - 1] : range.getBoundingClientRect();
+    if (rect && rect.height) return rect;
+  }
+  if (active && active.getBoundingClientRect) return active.getBoundingClientRect();
+  return null;
+}
+
+function revealCaret() {
+  const studio = $('studio');
+  if (!studio || !studio.classList.contains('is-composing')) return;
+  syncCaretClearance();
+  const active = document.activeElement;
+  if (active && active.closest && active.closest('#doc-body') && surface && surface.editor) {
+    surface.editor.commands.scrollIntoView();
+    return;
+  }
+  if (!active || active.id === 'doc-markdown') return;
+  const rect = caretRect(active);
+  if (!rect || !rect.height) return;
+  const clear = barClearance();
+  const vv = window.visualViewport;
+  const bottomLimit = (vv ? vv.height : window.innerHeight) - 16;
+  if (rect.top < clear) window.scrollBy(0, rect.top - clear);
+  else if (rect.bottom > bottomLimit) window.scrollBy(0, rect.bottom - bottomLimit);
+}
+
+function queueRevealCaret() {
+  if (revealQueued) return;
+  revealQueued = true;
+  window.requestAnimationFrame(() => {
+    revealQueued = false;
+    revealCaret();
+  });
+}
+
 function syncComposing() {
   const studio = $('studio');
   const editing = $('view-edit') && !$('view-edit').hidden;
@@ -645,6 +719,7 @@ function syncComposing() {
     studio.classList.remove('is-composing');
     document.documentElement.style.removeProperty('--studio-stick');
     document.documentElement.style.removeProperty('--studio-docbar-h');
+    syncCaretClearance();
     if (liftedPanels.size) closeMenus();
     return;
   }
@@ -653,13 +728,11 @@ function syncComposing() {
   const keyboard = !!(vv && window.innerHeight - vv.height > 120);
   const composing = focused || keyboard;
   studio.classList.toggle('is-composing', composing);
-  if (composing && vv) {
-    document.documentElement.style.setProperty('--studio-stick', vv.offsetTop + 'px');
-    syncDocbarHeight();
-  } else {
-    document.documentElement.style.removeProperty('--studio-stick');
-    document.documentElement.style.removeProperty('--studio-docbar-h');
-  }
+  if (composing && vv) document.documentElement.style.setProperty('--studio-stick', vv.offsetTop + 'px');
+  else document.documentElement.style.removeProperty('--studio-stick');
+  if (!composing) document.documentElement.style.removeProperty('--studio-docbar-h');
+  syncCaretClearance();
+  if (composing) queueRevealCaret();
 }
 
 function placeToolbarMenu(menu) {
@@ -901,6 +974,8 @@ function init() {
       $('app').hidden = false;
       loadLibrary();
     } else {
+      $('gate-field').classList.add('field--invalid');
+      $('gate-code').setAttribute('aria-invalid', 'true');
       $('gate-error').hidden = false;
     }
   });
@@ -990,7 +1065,10 @@ function init() {
   });
 
   document.querySelectorAll('.studio-toolbar button').forEach((button) => {
-    button.addEventListener('mousedown', (event) => event.preventDefault());
+    button.addEventListener('mousedown', (event) => {
+      if (button.getAttribute('data-cmd') === 'image') return;
+      event.preventDefault();
+    });
   });
   const formatting = document.querySelector('.studio-toolbar');
   if (formatting) formatting.addEventListener('scroll', () => closeMenus(), { passive: true });
@@ -1006,11 +1084,26 @@ function init() {
       repositionLiftedMenus();
     });
   }
-  window.addEventListener('resize', syncComposing);
+  window.addEventListener('resize', () => {
+    syncComposing();
+    if ($('studio').classList.contains('is-composing')) queueRevealCaret();
+  });
+  document.addEventListener('selectionchange', () => {
+    const studio = $('studio');
+    if (!studio || !studio.classList.contains('is-composing')) return;
+    const active = document.activeElement;
+    if (!active || !active.closest) return;
+    if (active.closest('#doc-body') || active.id === 'doc-markdown') return;
+    if (!inWritingField(active)) return;
+    queueRevealCaret();
+  });
   const docbar = document.querySelector('.studio-docbar');
   if (docbar && window.ResizeObserver) {
     new ResizeObserver(() => {
-      if ($('studio').classList.contains('is-composing')) syncDocbarHeight();
+      if (!$('studio').classList.contains('is-composing')) return;
+      const before = appliedClearance;
+      syncCaretClearance();
+      if (appliedClearance !== before) queueRevealCaret();
     }).observe(docbar);
   }
   document.querySelectorAll('.studio-toolbar [data-cmd]').forEach((button) => {
@@ -1047,7 +1140,7 @@ function init() {
     if (event.dataTransfer && [...event.dataTransfer.types].includes('Files')) event.preventDefault();
   });
   $('studio-doc').addEventListener('drop', (event) => {
-    const files = [...(event.dataTransfer ? event.dataTransfer.files : [])].filter((file) => (file.type || '').startsWith('image/'));
+    const files = imageFiles(event.dataTransfer ? event.dataTransfer.files : []);
     if (!files.length || !surface) return;
     event.preventDefault();
     surface.insertFiles(files);

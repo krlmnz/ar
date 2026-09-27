@@ -53,9 +53,9 @@
   border: 1px solid var(--border, #ccc);
 }
 
-.gate-error {
-  color: #b3261e;
-  font-size: 14px;
+#gate-error[hidden],
+#notice[hidden] {
+  display: none;
 }
 
 .gate-btn {
@@ -198,16 +198,8 @@
   color: var(--text, #111);
 }
 
-.studio-notice {
-  margin-top: 16px;
-  padding: 12px 16px;
-  font-size: 14px;
-  border: 1px solid var(--border, #ccc);
-}
-
-.studio-notice--error {
-  border-color: #b3261e;
-  color: #b3261e;
+#notice {
+  margin-top: var(--space-2);
 }
 
 .studio-hint {
@@ -339,7 +331,6 @@
 }
 
 .studio-new input:focus {
-  outline: none;
   border-bottom-color: var(--text);
 }
 
@@ -480,7 +471,6 @@
   height: auto;
   min-height: 32px;
   padding: 6px 8px;
-  color: var(--text);
   font: 500 var(--text-ui)/1.25 var(--font-ui);
   text-align: left;
   white-space: normal;
@@ -615,11 +605,6 @@
   min-width: 11rem;
 }
 
-.studio-publish .studio-menu__panel .studio-publish__danger {
-  color: #b3261e;
-  font-weight: 600;
-}
-
 .studio-kind select {
   padding: 6px 8px;
   font: 600 var(--text-ui)/1 var(--font-ui);
@@ -637,7 +622,7 @@
 }
 
 .studio-status--error {
-  color: #b3261e;
+  color: var(--error-text);
 }
 
 .studio-link {
@@ -667,12 +652,6 @@
   margin-bottom: var(--space-2);
 }
 
-.studio-title,
-.studio-subtitle,
-.studio-doc .page-header__type {
-  outline: none;
-}
-
 .studio-title[data-empty="true"]::before,
 .studio-subtitle[data-empty="true"]::before,
 .studio-doc .page-header__type[data-empty="true"]::before {
@@ -682,7 +661,6 @@
 }
 
 .studio-doc .ProseMirror {
-  outline: none;
   min-height: 46vh;
 }
 
@@ -758,7 +736,6 @@
 }
 
 .studio-figure figcaption {
-  outline: none;
   min-height: 1.2em;
 }
 
@@ -1029,6 +1006,10 @@
     width: min(16.5rem, calc(100vw - 16px));
   }
 
+  html:has(#studio.studio--writing.is-composing) {
+    scroll-behavior: auto;
+  }
+
   body:has(#studio.studio--writing.is-composing) .site-header,
   body:has(#studio.studio--writing.is-composing) .site-footer {
     display: none;
@@ -1093,12 +1074,6 @@
 
   .studio--writing.is-composing .studio-publish .primary {
     padding-inline: 12px;
-  }
-
-  .studio--writing.is-composing .page-header,
-  .studio--writing.is-composing .prose,
-  .studio--writing.is-composing .studio-markdown {
-    scroll-margin-top: calc(var(--studio-docbar-h, 104px) + 8px);
   }
 }
 

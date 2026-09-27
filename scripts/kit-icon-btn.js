@@ -1,11 +1,13 @@
-/* Pull icon-button tokens and rules from component-kit.
-   The kit is not an npm package, and src/global.css is a full page
-   stylesheet, so the build reads that file at a pinned commit and keeps
-   only the icon-button atom. */
+/* Pull atoms from component-kit global.css.
+   The kit is not an npm package, and that file is a full page stylesheet
+   (reset, fonts, and its own --bg/--text), so the build keeps the atoms
+   Studio uses: icon buttons, status tokens, alert, field, toast, danger,
+   and the kit :focus-visible rule. Night and signal are this site's dark
+   themes; they reuse the kit [data-theme="dark"] status tokens verbatim. */
 const fs = require('fs');
 const path = require('path');
 
-const KIT_COMMIT = '35d55cebe216e31593f9a52a94ef25a44b7f599c';
+const KIT_COMMIT = '80588504d204a3ce31956f8530246a502d631c21';
 const KIT_URL = 'https://raw.githubusercontent.com/krlmnz/component-kit/' + KIT_COMMIT + '/src/global.css';
 const OUT = path.join(__dirname, '..', 'assets/css/component-kit-icon-btn.css');
 
@@ -13,7 +15,29 @@ const TOKENS = [
   '--icon-btn-size',
   '--control-height-touch',
   '--icon-btn-size-touch',
-  '--icon-size-md'
+  '--icon-size-md',
+  '--success',
+  '--success-text',
+  '--success-soft',
+  '--success-wash',
+  '--warn',
+  '--warn-text',
+  '--warn-soft',
+  '--warn-wash',
+  '--error',
+  '--error-text',
+  '--error-soft',
+  '--error-ring'
+];
+
+const DARK_TOKENS = [
+  '--success',
+  '--success-text',
+  '--warn',
+  '--warn-text',
+  '--error',
+  '--error-text',
+  '--error-soft'
 ];
 
 const SELECTORS = [
@@ -24,7 +48,59 @@ const SELECTORS = [
   '.icon-btn--touch',
   '.icon-btn--touch svg',
   '.btn--icon.btn--touch',
-  '.btn--icon.btn--touch svg'
+  '.btn--icon.btn--touch svg',
+  '.btn--danger',
+  '.btn--danger:hover:not(:disabled)',
+  '.field',
+  '.field__label',
+  '.field__label .req',
+  '.field__hint',
+  '.field__error',
+  '.input',
+  '.select',
+  '.textarea',
+  '.input:hover',
+  '.select:hover',
+  '.textarea:hover',
+  '.input:focus',
+  '.select:focus',
+  '.textarea:focus',
+  '.input:focus-visible',
+  '.select:focus-visible',
+  '.textarea:focus-visible',
+  '.input::placeholder',
+  '.textarea::placeholder',
+  '.field--invalid .input',
+  '.field--invalid .select',
+  '.field--invalid .textarea',
+  '.field--invalid .input:focus',
+  '.field--invalid .input:focus-visible',
+  '.field--invalid .select:focus',
+  '.field--invalid .select:focus-visible',
+  '.field--invalid .textarea:focus',
+  '.field--invalid .textarea:focus-visible',
+  '.menu-list__item--danger',
+  '.menu-list__item--danger svg',
+  '.alert',
+  '.alert__icon',
+  '.alert__body',
+  '.alert__title',
+  '.alert--info',
+  '.alert--success',
+  '.alert--warn',
+  '.alert--error',
+  '.toast',
+  '.toast__icon',
+  '.toast--success .toast__icon',
+  '.toast--error .toast__icon',
+  '.toast__body',
+  '.toast__title',
+  '.toast__dismiss',
+  '.toast__dismiss:hover',
+  '.toast__dismiss svg',
+  '.tile--selected',
+  '.visually-hidden',
+  ':focus-visible'
 ];
 
 function stripComments(css) {
@@ -65,15 +141,22 @@ function selectorParts(selector) {
   return selector.split(',').map((part) => part.replace(/\s+/g, ' ').trim()).filter(Boolean);
 }
 
-function extract(css) {
-  const blocks = topLevelBlocks(stripComments(css));
-  const root = blocks.find((block) => block.selector === ':root');
-  if (!root) throw new Error('component-kit global.css has no :root');
-  const tokens = TOKENS.map((name) => {
-    const match = root.body.match(new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*:[^;]+;'));
+function tokenDecls(body, names) {
+  return names.map((name) => {
+    const match = body.match(new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*:[^;]+;'));
     if (!match) throw new Error('component-kit is missing ' + name);
     return match[0].replace(/\s+/g, ' ').trim();
   });
+}
+
+function extract(css) {
+  const blocks = topLevelBlocks(stripComments(css));
+  const root = blocks.find((block) => block.selector === ':root');
+  const dark = blocks.find((block) => block.selector === '[data-theme="dark"]');
+  if (!root) throw new Error('component-kit global.css has no :root');
+  if (!dark) throw new Error('component-kit global.css has no [data-theme="dark"]');
+  const tokens = tokenDecls(root.body, TOKENS);
+  const darkTokens = tokenDecls(dark.body, DARK_TOKENS);
   const wanted = new Set(SELECTORS);
   const rules = [];
   const seen = new Set();
@@ -87,7 +170,11 @@ function extract(css) {
   SELECTORS.forEach((selector) => {
     if (!seen.has(selector)) throw new Error('component-kit is missing ' + selector);
   });
-  return ':root {\n  ' + tokens.join('\n  ') + '\n}\n\n' + rules.join('\n\n') + '\n';
+  return [
+    ':root {\n  ' + tokens.join('\n  ') + '\n}',
+    '[data-theme="dark"],\nhtml[data-theme="night"],\nhtml[data-theme="signal"] {\n  ' + darkTokens.join('\n  ') + '\n}',
+    rules.join('\n\n')
+  ].join('\n\n') + '\n';
 }
 
 function write(css) {
