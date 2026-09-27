@@ -2,12 +2,17 @@
    The kit is not an npm package, and that file is a full page stylesheet
    (reset, fonts, and its own --bg/--text), so the build keeps the atoms
    Studio uses: icon buttons, status tokens, alert, field, toast, danger,
-   and the kit :focus-visible rule. Night and signal are this site's dark
-   themes; they reuse the kit [data-theme="dark"] status tokens verbatim. */
+   selection, and the kit :focus-visible rule. Night and signal are this
+   site's dark themes; they reuse the kit [data-theme="dark"] status tokens
+   verbatim.
+   Pinned to component-kit PR #10 (cursor/status-focus-tokens-63a0) until
+   that lands on kit main. --focus-ring and --selected-ring stay this
+   site's tokens: published chrome already uses them, and Studio shell
+   focus is quieted in studio.css rather than framed by :focus-visible. */
 const fs = require('fs');
 const path = require('path');
 
-const KIT_COMMIT = '80588504d204a3ce31956f8530246a502d631c21';
+const KIT_COMMIT = 'ca353121fcd90087e561c218a11b86bc9a8b648d';
 const KIT_URL = 'https://raw.githubusercontent.com/krlmnz/component-kit/' + KIT_COMMIT + '/src/global.css';
 const OUT = path.join(__dirname, '..', 'assets/css/component-kit-icon-btn.css');
 
@@ -27,7 +32,27 @@ const TOKENS = [
   '--error',
   '--error-text',
   '--error-soft',
-  '--error-ring'
+  '--error-wash',
+  '--info',
+  '--info-text',
+  '--info-soft',
+  '--info-wash',
+  '--info-border',
+  '--success-border',
+  '--warn-border',
+  '--error-border',
+  '--focus-color',
+  '--focus-outline',
+  '--error-outline',
+  '--error-ring',
+  '--selection-bg',
+  '--selection-text'
+];
+
+/* Kit geometry for this name differs from the site ring. Keep the kit
+   value inside Studio; published chrome keeps tokens.css. */
+const STUDIO_TOKENS = [
+  '--focus-ring'
 ];
 
 const DARK_TOKENS = [
@@ -37,7 +62,12 @@ const DARK_TOKENS = [
   '--warn-text',
   '--error',
   '--error-text',
-  '--error-soft'
+  '--error-soft',
+  '--info',
+  '--info-text',
+  '--info-soft',
+  '--info-wash',
+  '--focus-color'
 ];
 
 const SELECTORS = [
@@ -100,7 +130,9 @@ const SELECTORS = [
   '.toast__dismiss svg',
   '.tile--selected',
   '.visually-hidden',
-  ':focus-visible'
+  ':focus-visible',
+  '::selection',
+  '::-moz-selection'
 ];
 
 function stripComments(css) {
@@ -156,6 +188,7 @@ function extract(css) {
   if (!root) throw new Error('component-kit global.css has no :root');
   if (!dark) throw new Error('component-kit global.css has no [data-theme="dark"]');
   const tokens = tokenDecls(root.body, TOKENS);
+  const studioTokens = tokenDecls(root.body, STUDIO_TOKENS);
   const darkTokens = tokenDecls(dark.body, DARK_TOKENS);
   const wanted = new Set(SELECTORS);
   const rules = [];
@@ -172,6 +205,7 @@ function extract(css) {
   });
   return [
     ':root {\n  ' + tokens.join('\n  ') + '\n}',
+    '#studio {\n  ' + studioTokens.join('\n  ') + '\n}',
     '[data-theme="dark"],\nhtml[data-theme="night"],\nhtml[data-theme="signal"] {\n  ' + darkTokens.join('\n  ') + '\n}',
     rules.join('\n\n')
   ].join('\n\n') + '\n';
