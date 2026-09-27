@@ -164,6 +164,7 @@ function show(view) {
   const reading = document.querySelector('.reading');
   if (reading) reading.classList.toggle('reading--wide', view === 'edit');
   clearNotice();
+  syncComposing();
   if (view === 'new') window.setTimeout(() => $('new-title').focus(), 0);
 }
 
@@ -589,12 +590,117 @@ async function createDraft(event) {
   }
 }
 
+const liftedPanels = new Map();
+
+function menuPanel(menu) {
+  return liftedPanels.get(menu) || menu.querySelector('.studio-menu__panel');
+}
+
+function dropToolbarPanel(menu) {
+  const panel = liftedPanels.get(menu);
+  if (!panel) return;
+  panel.classList.remove('is-lifted', 'is-add');
+  panel.style.position = '';
+  panel.style.top = '';
+  panel.style.left = '';
+  panel.style.right = '';
+  panel.style.width = '';
+  panel.style.maxHeight = '';
+  panel.style.maxWidth = '';
+  panel.style.overflowY = '';
+  panel.style.zIndex = '';
+  menu.appendChild(panel);
+  liftedPanels.delete(menu);
+}
+
 function closeMenus() {
   document.querySelectorAll('.studio-menu').forEach((menu) => {
-    const panel = menu.querySelector('.studio-menu__panel');
+    const panel = menuPanel(menu);
     const trigger = menu.querySelector('.studio-menu__trigger');
     if (panel) panel.hidden = true;
     if (trigger) trigger.setAttribute('aria-expanded', 'false');
+    dropToolbarPanel(menu);
+  });
+}
+
+function phoneWriting() {
+  return window.matchMedia('(max-width: 720px)').matches;
+}
+
+function inWritingField(node) {
+  return !!(node && node.closest && node.closest('#doc-title, #doc-subtitle, #doc-series, #doc-body, #doc-markdown, #link-form, .studio-docbar'));
+}
+
+function syncDocbarHeight() {
+  const bar = document.querySelector('.studio-docbar');
+  if (!bar) return;
+  document.documentElement.style.setProperty('--studio-docbar-h', bar.offsetHeight + 'px');
+}
+
+function syncComposing() {
+  const studio = $('studio');
+  const editing = $('view-edit') && !$('view-edit').hidden;
+  if (!studio) return;
+  if (!editing || !phoneWriting()) {
+    studio.classList.remove('is-composing');
+    document.documentElement.style.removeProperty('--studio-stick');
+    document.documentElement.style.removeProperty('--studio-docbar-h');
+    if (liftedPanels.size) closeMenus();
+    return;
+  }
+  const focused = inWritingField(document.activeElement);
+  const vv = window.visualViewport;
+  const keyboard = !!(vv && window.innerHeight - vv.height > 120);
+  const composing = focused || keyboard;
+  studio.classList.toggle('is-composing', composing);
+  if (composing && vv) {
+    document.documentElement.style.setProperty('--studio-stick', vv.offsetTop + 'px');
+    syncDocbarHeight();
+  } else {
+    document.documentElement.style.removeProperty('--studio-stick');
+    document.documentElement.style.removeProperty('--studio-docbar-h');
+  }
+}
+
+function placeToolbarMenu(menu) {
+  const trigger = menu.querySelector('.studio-menu__trigger');
+  if (!trigger || !phoneWriting() || !menu.closest('.studio-toolbar')) return;
+  let panel = liftedPanels.get(menu);
+  if (!panel) {
+    panel = menu.querySelector('.studio-menu__panel');
+    if (!panel) return;
+    liftedPanels.set(menu, panel);
+    document.body.appendChild(panel);
+  }
+  panel.classList.add('is-lifted');
+  panel.classList.toggle('is-add', menu.classList.contains('studio-add'));
+  const rect = trigger.getBoundingClientRect();
+  const margin = 8;
+  const vv = window.visualViewport;
+  const viewTop = vv ? vv.offsetTop : 0;
+  const viewH = vv ? vv.height : window.innerHeight;
+  const viewW = vv ? vv.width : window.innerWidth;
+  panel.style.position = 'fixed';
+  panel.style.zIndex = '80';
+  panel.style.top = Math.round(rect.bottom + 6) + 'px';
+  panel.style.maxHeight = Math.max(140, Math.round(viewTop + viewH - rect.bottom - 16)) + 'px';
+  panel.style.maxWidth = Math.round(viewW - margin * 2) + 'px';
+  panel.style.overflowY = 'auto';
+  panel.style.width = menu.classList.contains('studio-add')
+    ? 'min(16.5rem, ' + Math.round(viewW - margin * 2) + 'px)'
+    : '';
+  if (menu.classList.contains('studio-add') || rect.left > viewW * 0.5) {
+    panel.style.left = 'auto';
+    panel.style.right = Math.max(margin, Math.round(viewW - rect.right)) + 'px';
+  } else {
+    panel.style.right = 'auto';
+    panel.style.left = Math.max(margin, Math.round(Math.min(rect.left, viewW - 180))) + 'px';
+  }
+}
+
+function repositionLiftedMenus() {
+  liftedPanels.forEach((panel, menu) => {
+    if (!panel.hidden) placeToolbarMenu(menu);
   });
 }
 
@@ -624,6 +730,7 @@ function toggleMenu(menu) {
   if (!willOpen || !panel) return;
   panel.hidden = false;
   menu.querySelector('.studio-menu__trigger').setAttribute('aria-expanded', 'true');
+  placeToolbarMenu(menu);
 }
 
 function syncToolbar() {
@@ -885,6 +992,27 @@ function init() {
   document.querySelectorAll('.studio-toolbar button').forEach((button) => {
     button.addEventListener('mousedown', (event) => event.preventDefault());
   });
+  const formatting = document.querySelector('.studio-toolbar');
+  if (formatting) formatting.addEventListener('scroll', () => closeMenus(), { passive: true });
+  document.addEventListener('focusin', syncComposing);
+  document.addEventListener('focusout', () => window.setTimeout(syncComposing, 0));
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      syncComposing();
+      repositionLiftedMenus();
+    });
+    window.visualViewport.addEventListener('scroll', () => {
+      syncComposing();
+      repositionLiftedMenus();
+    });
+  }
+  window.addEventListener('resize', syncComposing);
+  const docbar = document.querySelector('.studio-docbar');
+  if (docbar && window.ResizeObserver) {
+    new ResizeObserver(() => {
+      if ($('studio').classList.contains('is-composing')) syncDocbarHeight();
+    }).observe(docbar);
+  }
   document.querySelectorAll('.studio-toolbar [data-cmd]').forEach((button) => {
     button.addEventListener('click', () => runCommand(button.getAttribute('data-cmd')));
   });
@@ -893,7 +1021,7 @@ function init() {
   });
   document.addEventListener('click', (event) => {
     const target = event.target;
-    if (!(target.closest && target.closest('.studio-menu'))) closeMenus();
+    if (!(target.closest && (target.closest('.studio-menu') || target.closest('.studio-menu__panel')))) closeMenus();
     const form = $('link-form');
     if (!form || form.hidden) return;
     if (target.closest && (target.closest('#link-form') || target.closest('[data-cmd="link"]'))) return;
