@@ -6,7 +6,7 @@
  * Deferred, on purpose: map blocks, chart blocks, nested structured sections,
  * duplicate/archive/tag admin, and a full content-directory CMS.
  */
-import { mountEditor } from './surface.js';
+import { mountEditor, fileType, imageFiles } from './surface.js';
 import {
   splitFrontMatter,
   frontValue,
@@ -39,6 +39,8 @@ function notice(message, isError, link) {
   const box = $('notice');
   box.hidden = false;
   box.setAttribute('class', 'studio-notice' + (isError ? ' studio-notice--error' : ''));
+  if (isError) box.setAttribute('role', 'alert');
+  else box.removeAttribute('role');
   box.innerHTML = '';
   box.appendChild(document.createTextNode(message));
   if (link) {
@@ -146,8 +148,8 @@ function watchEditable(el) {
 function setStatus(state, detail) {
   const el = $('save-status');
   if (!el) return;
-  const labels = { saving: 'Saving…', saved: 'Saved', error: 'Error saving' };
-  el.textContent = labels[state] || '';
+  const labels = { saving: 'Saving…', saved: 'Saved' };
+  el.textContent = state === 'error' ? (detail || 'Could not save.') : (labels[state] || '');
   el.className = 'studio-status' + (state ? ' studio-status--' + state : '');
   el.title = detail || '';
 }
@@ -453,7 +455,9 @@ function scheduleSave() {
   window.clearTimeout(saveTimer);
   saveTimer = window.setTimeout(() => {
     enqueue(() => persist(published, 'update')).catch((error) => {
-      setStatus('error', error.message);
+      const message = error.message || 'Could not save.';
+      setStatus('error', message);
+      notice(message, true);
     });
   }, 700);
 }
@@ -463,7 +467,9 @@ function flushSoon() {
   window.clearTimeout(saveTimer);
   if (snapshot() === lastSnapshot) return Promise.resolve();
   return enqueue(() => persist(published, 'update')).catch((error) => {
-    setStatus('error', error.message);
+    const message = error.message || 'Could not save.';
+    setStatus('error', message);
+    notice(message, true);
     throw error;
   });
 }
@@ -476,7 +482,9 @@ function ensureSurface() {
     onWarn(message) { notice(message, false); },
     onChange(error) {
       if (error) {
-        setStatus('error', error.message || 'Could not add that image.');
+        const message = error.message || 'Could not add that image.';
+        notice(message, true);
+        setStatus('error', message);
         return;
       }
       if (!hydrating && !markdownMode) {
@@ -489,35 +497,23 @@ function ensureSurface() {
 }
 
 async function uploadImage(file) {
-  let type = (file.type || '').toLowerCase();
-  if (type === 'image/jpg') type = 'image/jpeg';
-  if (!type && /\.svg$/i.test(file.name || '')) type = 'image/svg+xml';
+  const type = fileType(file);
   if (type !== 'image/jpeg' && type !== 'image/png' && type !== 'image/webp' && type !== 'image/svg+xml') {
     throw new Error('Use a JPEG, PNG, WebP, or an SVG diagram.');
   }
   if (file.size > 5 * 1024 * 1024) throw new Error('That image is over 5 MB.');
-  const data = await blobToBase64(file);
-  const result = await api({
-    action: 'upload',
-    name: file.name || 'image',
-    contentType: type,
-    data
+  const res = await window.fetch('/api/studio', {
+    method: 'POST',
+    headers: { 'content-type': type },
+    body: file
   });
-  if (!result.url) throw new Error('Could not store that image.');
-  return result.url;
-}
-
-function blobToBase64(blob) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const value = String(reader.result || '');
-      const comma = value.indexOf(',');
-      resolve(comma === -1 ? value : value.slice(comma + 1));
-    };
-    reader.onerror = () => reject(new Error('Could not read that image.'));
-    reader.readAsDataURL(blob);
-  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    if (res.status === 413) throw new Error('That image is too large to upload.');
+    throw new Error(data.error || 'Could not store that image.');
+  }
+  if (!data.url) throw new Error('Could not store that image.');
+  return data.url;
 }
 
 function fillEditor(page, text) {
@@ -976,6 +972,7 @@ function init() {
       loadLibrary();
     } else {
       $('gate-error').hidden = false;
+      $('gate-error').setAttribute('role', 'alert');
     }
   });
 
@@ -1064,7 +1061,10 @@ function init() {
   });
 
   document.querySelectorAll('.studio-toolbar button').forEach((button) => {
-    button.addEventListener('mousedown', (event) => event.preventDefault());
+    button.addEventListener('mousedown', (event) => {
+      if (button.getAttribute('data-cmd') === 'image') return;
+      event.preventDefault();
+    });
   });
   const formatting = document.querySelector('.studio-toolbar');
   if (formatting) formatting.addEventListener('scroll', () => closeMenus(), { passive: true });
@@ -1136,7 +1136,7 @@ function init() {
     if (event.dataTransfer && [...event.dataTransfer.types].includes('Files')) event.preventDefault();
   });
   $('studio-doc').addEventListener('drop', (event) => {
-    const files = [...(event.dataTransfer ? event.dataTransfer.files : [])].filter((file) => (file.type || '').startsWith('image/'));
+    const files = imageFiles(event.dataTransfer ? event.dataTransfer.files : []);
     if (!files.length || !surface) return;
     event.preventDefault();
     surface.insertFiles(files);

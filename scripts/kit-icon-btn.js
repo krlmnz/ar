@@ -1,11 +1,12 @@
-/* Pull icon-button tokens and rules from component-kit.
+/* Pull icon-button rules and status tokens from component-kit.
    The kit is not an npm package, and src/global.css is a full page
    stylesheet, so the build reads that file at a pinned commit and keeps
-   only the icon-button atom. */
+   the icon-button atom plus the semantic status colors. Studio themes
+   that need a different value override these names in tokens.css. */
 const fs = require('fs');
 const path = require('path');
 
-const KIT_COMMIT = '35d55cebe216e31593f9a52a94ef25a44b7f599c';
+const KIT_COMMIT = '80588504d204a3ce31956f8530246a502d631c21';
 const KIT_URL = 'https://raw.githubusercontent.com/krlmnz/component-kit/' + KIT_COMMIT + '/src/global.css';
 const OUT = path.join(__dirname, '..', 'assets/css/component-kit-icon-btn.css');
 
@@ -13,7 +14,19 @@ const TOKENS = [
   '--icon-btn-size',
   '--control-height-touch',
   '--icon-btn-size-touch',
-  '--icon-size-md'
+  '--icon-size-md',
+  '--success',
+  '--success-text',
+  '--success-soft',
+  '--success-wash',
+  '--warn',
+  '--warn-text',
+  '--warn-soft',
+  '--warn-wash',
+  '--error',
+  '--error-text',
+  '--error-soft',
+  '--error-ring'
 ];
 
 const SELECTORS = [

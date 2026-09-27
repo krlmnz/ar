@@ -54,7 +54,7 @@
 }
 
 .gate-error {
-  color: #b3261e;
+  color: var(--error-text);
   font-size: 14px;
 }
 
@@ -206,8 +206,22 @@
 }
 
 .studio-notice--error {
-  border-color: #b3261e;
-  color: #b3261e;
+  border-color: color-mix(in srgb, var(--error) 35%, var(--border));
+  background: var(--error-soft);
+  color: var(--error-text);
+}
+
+.studio-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 .studio-hint {
@@ -339,8 +353,9 @@
 }
 
 .studio-new input:focus {
-  outline: none;
-  border-bottom-color: var(--text);
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-bottom-color: var(--accent);
 }
 
 .studio-doc {
@@ -616,7 +631,7 @@
 }
 
 .studio-publish .studio-menu__panel .studio-publish__danger {
-  color: #b3261e;
+  color: var(--error-text);
   font-weight: 600;
 }
 
@@ -637,7 +652,7 @@
 }
 
 .studio-status--error {
-  color: #b3261e;
+  color: var(--error-text);
 }
 
 .studio-link {
@@ -671,6 +686,15 @@
 .studio-subtitle,
 .studio-doc .page-header__type {
   outline: none;
+  caret-color: var(--accent);
+}
+
+.studio-title:focus-visible,
+.studio-subtitle:focus-visible,
+.studio-doc .page-header__type:focus-visible,
+.studio-figure figcaption:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .studio-title[data-empty="true"]::before,
@@ -683,6 +707,7 @@
 
 .studio-doc .ProseMirror {
   outline: none;
+  caret-color: var(--accent);
   min-height: 46vh;
 }
 
@@ -836,7 +861,7 @@
 }
 
 .ProseMirror-selectednode {
-  outline: 1px solid var(--border);
+  outline: 2px solid var(--accent);
   outline-offset: 4px;
 }
 

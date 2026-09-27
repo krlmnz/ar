@@ -108,23 +108,23 @@ function pngSize(buf) {
 function jpegSize(buf) {
   if (buf.length < 4 || buf[0] !== 0xff || buf[1] !== 0xd8) return null;
   let i = 2;
-  while (i + 9 < buf.length) {
-    if (buf[i] !== 0xff) {
-      i += 1;
-      continue;
-    }
-    const marker = buf[i + 1];
-    if (marker === 0xd8 || marker === 0xd9) {
-      i += 2;
-      continue;
-    }
-    if (i + 4 > buf.length) return null;
-    const len = buf.readUInt16BE(i + 2);
+  while (i + 1 < buf.length) {
+    if (buf[i] !== 0xff) return null;
+    while (i < buf.length && buf[i] === 0xff) i += 1;
+    if (i >= buf.length) return null;
+    const marker = buf[i];
+    i += 1;
+    if (marker === 0x00 || marker === 0x01 || marker === 0xd8 || marker === 0xd9 || (marker >= 0xd0 && marker <= 0xd7)) continue;
+    if (i + 2 > buf.length) return null;
+    const len = buf.readUInt16BE(i);
+    if (len < 2 || i + len > buf.length) return null;
     const sof = marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc;
     if (sof) {
-      return { width: buf.readUInt16BE(i + 7), height: buf.readUInt16BE(i + 5), animated: false };
+      if (i + 7 > buf.length) return null;
+      return { width: buf.readUInt16BE(i + 5), height: buf.readUInt16BE(i + 3), animated: false };
     }
-    i += 2 + len;
+    if (marker === 0xda) return null;
+    i += len;
   }
   return null;
 }
@@ -349,7 +349,61 @@ async function serveMedia(event) {
   }
 }
 
+function headerValue(event, name) {
+  const headers = event.headers || {};
+  const found = Object.keys(headers).find((key) => key.toLowerCase() === name);
+  return found ? String(headers[found]) : "";
+}
+
+function bodyBuffer(event) {
+  const raw = event.body == null ? "" : String(event.body);
+  if (event.isBase64Encoded) return Buffer.from(raw, "base64");
+  return Buffer.from(raw, "latin1");
+}
+
+function bodyText(event) {
+  const raw = event.body == null ? "" : String(event.body);
+  if (event.isBase64Encoded) return Buffer.from(raw, "base64").toString("utf8");
+  return raw;
+}
+
+function isImagePost(event) {
+  const type = headerValue(event, "content-type").split(";")[0].trim().toLowerCase();
+  return type.startsWith("image/");
+}
+
+/* A 5 MB file base64-wrapped in JSON is about 6.7 MB. Netlify rejects
+ * synchronous payloads over 6 MB before this function runs, and the
+ * editor used to show that as "Could not save." An image Content-Type
+ * means the body is the file itself, so a full-size JPEG still fits. */
+function imageUpload(event) {
+  const type = headerValue(event, "content-type").split(";")[0].trim().toLowerCase();
+  if (!type.startsWith("image/")) return null;
+  const ext = IMAGE_TYPES[type];
+  if (!ext) return { error: "Use a JPEG, PNG, WebP, or an SVG diagram." };
+  const bytes = bodyBuffer(event);
+  if (!bytes.length) return { error: "That image was empty." };
+  const problem = imageProblem(bytes, ext);
+  if (problem) return { error: problem };
+  if (ext === "svg") {
+    return { ext: ext, bytes: Buffer.from(sanitizeSvg(bytes.toString("utf8")), "utf8"), contentType: EXT_TYPES[ext] };
+  }
+  return { ext: ext, bytes: bytes, contentType: EXT_TYPES[ext] };
+}
+
+async function putImage(store, bytes, ext, contentType) {
+  const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  const name = id + "." + ext;
+  const key = "media/studio/" + name;
+  await store.set(key, bytes, { metadata: { contentType: contentType } });
+  try {
+    await githubWriteBytes(key, bytes, "content: add image " + name);
+  } catch (e) { /* blob is enough until the next build copies it */ }
+  return { url: "/media/studio/" + name, path: key };
+}
+
 exports.imageProblem = imageProblem;
+exports.imageUpload = imageUpload;
 
 exports.handler = async function (event) {
   if (event.httpMethod === "OPTIONS") return json(204, {});
@@ -357,11 +411,13 @@ exports.handler = async function (event) {
   if (event.httpMethod !== "POST") return json(405, { error: "POST only." });
   if (!unlocked(event)) return json(401, { error: "Enter the studio code first." });
 
-  let body;
-  try {
-    body = JSON.parse(event.body || "{}");
-  } catch (e) {
-    return json(400, { error: "Could not read that request." });
+  let body = null;
+  if (!isImagePost(event)) {
+    try {
+      body = JSON.parse(bodyText(event) || "{}");
+    } catch (e) {
+      return json(400, { error: "Could not read that request." });
+    }
   }
 
   let store;
@@ -372,6 +428,12 @@ exports.handler = async function (event) {
   }
 
   try {
+    if (isImagePost(event)) {
+      const upload = imageUpload(event);
+      if (upload.error) return json(400, { error: upload.error });
+      return json(200, await putImage(store, upload.bytes, upload.ext, upload.contentType));
+    }
+
     if (body.action === "list") {
       const listed = await store.list();
       const pages = [];
@@ -443,17 +505,8 @@ exports.handler = async function (event) {
       if (!bytes.length) return json(400, { error: "That image was empty." });
       const problem = imageProblem(bytes, ext);
       if (problem) return json(400, { error: problem });
-      if (ext === "svg") {
-        bytes = Buffer.from(sanitizeSvg(bytes.toString("utf8")), "utf8");
-      }
-      const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-      const name = id + "." + ext;
-      const key = "media/studio/" + name;
-      await store.set(key, bytes, { metadata: { contentType: EXT_TYPES[ext] } });
-      try {
-        await githubWriteBytes(key, bytes, "content: add image " + name);
-      } catch (e) { /* blob is enough until the next build copies it */ }
-      return json(200, { url: "/media/studio/" + name, path: key });
+      if (ext === "svg") bytes = Buffer.from(sanitizeSvg(bytes.toString("utf8")), "utf8");
+      return json(200, await putImage(store, bytes, ext, EXT_TYPES[ext]));
     }
 
     if (body.action === "write") {

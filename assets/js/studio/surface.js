@@ -33,14 +33,27 @@ const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const MAX_IMAGE_EDGE = 4096;
 const WARN_IMAGE_EDGE = 2400;
 
-function fileType(file) {
-  let type = (file && file.type ? file.type : '').toLowerCase();
+const EXT_TYPES = {
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
+  svg: 'image/svg+xml',
+  gif: 'image/gif',
+  avif: 'image/avif'
+};
+
+export function fileType(file) {
+  let type = (file && file.type ? file.type : '').toLowerCase().split(';')[0].trim();
   if (type === 'image/jpg') type = 'image/jpeg';
-  if (!type && file && /\.svg$/i.test(file.name || '')) type = 'image/svg+xml';
+  const known = type === 'image/jpeg' || type === 'image/png' || type === 'image/webp' || type === 'image/svg+xml' || type === 'image/gif' || type === 'image/avif';
+  if (known) return type;
+  const match = String((file && file.name) || '').toLowerCase().match(/\.([a-z0-9]+)$/);
+  if (match && EXT_TYPES[match[1]]) return EXT_TYPES[match[1]];
   return type;
 }
 
-function imageFiles(list) {
+export function imageFiles(list) {
   return [...(list || [])].filter((file) => {
     if (!file) return false;
     const type = fileType(file);

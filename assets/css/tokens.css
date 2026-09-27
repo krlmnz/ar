@@ -67,6 +67,7 @@
   --accent-wash: color-mix(in srgb, var(--accent) 7%, transparent);
   --on-accent: #ffffff;
   --highlight: #fff176;
+  --highlight-text: var(--text);
   --dot: rgba(0, 0, 0, .08);
 
   /* Effects and interaction. */
@@ -160,6 +161,13 @@ html[data-theme="night"] {
   --accent-text: #86ddff;
   --accent-soft: #0a3247;
   --highlight: #b7ff7a;
+  --highlight-text: #111416;
+  /* component-kit [data-theme="dark"] status colors. */
+  --success-text: #14AA75;
+  --warn-text: #F89B17;
+  --error: #DA3540;
+  --error-text: #FF8B91;
+  --error-soft: #3A1E20;
   --dot: rgba(150, 210, 255, .12);
   --shadow: 0 1px 3px rgba(0, 0, 0, .32), 0 4px 16px rgba(0, 0, 0, .28);
   --shadow-pop: 0 8px 32px rgba(0, 0, 0, .48), 0 2px 8px rgba(0, 0, 0, .28);
@@ -200,6 +208,13 @@ html[data-theme="signal"] {
   --accent-text: #63d5ff;
   --accent-soft: #082b39;
   --highlight: #b6ff2f;
+  --highlight-text: #111416;
+  /* component-kit [data-theme="dark"] status colors. */
+  --success-text: #14AA75;
+  --warn-text: #F89B17;
+  --error: #DA3540;
+  --error-text: #FF8B91;
+  --error-soft: #3A1E20;
   --dot: rgba(53, 201, 255, .12);
   --shadow: 0 1px 3px rgba(0, 0, 0, .38), 0 4px 16px rgba(0, 0, 0, .38);
   --shadow-pop: 0 8px 32px rgba(0, 0, 0, .58), 0 2px 8px rgba(0, 0, 0, .34);
@@ -220,6 +235,11 @@ html[data-theme="news"] {
   --accent-text: #202020;
   --accent-soft: #d0d0cb;
   --highlight: #fff7b0;
+  /* News paper is darker than the kit light surface, so these text
+     colors are the kit hues stepped down until they clear 4.5:1 on --bg. */
+  --success-text: #0C6845;
+  --warn-text: #8A4C02;
+  --error-text: #A32032;
   --dot: rgba(0, 0, 0, .05);
   --shadow-print: 6px 6px 0 rgba(0, 0, 0, .09);
 }
