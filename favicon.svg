@@ -1,0 +1,14 @@
+<svg width="41" height="40" viewBox="0 0 41 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <mask id="andeanLogoMask" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="41" height="40">
+    <path d="M20.1702 0H20.0001C8.95435 0 0 8.95433 0 20C0 31.0458 8.95435 40.0001 20.0001 40.0001H20.1702C31.2159 40.0001 40.1703 31.0458 40.1703 20C40.1703 8.95433 31.2159 0 20.1702 0Z" fill="white"/>
+  </mask>
+  <g mask="url(#andeanLogoMask)">
+    <path d="M40.1697 0H0V40H40.1697V0Z" fill="black" fill-opacity="0.86"/>
+    <path d="M40 0H0V40H40V0Z" fill="#FCFCFC" fill-opacity="0.32"/>
+    <path d="M20.2268 11.6548C18.2097 11.6548 3.9043 28.7411 3.9043 28.7411H20.2268H36.5493C36.5493 28.7411 22.2439 11.6548 20.2268 11.6548Z" fill="white"/>
+    <path d="M40.1697 28.7412H0V40H40.1697V28.7412Z" fill="#7C7C7C"/>
+    <path d="M40.1697 28.7412H0V40H40.1697V28.7412Z" fill="black" fill-opacity="0.58"/>
+    <path d="M0.0283203 33.2109V40.0002H16.4711H29.633L40 40.0001L36.3279 38.5009L0.0283203 33.2109Z" fill="#595959" fill-opacity="0.58"/>
+    <path d="M26.3193 35.2299L11.0176 39.9871H40.1586V39.9999H40.1703V39.5673V30.3252L26.3193 35.2299Z" fill="black" fill-opacity="0.58"/>
+  </g>
+</svg>

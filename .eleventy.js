@@ -282,6 +282,8 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy('assets/');
   eleventyConfig.addPassthroughCopy('media/studio');
   eleventyConfig.addPassthroughCopy('robots.txt');
+  eleventyConfig.addPassthroughCopy('favicon.ico');
+  eleventyConfig.addPassthroughCopy('favicon.svg');
 
   // Internal docs and scaffolds. Input is the repo root, so a markdown file
   // here would otherwise publish (this is how /WRITING/ and /_starters/ leaked).
