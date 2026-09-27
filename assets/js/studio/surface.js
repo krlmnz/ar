@@ -8,6 +8,7 @@ import { StudioHeading } from './heading.js';
 import { StudioParagraph } from './paragraph.js';
 import { StudioCode } from './code-block.js';
 import { Figure } from './figure.js';
+import { MapEmbed } from './map.js';
 import { HtmlBlock } from './html-block.js';
 import { StudioSuperscript, StudioSubscript } from './scripts.js';
 
@@ -124,6 +125,7 @@ export function mountEditor(element, hooks) {
       }),
       StudioCode,
       Figure,
+      MapEmbed,
       HtmlBlock,
       Placeholder.configure({ placeholder: 'Start writing…' }),
       StudioMarkdown
@@ -278,9 +280,14 @@ export function mountEditor(element, hooks) {
     }
   }
 
+  function insertMap() {
+    editor.chain().focus().insertMap().run();
+  }
+
   return {
     editor,
     insertFiles,
+    insertMap,
     setMarkdown,
     getMarkdown,
     persistLocalImages,

@@ -66,6 +66,17 @@ seo:
               <span class="sr-only">Kind</span>
               <select id="doc-kind" aria-label="Page kind"></select>
             </label>
+            <label class="studio-theme">
+              <span class="sr-only">Theme</span>
+              <select id="studio-theme" aria-label="Theme">
+                <option value="light">Light / Minimal</option>
+                <option value="night">Night Sky</option>
+                <option value="note">Warm Note</option>
+                <option value="signal">Signal Hacker</option>
+                <option value="news">Grey Newspaper</option>
+                <option value="draft">Drafting Grid</option>
+              </select>
+            </label>
             <p class="studio-status" id="save-status" aria-live="polite"></p>
             <div class="studio-actions">
               <a class="studio-preview" id="preview-link" href="/editor/draft/" aria-label="Preview">{% icon "eye", size=16 %}<span aria-hidden="true">Preview</span></a>
@@ -130,6 +141,10 @@ seo:
               <button type="button" class="icon-btn icon-btn--touch" data-cmd="alignCenter" aria-label="Align center" aria-pressed="false">{% icon "text-align-center", size=16 %}</button>
               <button type="button" class="icon-btn icon-btn--touch" data-cmd="alignRight" aria-label="Align right" aria-pressed="false">{% icon "text-align-right", size=16 %}</button>
               <button type="button" class="icon-btn icon-btn--touch" data-cmd="alignJustify" aria-label="Justify" aria-pressed="false">{% icon "text-align-justify", size=16 %}</button>
+            </div>
+            <span class="studio-toolbar__sep" aria-hidden="true"></span>
+            <div class="studio-toolbar__group">
+              <button type="button" class="icon-btn icon-btn--touch" data-cmd="map" aria-label="Map">{% icon "map-trifold", size=16 %}</button>
             </div>
             <span class="studio-toolbar__sep" aria-hidden="true"></span>
             <div class="studio-menu studio-add" data-menu="add">

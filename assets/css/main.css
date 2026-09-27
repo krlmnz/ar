@@ -473,6 +473,19 @@ blockquote.callout p {
   max-width: none;
 }
 
+.prose .map-viewport {
+  margin: var(--space-3) 0;
+}
+
+.prose .map-viewport[data-layout="center"] {
+  max-width: 38rem;
+  margin-inline: auto;
+}
+
+.prose .map-viewport[data-layout="full"] {
+  max-width: none;
+}
+
 /* ======================== */
 /* Hero section */
 /* ======================== */

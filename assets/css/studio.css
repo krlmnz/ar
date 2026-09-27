@@ -438,8 +438,6 @@
 #studio .field--invalid .textarea:focus,
 #studio .field--invalid .textarea:focus-visible {
   border-color: var(--error);
-  outline: var(--error-outline);
-  outline-offset: var(--space-0125);
   box-shadow: var(--error-ring);
 }
 
@@ -651,7 +649,8 @@
   min-width: 11rem;
 }
 
-.studio-kind select {
+.studio-kind select,
+.studio-theme select {
   padding: 6px 8px;
   font: 600 var(--text-ui)/1 var(--font-ui);
   color: var(--text);
@@ -823,8 +822,15 @@
 
 .studio-figure.is-selected .studio-figure__tools,
 .studio-figure:focus-within .studio-figure__tools,
-.ProseMirror-selectednode.studio-figure .studio-figure__tools {
+.ProseMirror-selectednode.studio-figure .studio-figure__tools,
+.studio-map.is-selected .studio-figure__tools,
+.studio-map:focus-within .studio-figure__tools,
+.ProseMirror-selectednode.studio-map .studio-figure__tools {
   display: flex;
+}
+
+.studio-map {
+  margin: var(--space-3) 0;
 }
 
 .studio-figure__alt {
@@ -987,7 +993,8 @@
     min-height: var(--control-height-touch);
   }
 
-  .studio-kind select {
+  .studio-kind select,
+  .studio-theme select {
     max-width: 6.5rem;
     min-height: var(--control-height-touch);
   }
