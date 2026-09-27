@@ -637,6 +637,81 @@ function syncDocbarHeight() {
   document.documentElement.style.setProperty('--studio-docbar-h', bar.offsetHeight + 'px');
 }
 
+let appliedClearance = 0;
+let revealQueued = false;
+
+function barClearance() {
+  const bar = document.querySelector('.studio-docbar');
+  if (!bar) return 0;
+  return Math.ceil(bar.getBoundingClientRect().bottom) + 16;
+}
+
+function syncCaretClearance() {
+  const studio = $('studio');
+  const composing = !!(studio && studio.classList.contains('is-composing'));
+  const root = document.documentElement;
+  if (!composing) {
+    root.style.removeProperty('scroll-padding-top');
+    root.style.removeProperty('scroll-padding-bottom');
+    if (appliedClearance && surface && surface.editor) {
+      surface.editor.view.setProps({ scrollThreshold: 0, scrollMargin: 5 });
+    }
+    appliedClearance = 0;
+    return;
+  }
+  syncDocbarHeight();
+  const px = barClearance();
+  root.style.scrollPaddingTop = px + 'px';
+  root.style.scrollPaddingBottom = '16px';
+  if (surface && surface.editor && px !== appliedClearance) {
+    appliedClearance = px;
+    surface.editor.view.setProps({
+      scrollThreshold: { top: px, bottom: 16, left: 0, right: 0 },
+      scrollMargin: { top: px, bottom: 20, left: 0, right: 0 }
+    });
+  }
+}
+
+function caretRect(active) {
+  const sel = window.getSelection();
+  if (sel && sel.rangeCount && active && active.contains(sel.anchorNode)) {
+    const range = sel.getRangeAt(0);
+    const rects = range.getClientRects();
+    const rect = rects.length ? rects[rects.length - 1] : range.getBoundingClientRect();
+    if (rect && rect.height) return rect;
+  }
+  if (active && active.getBoundingClientRect) return active.getBoundingClientRect();
+  return null;
+}
+
+function revealCaret() {
+  const studio = $('studio');
+  if (!studio || !studio.classList.contains('is-composing')) return;
+  syncCaretClearance();
+  const active = document.activeElement;
+  if (active && active.closest && active.closest('#doc-body') && surface && surface.editor) {
+    surface.editor.commands.scrollIntoView();
+    return;
+  }
+  if (!active || active.id === 'doc-markdown') return;
+  const rect = caretRect(active);
+  if (!rect || !rect.height) return;
+  const clear = barClearance();
+  const vv = window.visualViewport;
+  const bottomLimit = (vv ? vv.height : window.innerHeight) - 16;
+  if (rect.top < clear) window.scrollBy(0, rect.top - clear);
+  else if (rect.bottom > bottomLimit) window.scrollBy(0, rect.bottom - bottomLimit);
+}
+
+function queueRevealCaret() {
+  if (revealQueued) return;
+  revealQueued = true;
+  window.requestAnimationFrame(() => {
+    revealQueued = false;
+    revealCaret();
+  });
+}
+
 function syncComposing() {
   const studio = $('studio');
   const editing = $('view-edit') && !$('view-edit').hidden;
@@ -645,6 +720,7 @@ function syncComposing() {
     studio.classList.remove('is-composing');
     document.documentElement.style.removeProperty('--studio-stick');
     document.documentElement.style.removeProperty('--studio-docbar-h');
+    syncCaretClearance();
     if (liftedPanels.size) closeMenus();
     return;
   }
@@ -653,13 +729,11 @@ function syncComposing() {
   const keyboard = !!(vv && window.innerHeight - vv.height > 120);
   const composing = focused || keyboard;
   studio.classList.toggle('is-composing', composing);
-  if (composing && vv) {
-    document.documentElement.style.setProperty('--studio-stick', vv.offsetTop + 'px');
-    syncDocbarHeight();
-  } else {
-    document.documentElement.style.removeProperty('--studio-stick');
-    document.documentElement.style.removeProperty('--studio-docbar-h');
-  }
+  if (composing && vv) document.documentElement.style.setProperty('--studio-stick', vv.offsetTop + 'px');
+  else document.documentElement.style.removeProperty('--studio-stick');
+  if (!composing) document.documentElement.style.removeProperty('--studio-docbar-h');
+  syncCaretClearance();
+  if (composing) queueRevealCaret();
 }
 
 function placeToolbarMenu(menu) {
@@ -1006,11 +1080,26 @@ function init() {
       repositionLiftedMenus();
     });
   }
-  window.addEventListener('resize', syncComposing);
+  window.addEventListener('resize', () => {
+    syncComposing();
+    if ($('studio').classList.contains('is-composing')) queueRevealCaret();
+  });
+  document.addEventListener('selectionchange', () => {
+    const studio = $('studio');
+    if (!studio || !studio.classList.contains('is-composing')) return;
+    const active = document.activeElement;
+    if (!active || !active.closest) return;
+    if (active.closest('#doc-body') || active.id === 'doc-markdown') return;
+    if (!inWritingField(active)) return;
+    queueRevealCaret();
+  });
   const docbar = document.querySelector('.studio-docbar');
   if (docbar && window.ResizeObserver) {
     new ResizeObserver(() => {
-      if ($('studio').classList.contains('is-composing')) syncDocbarHeight();
+      if (!$('studio').classList.contains('is-composing')) return;
+      const before = appliedClearance;
+      syncCaretClearance();
+      if (appliedClearance !== before) queueRevealCaret();
     }).observe(docbar);
   }
   document.querySelectorAll('.studio-toolbar [data-cmd]').forEach((button) => {

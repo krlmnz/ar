@@ -1029,6 +1029,10 @@
     width: min(16.5rem, calc(100vw - 16px));
   }
 
+  html:has(#studio.studio--writing.is-composing) {
+    scroll-behavior: auto;
+  }
+
   body:has(#studio.studio--writing.is-composing) .site-header,
   body:has(#studio.studio--writing.is-composing) .site-footer {
     display: none;
@@ -1093,12 +1097,6 @@
 
   .studio--writing.is-composing .studio-publish .primary {
     padding-inline: 12px;
-  }
-
-  .studio--writing.is-composing .page-header,
-  .studio--writing.is-composing .prose,
-  .studio--writing.is-composing .studio-markdown {
-    scroll-margin-top: calc(var(--studio-docbar-h, 104px) + 8px);
   }
 }
 
