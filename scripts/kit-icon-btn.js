@@ -2,19 +2,22 @@
    The kit is not an npm package, and that file is a full page stylesheet
    (reset, fonts, and its own --bg/--text), so the build keeps the atoms
    Studio uses: icon buttons, status tokens, alert, field, toast, danger,
-   selection, and the kit :focus-visible rule. Night and signal are this
-   site's dark themes; they reuse the kit [data-theme="dark"] status tokens
-   verbatim.
-   Pinned to component-kit PR #10 (cursor/status-focus-tokens-63a0) until
-   that lands on kit main. --focus-ring and --selected-ring stay this
-   site's tokens: published chrome already uses them, and Studio shell
-   focus is quieted in studio.css rather than framed by :focus-visible. */
+   the kit :focus-visible rule, and the quiet .map-viewport.
+   Pinned to component-kit PR #13 (cursor/studio-writer-themes-80a8) until
+   that lands on kit main. That tip predates the status-focus token names
+   from kit #10, so this extract follows the tokens that file actually
+   defines. --focus-ring stays scoped to #studio. Published chrome keeps
+   this site's ring. Studio shell focus is quieted in studio.css.
+   map-style.js is fetched from the same commit and is not a second pin. */
 const fs = require('fs');
 const path = require('path');
 
-const KIT_COMMIT = 'ca353121fcd90087e561c218a11b86bc9a8b648d';
-const KIT_URL = 'https://raw.githubusercontent.com/krlmnz/component-kit/' + KIT_COMMIT + '/src/global.css';
+const KIT_COMMIT = '09d6a82fa05c2007e3b223e5d9eb0539e079ac86';
+const KIT_ROOT = 'https://raw.githubusercontent.com/krlmnz/component-kit/' + KIT_COMMIT;
+const KIT_URL = KIT_ROOT + '/src/global.css';
+const MAP_STYLE_URL = KIT_ROOT + '/map-style.js';
 const OUT = path.join(__dirname, '..', 'assets/css/component-kit-icon-btn.css');
+const MAP_STYLE_OUT = path.join(__dirname, '..', 'assets/js/kit-map-style.js');
 
 const TOKENS = [
   '--icon-btn-size',
@@ -32,42 +35,51 @@ const TOKENS = [
   '--error',
   '--error-text',
   '--error-soft',
-  '--error-wash',
   '--info',
   '--info-text',
   '--info-soft',
   '--info-wash',
-  '--info-border',
-  '--success-border',
-  '--warn-border',
-  '--error-border',
-  '--focus-color',
-  '--focus-outline',
-  '--error-outline',
-  '--error-ring',
-  '--selection-bg',
-  '--selection-text'
+  '--error-ring'
 ];
 
-/* Kit geometry for this name differs from the site ring. Keep the kit
-   value inside Studio; published chrome keeps tokens.css. */
-const STUDIO_TOKENS = [
-  '--focus-ring'
+const MAP_TOKENS = [
+  '--map-land',
+  '--map-water',
+  '--map-park',
+  '--map-wood',
+  '--map-beach',
+  '--map-scrub',
+  '--map-glacier',
+  '--map-road',
+  '--map-road-casing',
+  '--map-building',
+  '--map-hillshade',
+  '--map-hillshade-opacity',
+  '--map-label'
 ];
 
-const DARK_TOKENS = [
+const THEME_STATUS = [
   '--success',
   '--success-text',
+  '--success-soft',
   '--warn',
   '--warn-text',
+  '--warn-soft',
   '--error',
   '--error-text',
   '--error-soft',
   '--info',
   '--info-text',
   '--info-soft',
-  '--info-wash',
-  '--focus-color'
+  '--info-wash'
+];
+
+const THEME_IDS = ['night', 'note', 'signal', 'news', 'draft'];
+
+/* Kit geometry for this name differs from the site ring. Keep the kit
+   value inside Studio; published chrome keeps tokens.css. */
+const STUDIO_TOKENS = [
+  '--focus-ring'
 ];
 
 const SELECTORS = [
@@ -131,8 +143,17 @@ const SELECTORS = [
   '.tile--selected',
   '.visually-hidden',
   ':focus-visible',
-  '::selection',
-  '::-moz-selection'
+  '.map-viewport',
+  '.map-viewport:fullscreen',
+  '.map-viewport__canvas',
+  '.map-viewport .maplibregl-map',
+  '.map-viewport .maplibregl-ctrl-logo',
+  '.map-viewport .maplibregl-ctrl-group',
+  '.map-viewport .maplibregl-ctrl-attrib',
+  '.map-viewport .maplibregl-ctrl-attrib a',
+  '.map-viewport .maplibregl-ctrl-attrib.maplibregl-compact',
+  '.map-viewport .maplibregl-ctrl-attrib.maplibregl-compact .maplibregl-ctrl-attrib-inner',
+  '.map-viewport .maplibregl-ctrl-attrib.maplibregl-compact .maplibregl-ctrl-attrib-button'
 ];
 
 function stripComments(css) {
@@ -181,15 +202,25 @@ function tokenDecls(body, names) {
   });
 }
 
+function presentDecls(body, names) {
+  const found = names.filter((name) => new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*:').test(body));
+  return found.length ? tokenDecls(body, found) : [];
+}
+
+function themeRule(blocks, id) {
+  const block = blocks.find((item) => item.selector === '[data-theme="' + id + '"]');
+  if (!block) throw new Error('component-kit global.css has no [data-theme="' + id + '"]');
+  const decls = tokenDecls(block.body, MAP_TOKENS).concat(presentDecls(block.body, THEME_STATUS));
+  return 'html[data-theme="' + id + '"] {\n  ' + decls.join('\n  ') + '\n}';
+}
+
 function extract(css) {
   const blocks = topLevelBlocks(stripComments(css));
   const root = blocks.find((block) => block.selector === ':root');
-  const dark = blocks.find((block) => block.selector === '[data-theme="dark"]');
   if (!root) throw new Error('component-kit global.css has no :root');
-  if (!dark) throw new Error('component-kit global.css has no [data-theme="dark"]');
-  const tokens = tokenDecls(root.body, TOKENS);
+  const tokens = tokenDecls(root.body, TOKENS.concat(MAP_TOKENS));
   const studioTokens = tokenDecls(root.body, STUDIO_TOKENS);
-  const darkTokens = tokenDecls(dark.body, DARK_TOKENS);
+  const themeRules = THEME_IDS.map((id) => themeRule(blocks, id));
   const wanted = new Set(SELECTORS);
   const rules = [];
   const seen = new Set();
@@ -206,7 +237,7 @@ function extract(css) {
   return [
     ':root {\n  ' + tokens.join('\n  ') + '\n}',
     '#studio {\n  ' + studioTokens.join('\n  ') + '\n}',
-    '[data-theme="dark"],\nhtml[data-theme="night"],\nhtml[data-theme="signal"] {\n  ' + darkTokens.join('\n  ') + '\n}',
+    themeRules.join('\n\n'),
     rules.join('\n\n')
   ].join('\n\n') + '\n';
 }
@@ -218,12 +249,23 @@ function write(css) {
   }
 }
 
+function writeStyle(source) {
+  if (!source.includes('KitMapStyle')) throw new Error('component-kit map-style.js did not include KitMapStyle');
+  if (!fs.existsSync(MAP_STYLE_OUT) || fs.readFileSync(MAP_STYLE_OUT, 'utf8') !== source) {
+    fs.writeFileSync(MAP_STYLE_OUT, source);
+  }
+}
+
 async function fetchKit() {
   const response = await fetch(KIT_URL);
   if (!response.ok) throw new Error('Could not read component-kit (' + response.status + ')');
   const css = await response.text();
   if (!css.includes('.icon-btn--touch')) throw new Error('component-kit global.css did not include .icon-btn--touch');
+  if (!css.includes('.map-viewport')) throw new Error('component-kit global.css did not include .map-viewport');
   write(css);
+  const style = await fetch(MAP_STYLE_URL);
+  if (!style.ok) throw new Error('Could not read component-kit map-style.js (' + style.status + ')');
+  writeStyle(await style.text());
 }
 
 if (require.main === module) {
@@ -233,4 +275,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { extract, KIT_COMMIT, KIT_URL, OUT };
+module.exports = { extract, KIT_COMMIT, KIT_URL, MAP_STYLE_URL, OUT, MAP_STYLE_OUT };

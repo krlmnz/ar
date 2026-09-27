@@ -889,6 +889,7 @@ function runCommand(cmd) {
   else if (cmd === 'redo') chain.redo().run();
   else if (cmd === 'link') toggleLink();
   else if (cmd === 'image') $('image-file').click();
+  else if (cmd === 'map') surface.insertMap();
   syncToolbar();
 }
 
@@ -960,8 +961,40 @@ function setMarkdownMode(on) {
   syncToolbar();
 }
 
+const STUDIO_THEMES = ['light', 'night', 'note', 'signal', 'news', 'draft'];
+
+function syncStudioTheme() {
+  const select = $('studio-theme');
+  if (!select) return;
+  const current = document.documentElement.dataset.theme || 'light';
+  const next = STUDIO_THEMES.indexOf(current) === -1 ? 'light' : current;
+  if (select.value !== next) select.value = next;
+}
+
+function bindStudioTheme() {
+  const select = $('studio-theme');
+  if (!select) return;
+  syncStudioTheme();
+  select.addEventListener('change', () => {
+    const id = STUDIO_THEMES.indexOf(select.value) === -1 ? 'light' : select.value;
+    const site = document.getElementById('theme');
+    if (site) {
+      site.value = id;
+      site.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
+    document.documentElement.dataset.theme = id;
+    localStorage.setItem('roadtrip-theme', id);
+  });
+  new MutationObserver(syncStudioTheme).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme']
+  });
+}
+
 function init() {
   if (!$('studio')) return;
+  bindStudioTheme();
 
   if (unlocked()) $('app').hidden = false;
   else $('gate-screen').hidden = false;
