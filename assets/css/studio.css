@@ -330,10 +330,6 @@
   border-bottom: 1px solid var(--border);
 }
 
-.studio-new input:focus {
-  border-bottom-color: var(--text);
-}
-
 .studio-doc {
   width: min(100%, 52rem);
   min-width: 0;
@@ -395,6 +391,54 @@
 .icon-btn:disabled:hover {
   color: var(--text-2);
   background: transparent;
+}
+
+/* The shell stays quiet when focused. A frame around the writing
+   surface or a toolbar button gets in the way of the page. The caret
+   marks the text. Keyboard focus on a control reuses the pressed fill. */
+#studio :focus,
+#studio :focus-visible {
+  outline: none;
+}
+
+#studio button:focus-visible,
+#studio a:focus-visible,
+#studio summary:focus-visible {
+  box-shadow: none;
+}
+
+#studio .icon-btn:focus-visible,
+#studio .studio-bar button:focus-visible:not([aria-pressed="true"]),
+#studio .studio-preview:focus-visible,
+#studio .studio-back:focus-visible {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+#studio .input:focus,
+#studio .select:focus,
+#studio .textarea:focus,
+#studio .input:focus-visible,
+#studio .select:focus-visible,
+#studio .textarea:focus-visible {
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+#studio .field--invalid .input,
+#studio .field--invalid .select,
+#studio .field--invalid .textarea {
+  border-color: var(--error);
+}
+
+#studio .field--invalid .input:focus,
+#studio .field--invalid .input:focus-visible,
+#studio .field--invalid .select:focus,
+#studio .field--invalid .select:focus-visible,
+#studio .field--invalid .textarea:focus,
+#studio .field--invalid .textarea:focus-visible {
+  border-color: var(--error);
+  box-shadow: var(--error-ring);
 }
 
 .studio-toolbar__sep {
