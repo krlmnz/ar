@@ -627,7 +627,7 @@ function phoneWriting() {
 }
 
 function inWritingField(node) {
-  return !!(node && node.closest && node.closest('#doc-title, #doc-subtitle, #doc-series, #doc-body, #doc-markdown, #link-form, .studio-docbar'));
+  return !!(node && node.closest && node.closest('#doc-title, #doc-subtitle, #doc-series, #doc-body, #doc-markdown, #link-form, .studio-docbar, .studio-menu__panel'));
 }
 
 function syncDocbarHeight() {
@@ -1143,7 +1143,15 @@ function init() {
     button.addEventListener('click', () => runCommand(button.getAttribute('data-cmd')));
   });
   document.querySelectorAll('.studio-menu__trigger').forEach((trigger) => {
-    trigger.addEventListener('click', () => toggleMenu(trigger.closest('.studio-menu')));
+    trigger.addEventListener('click', (event) => {
+      const menu = trigger.closest('.studio-menu');
+      toggleMenu(menu);
+      if (event.detail !== 0) return;
+      const panel = menuPanel(menu);
+      if (!panel || panel.hidden) return;
+      const first = panel.querySelector('button:not([disabled])');
+      if (first) first.focus();
+    });
   });
   document.addEventListener('click', (event) => {
     const target = event.target;
@@ -1181,8 +1189,21 @@ function init() {
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
+      const panel = document.querySelector('.studio-menu__panel:not([hidden])');
+      let trigger = null;
+      if (panel) {
+        const host = panel.closest('.studio-menu');
+        if (host) trigger = host.querySelector('.studio-menu__trigger');
+        else {
+          document.querySelectorAll('.studio-menu').forEach((menu) => {
+            if (!trigger && menuPanel(menu) === panel) trigger = menu.querySelector('.studio-menu__trigger');
+          });
+        }
+      }
+      const returnFocus = trigger && panel && panel.contains(document.activeElement);
       closeMenus();
       closeLinkForm();
+      if (returnFocus) trigger.focus();
     }
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') {
       event.preventDefault();
