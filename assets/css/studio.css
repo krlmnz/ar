@@ -410,7 +410,16 @@
 #studio .icon-btn:focus-visible,
 #studio .studio-bar button:focus-visible:not([aria-pressed="true"]),
 #studio .studio-preview:focus-visible,
-#studio .studio-back:focus-visible {
+#studio .studio-back:focus-visible,
+#studio .studio-menu__panel button:focus-visible,
+#studio .studio-publish .primary:focus-visible,
+#studio .studio-publish__more:focus-visible {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+#studio .studio-kind select:focus-visible,
+#studio .studio-theme select:focus-visible {
   background: var(--surface-2);
   color: var(--text);
 }
@@ -573,8 +582,12 @@
 }
 
 .studio-back {
-  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-height-md);
+  padding: 0 8px;
   border: 0;
+  border-radius: var(--radius-sm);
   background: none;
   color: var(--text-2);
   font: 600 var(--text-ui)/1 var(--font-ui);
@@ -651,6 +664,7 @@
 
 .studio-kind select,
 .studio-theme select {
+  min-height: var(--control-height-md);
   padding: 6px 8px;
   font: 600 var(--text-ui)/1 var(--font-ui);
   color: var(--text);
@@ -1136,9 +1150,27 @@
   }
 }
 
-/* Wide screens that are not a coarse pointer use the compact icon button.
-   Phone widths and touch pointers keep .icon-btn--touch (44×44, 20px glyph). */
-@media (min-width: 721px) and (not (pointer: coarse)) {
+/* Phone and tablet keep a 44px hit target on the utility row and on menus.
+   Desktop compact icons start at 1025px. */
+@media (max-width: 1024px) {
+  .studio-back,
+  .studio-kind select,
+  .studio-theme select,
+  .studio-preview,
+  .studio-publish .primary,
+  .studio-publish__more,
+  .studio-menu__panel button {
+    min-height: var(--control-height-touch);
+  }
+
+  .studio-publish__more {
+    min-width: var(--control-height-touch);
+  }
+}
+
+/* Desktop fine pointers use the compact icon button.
+   Phone, tablet, and coarse pointers keep .icon-btn--touch (44×44, 20px glyph). */
+@media (min-width: 1025px) and (not (pointer: coarse)) {
   .studio-toolbar .icon-btn--touch,
   .studio-link .icon-btn--touch {
     width: var(--control-height-xs);
